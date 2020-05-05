@@ -159,8 +159,10 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                                         'serNameEnglish':serInfo['serNameEnglish'],
                                         'serNameHindi':serInfo['serNameHindi'],
                                         'serCharges':serInfo['serCharges'],
-                                        'serTADA':serInfo['serTADA'],
-                                        'serTotal':serInfo['serTotal'],
+                                        'serTA':serInfo['serTA'],
+                                        'serDA':serInfo['serDA'],
+                                        'serTATotal':serInfo['serTATotal'],
+                                        'serDATotal':serInfo['serDATotal'],
                                         'media':serInfo['media']
                                     }
                                 if len(v['media']):
@@ -318,25 +320,37 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                             if code != 4100:
                                 raise Exception
 
-                            serTADA = self.request.arguments.get('serTADA')
+                            serTA = self.request.arguments.get('serTA')
                             code, message = Validate.i(
-                                    serTADA,
-                                    'service TA/DA',
+                                    serTA,
+                                    'service TA',
                                     dataType=int,
                                     notEmpty=True,
                                 )
                             if code != 4100:
                                 raise Exception
 
-                            serTotal = serCharges + serTADA
+                            serDA = self.request.arguments.get('serDA')
+                            code, message = Validate.i(
+                                    serDA,
+                                    'service DA',
+                                    dataType=int,
+                                    notEmpty=True,
+                                )
+                            if code != 4100:
+                                raise Exception
+                            serTATotal = serCharges + serTA
+                            serDATotal = serCharges + serDA
 
                             serData = {
                                         'disabled': False,
                                         'serNameEnglish':serNameEnglish,
                                         'serNameHindi':serNameHindi,
                                         'serCharges':serCharges,
-                                        'serTADA':serTADA,
-                                        'serTotal':serTotal,
+                                        'serTA':serTA,
+                                        'serTATotal':serTATotal,
+                                        'serDA':serDA,
+                                        'serDATotal':serDATotal,
                                         'media':[],
                                         'entityId':self.entityId
                                       }
@@ -497,17 +511,27 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                             if code != 4100:
                                 raise Exception
 
-                            serTADA = self.request.arguments.get('serTADA')
+                            serTA = self.request.arguments.get('serTA')
                             code, message = Validate.i(
-                                    serTADA,
-                                    'service TA/DA',
+                                    serTA,
+                                    'service TA',
+                                    dataType=int,
+                                    notEmpty=True,
+                                )
+                            if code != 4100:
+                                raise Exception
+                            serDA = self.request.arguments.get('serDA')
+                            code, message = Validate.i(
+                                    serDA,
+                                    'service DA',
                                     dataType=int,
                                     notEmpty=True,
                                 )
                             if code != 4100:
                                 raise Exception
 
-                            serTotal = serCharges + serTADA
+                            serTATotal = serCharges + serTA
+                            serDATotal = serCharges + serDA
                             serUpdate = yield self.serviceList.update(
                                                 {
                                                     '_id':serviceId,
@@ -517,8 +541,10 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                                                             'serNameEnglish':serNameEnglish,
                                                             'serNameHindi':serNameHindi,
                                                             'serCharges':serCharges,
-                                                            'serTADA':serTADA,
-                                                            'serTotal':serTotal,
+                                                            'serTA':serTA,
+                                                            'serTATotal':serTATotal,
+                                                            'serDA':serDA,
+                                                            'serDATotal':serDATotal,
                                                         }
                                                 }
                                             )

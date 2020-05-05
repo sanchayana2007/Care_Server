@@ -591,8 +591,10 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                     'serNameHindi':1,
                                                     'serNameEnglish':1,
                                                     'serCharges':1,
-                                                    'serTADA':1,
-                                                    'serTotal':1
+                                                    'serTA':1,
+                                                    'serTATotal':1,
+                                                    'serDA':1,
+                                                    'serDATotal':1
                                                 }
                                             )
                                     v['serviceDetails'] = serInfo
