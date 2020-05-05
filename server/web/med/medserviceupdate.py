@@ -179,7 +179,7 @@ class MedServiceUpdateHandler(cyclone.web.RequestHandler,
                                 code = 4060
                                 message = "Invalid Service"
                                 raise Exception
-                            serName = serList[0]['name']
+                            serName = serList[0]['serNameEnglish']
                             date = int(bookTime/1000000)
                             newDate = datetime.datetime.fromtimestamp(date).strftime('%Y-%m-%d %H:%M:%S')
                             #TODO:: Customer verification remaining
