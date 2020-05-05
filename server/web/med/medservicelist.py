@@ -155,7 +155,7 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                         if len(res):
                             for serInfo in res:
                                 v = {
-                                        'id':str(serInfo['_id']),
+                                        '_id':str(serInfo['_id']),
                                         'serNameEnglish':serInfo['serNameEnglish'],
                                         'serNameHindi':serInfo['serNameHindi'],
                                         'serCharges':serInfo['serCharges'],
