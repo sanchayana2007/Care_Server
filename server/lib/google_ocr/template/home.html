@@ -1,0 +1,68 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Actyv OCR</title>
+</head>
+<body>
+        <h2>Actyv ocr : Version 1.0</h2>
+        <h3>This API is designed to extract general fields from Adhar card</h3>
+        <h4>URL :- https://custom-ocr.herokuapp.com/get_adhar</h4>
+        <h3>It accepts 2 types of document</h3>
+        <li>Adhar front image</li>
+        <li>Adhar back image</li>
+        <h3>The general fields extracted from uploaded Adhar front image includes, </h3>
+        <li>Name</li>
+        <li>DOB</li>
+        <li>Gender</li>
+        <li>Father/Husband name</li>
+        <li>Age</li>
+        <li>Adhar number</li>
+        <li>Document identified</li>
+        <br>
+
+        <h3>The general fields extracted from uploaded Adhar back image includes, </h3>
+        <li>Address</li>
+        <li>Pincode</li>
+        <li>Document identified</li>
+
+        <h3>Request format</h3>
+        <li>Request     - POST</li>
+        <li>Request URL - https://custom-ocr.herokuapp.com/get_adhar</li>
+        <li>In Body     -> raw format    -> <b>JSON request</b></li>
+        <li>Example :- <br>
+            {<br>
+            "file" : "image_url"<br>
+            }</li><br>
+        
+        <h3>Response format for Adhar front image</h3>
+        <li>Response type - JSON response</li>
+        <li>Example :- <br>
+        {<br>
+            "age": age,<br>
+            "dob": "dd/mm/yyyy",<br>
+            "father": "father name",<br>
+            "fileIdentified": "document_front.jpg",<br>
+            "gender": "MALE/FEMALE",<br>
+            "husband": "husband name",<br>
+            "idNumber": "adhar number",<br>
+            "name": "name"<br>
+        }</li>
+
+        <h3>Response format for Adhar back image</h3>
+        <li>Response type - JSON response</li>
+        <li>Example :- <br>
+        {<br>
+            "address": "xxxxxx", <br>
+            "fileIdentified" : "document_back.jpg", <br>
+            "pincode" : "xxxxxx"<br>
+        }</li>
+    </body>
+</html>
+

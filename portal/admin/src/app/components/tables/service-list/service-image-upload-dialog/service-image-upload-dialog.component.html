@@ -1,0 +1,34 @@
+<mat-card>
+  <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+    <p>
+      {{title}}
+    </p>
+    <div fxLayoutGap="5px">
+      <button mat-icon-button color="primary" (click)="onSave()">
+        <mat-icon>done</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+    <div style="margin-bottom:5px;" [fxShow]="loadServiceImage">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+    <div id="upload_div" fxLayoutAlign="center center" fxLayout="column">
+      <img [src]="data.image_url" style="width: auto; max-width: 100%;
+        min-height: 220px; max-height: 300px;">
+      <input id="upload" [fxShow]="false" type="file" accept=".png, .jpg, jpeg" (change)="serviceImageUpload($event)">
+      <button mat-raised-button (click)="image_upload_trigger()"
+        style="margin: 10px; font-weight: bold; color: #fff; background-color:rgb(15, 104, 4)">
+        Upload
+        <mat-icon>cloud_upload</mat-icon>
+      </button>
+    </div>
+  </mat-card-content>
+  <div fxLayoutAlign="start center" style="margin-left: 2.2%;">
+    Note: * - mandatory.
+  </div>
+</mat-card>

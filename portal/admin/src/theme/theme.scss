@@ -1,0 +1,260 @@
+@import '~@angular/material/theming';
+@import '../app/authorization/authorization.component.scss';
+@import '../app/element-core/sidemenu/sidemenu.component.scss';
+@import '../app/element-core/sidemenu-item/sidemenu-item.component.scss';
+@import '../app/element-widget/dash-card/dash-card.component.scss';
+
+$mat-light-theme-background: (
+  status-bar: map_get($mat-grey, 300),
+  app-bar: map_get($mat-grey, 100),
+  background: map_get($mat-indigo, 50),
+  hover: rgba(black, 0.04), // TODO(kara): check style with Material Design UX
+  card: white,
+  dialog: white,
+  disabled-button: $black-12-opacity,
+  raised-button: white,
+  focused-button: $black-6-opacity,
+  selected-button: map_get($mat-grey, 300),
+  selected-disabled-button: map_get($mat-grey, 400),
+  disabled-button-toggle: map_get($mat-grey, 200),
+  unselected-chip: map_get($mat-grey, 300),
+  disabled-list-option: map_get($mat-grey, 200),
+);
+
+@include mat-core();
+
+$primary : $mat-cyan;
+$accent : $mat-cyan;
+$warn : $mat-red;
+
+$primary-app-primary: mat-palette($primary, 800);
+$primary-app-accent: mat-palette($accent, 900);
+$primary-app-warn: mat-palette($mat-red, 500);
+$cdk-theme: mat-light-theme($primary-app-primary, $primary-app-accent, $primary-app-warn);
+
+app-sidemenu {
+  $sidemenu-app-primary: mat-palette($primary, 900);
+  $sidemenu-app-accent: mat-palette($accent, 800);
+  $sidemenu-app-warn: mat-palette($warn, 600);
+  $cdk-sidemenu-theme: mat-dark-theme($sidemenu-app-primary, $sidemenu-app-accent, $sidemenu-app-warn);
+  @include mat-list-theme($cdk-sidemenu-theme);
+}
+
+
+app-sidemenu-item {
+  @include sidemenu-item($cdk-theme, 20px)
+}
+
+@include angular-material-theme($cdk-theme);
+@include authorization($cdk-theme);
+
+html {
+  height: 100%;
+}
+
+body {
+  padding: 0px !important;
+  margin: 0px !important;
+  height: 100%;
+  font-style: normal;
+}
+
+.components-container-gt-xs {
+  padding: 20px;
+  // background-color: #fdfdfd;
+}
+
+.components-container-xs {
+  padding: 5px !important;
+  // background-color: #fdfdfd;
+}
+
+.component-preview {
+  padding: 20px;
+}
+
+
+.loader-container {
+  background-color: white;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2000;
+  position: absolute;
+
+  -moz-animation: cssAnimation 1s ease-in 3s forwards;
+  /* Firefox */
+  animation: cssAnimation 1s ease-in 3s forwards;
+  /* Safari and Chrome */
+  -o-animation: cssAnimation 1s ease-in 3s forwards;
+  /* Opera */
+  animation: cssAnimation 1s ease-in 3s forwards;
+  animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+@keyframes cssAnimation {
+  to {
+    opacity: 0;
+    display: none;
+    visibility: hidden;
+  }
+}
+
+@keyframes cssAnimation {
+  to {
+    visibility: hidden;
+    opacity: 0;
+    display: none;
+  }
+}
+
+.spinner {
+  margin: 50vh auto 0;
+  width: 70px;
+  text-align: center;
+}
+
+.spinner>div {
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  display: inline-block;
+  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.bounce3 {
+  background-color: rgb(11, 83, 69);
+}
+
+.spinner .bounce1 {
+  background-color: rgb(125, 206, 160);
+  animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+  background-color: rgb(30, 132, 73);
+  animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+
+
+@keyframes sk-bouncedelay {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0)
+  }
+
+  40% {
+    transform: scale(1.0)
+  }
+}
+
+@keyframes sk-bouncedelay {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+    transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1.0);
+    transform: scale(1.0);
+  }
+}
+
+table {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+td.mat-cell,
+.mat-footer-cell {
+  padding: 0;
+  padding-right: 0px;
+  padding-left: 0;
+  text-align: center;
+}
+
+.mat-header-cell {
+  padding: 0;
+  padding-right: 0px;
+  padding-left: 0;
+  font-size: 12pt;
+  font-weight: bold;
+  text-align: center;
+}
+
+app-search-bar {
+  font-size: 12pt;
+}
+
+
+// For Dialog Class
+.dialog-class .mat-dialog-container {
+  border-radius: 8px;
+  padding: 0;
+  background-color: rgba(0, 255, 255, 0);
+  box-shadow: none;
+}
+
+// For Defult Snakbar
+snack-bar-container.snakbar-class-default {
+  background: #0000FF;
+  font-weight: 800;
+  border-radius: 5px;
+  // font-weight: bold;
+}
+
+.snakbar-class-default .mat-simple-snackbar .mat-button{
+  color: #ffffff;
+  // font-weight: 1000;
+  font-weight: bold;
+  display: none;
+}
+
+// For Success Snakbar
+snack-bar-container.snakbar-class-success {
+  background: #0ea309;
+  color: #ffffff;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.snakbar-class-success .mat-simple-snackbar .mat-button{
+  color: #ffffff;
+  // font-weight: 2000;
+  font-weight: bold;
+  display: none;
+}
+
+// For Error Snakbar
+snack-bar-container.snakbar-class-error {
+  background: #d43c3c;
+  color: #ffffff;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.snakbar-class-error .mat-simple-snackbar .mat-button{
+  color: #ffffff;
+  // font-weight: 2000;
+  font-weight: bold;
+  display: none;
+}
+
+app-dash-card {
+    $dashcard-primary: mat-palette($primary);
+    $dashcard-accent:  mat-palette($accent);
+    $dashcard-warn:    mat-palette($warn);
+    $dashcard-theme:   mat-dark-theme($dashcard-primary,
+          $dashcard-accent,$dashcard-warn);
+    @include dashcard($dashcard-theme);
+}

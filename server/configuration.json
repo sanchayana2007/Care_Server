@@ -1,0 +1,206 @@
+{
+    "name": "MTIME",
+    "server": "DEV",
+    "projectCode": 2120,
+    "url": "https://medix.xlayer.in",
+    "password": null,
+    "uploads": "./../../uploads/",
+    "uploadsPath": "/uploads/",
+    "tmpUploadsPath": "tmp/",
+    "instance": [
+        {
+            "api": "web",
+            "host": "127.0.0.1",
+            "port": 1331
+        },
+        {
+            "api": "location",
+            "host": "127.0.0.1",
+            "port": 2121
+        }
+    ],
+    "database": [
+        {
+            "name": "MongoDB",
+            "code": 0,
+            "key": "BigBase",
+            "host": "127.0.0.1",
+            "port": 27017,
+            "table": [
+                {
+                    "name": "account",
+                    "code": 0
+                },
+                {
+                    "name": "application",
+                    "code": 1
+                },
+                {
+                    "name": "profile",
+                    "code": 2
+                },
+                {
+                    "name": "oneTimePassword",
+                    "code": 3
+                },
+                {
+                    "name": "service",
+                    "code": 4
+                },
+                {
+                    "name": "entity",
+                    "code": 5
+                },
+                {
+                    "name": "phoneCountry",
+                    "code": 6
+                }
+            ]
+            
+        },
+        {
+            "name": "MongoDB",
+            "code": 1,
+            "key": "TourismService",
+            "host": "127.0.0.1",
+            "port": 27017,
+            "table": [
+                {
+                    "name": "serviceAccount",
+                    "code": 0
+                },
+                {
+                    "name": "bookingCategory",
+                    "code": 1
+                },
+                {
+                    "name": "vehicleType",
+                    "code": 2
+                },
+                {
+                    "name": "vehicleModel",
+                    "code": 3
+                },
+                {
+                    "name": "vehicle",
+                    "code": 4
+                },
+                {
+                    "name": "serviceArea",
+                    "code": 5
+                },
+                {
+                    "name": "geofence",
+                    "code": 6
+                },
+                {
+                    "name": "locationSource",
+                    "code": 7
+                },
+                {
+                    "name": "deviceModel",
+                    "code": 8
+                },
+                {
+                    "name": "device",
+                    "code": 9
+                },
+                {
+                    "name": "booking",
+                    "code": 10
+                },
+                {
+                    "name": "coupon",
+                    "code": 11
+                },
+                {
+                    "name": "testBooking",
+                    "code": 12
+                },
+                {
+                    "name": "locationPoint",
+                    "code": 13
+                },
+                {
+                    "name": "crowdContent",
+                    "code": 14
+                },
+                {
+                    "name": "documentType",
+                    "code": 15
+                },
+                {
+                    "name": "touristKyc",
+                    "code": 16
+                },
+                {
+                    "name": "subTourist",
+                    "code": 17
+                },
+                {
+                    "name": "imgWrite",
+                    "code": 18
+                },
+                {
+                    "name": "touristBook",
+                    "code": 19
+                }
+            ]
+        },
+        {
+            "name": "MongoDB",
+            "code": 2,
+            "key": "MedicineService",
+            "host": "127.0.0.1",
+            "port": 27017,
+            "table": [
+                {
+                    "name":"serviceBook",
+                    "code":0
+                },
+                {
+                    "name":"serviceList",
+                    "code":1
+                }
+            ]
+        },
+        {
+            "name": "Cassandra",
+            "code": 3,
+            "key": "mms_service",
+            "host": "127.0.0.1",
+            "port": 9042,
+            "ttl": 7776000,
+            "username": "cassandra",
+            "password": "cassandra",
+            "table": [
+                {
+                    "name": "vehicle",
+                    "code": 0
+                }
+            ]
+        },
+        {
+            "name": "Redis",
+            "code": 4,
+            "key": "MmsService",
+            "dbId": 3,
+            "host": "127.0.0.1",
+            "port": 6379,
+            "table": []
+        }
+    ],
+    "sms_gw": [
+        {
+            "name": "MSG91",
+            "code": 1,
+            "key": "190375A8pqgqS55cb1f0d8"
+        }
+    ],
+    "maps": [
+        {
+            "name": "google",
+            "key": "AIzaSyCDjb0GkEDTnVUbGAkPBAk0iiso3OjzyTU"
+        }
+    ]
+}

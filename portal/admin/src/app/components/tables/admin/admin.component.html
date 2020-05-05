@@ -1,0 +1,96 @@
+<perfect-scrollbar>
+  <mat-card style="min-width: auto;">
+    <div fxLayout="row wrap" style="margin: 0px; margin-bottom: 20px;" fxLayoutAlign="space-between center">
+      <div fxLayoutGap="10px" fxLayoutAlign="center center">
+        <button mat-icon-button style="background: #00838f; border-radius: 10px;" matTooltip="Admins Table">
+          <mat-icon style="color: #ffffff">account_box</mat-icon>
+        </button>
+        <p style="font-weight: 400; font-size: 16pt;">
+          Admins Table
+        </p>
+        <!-- <mat-slide-toggle style="color: #ff000d" [checked]="componentClosed" (change)="onChange($event)">
+          {{componentClosedTitle}}
+        </mat-slide-toggle> -->
+      </div>
+      <div fxLayoutGap="10px" fxLayoutAlign="start stretch">
+        <button mat-raised-button color="primary" (click)="onCreate()" matTooltip="Add Admin">
+          Add
+          <mat-icon class="matIcon">add</mat-icon>
+        </button>
+        <button mat-raised-button color="primary" (click)="onRefresh()" matTooltip="Refresh">
+          Refresh
+          <mat-icon class="matIcon">refresh</mat-icon>
+        </button>
+        <button [fxShow]="adminTable" [fxHide]="searchOpen" mat-raised-button color="primary"
+          (click)="searchOpen = !searchOpen" matTooltip="Search">
+          Search
+          <mat-icon class="matIcon" style="color: #fff">search</mat-icon>
+        </button>
+        <app-search-bar [open]="searchOpen" matInput (keyup)="applyFilter($event.target.value)">
+        </app-search-bar>
+      </div>
+    </div>
+
+    <div fxLayoutAlign="center" style="background:rgb(230, 226, 226); height: 1px;">
+    </div>
+
+    <div class="example-container mat-elevation-z8">
+      <div style="margin-bottom:5px;" [fxShow]="loadAdmin">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      </div>
+      <perfect-scrollbar>
+        <mat-table #table [dataSource]="dataSource" [class.isMobile]="isMobile" [fxShow]="adminTable">
+          <ng-container matColumnDef="actions">
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef>
+              Actions
+            </mat-header-cell>
+            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
+              <div>
+                <button mat-icon-button color="primary" (click)="onEdit(element)" matTooltip="Edit">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="onDelete(element.id)" [fxHide]="componentClosed"
+                  matTooltip="Delete">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="full_name">
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Full Name </mat-header-cell>
+            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
+              <span class="mobile-label">Full Name :</span>
+              {{element.full_name_text}}
+            </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="contact_number">
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Contact Number </mat-header-cell>
+            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
+              <span class="mobile-label">Contact Number :</span>
+              {{element.contact_number_text}}
+            </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="email">
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Email Id </mat-header-cell>
+            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
+              <span class="mobile-label">Email Id:</span>
+              {{element.email_text}}
+            </mat-cell>
+          </ng-container>
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+      </perfect-scrollbar>
+      <mat-paginator [fxShow]="adminTable" [pageSizeOptions]="[8, 20, 40, 60]" showFirstLastButtons>
+      </mat-paginator>
+      <div [fxHide]="adminTable" fxLayout="column" fxLayoutAlign="center center">
+        <div>
+          <img src="../../../../assets/images/empty.png" style="height: 150px; margin-top: 35px">
+        </div>
+        <div style="margin-top: 20px; margin-bottom: 100px; font-size: 12pt; color: #000000">
+          {{errorMessage}}
+        </div>
+      </div>
+    </div>
+  </mat-card>
+</perfect-scrollbar>

@@ -1,0 +1,13 @@
+<perfect-scrollbar style="height: calc(100% - 33px);">
+  <div fxLayout="column" >
+      <div *ngIf="!iconOnly" fxLayout="column" fxLayoutAlign="start center" [style.margin]="'10px 0px'" >
+        <!-- <img width="100" [src]="toolbarHelpers.currentUser.sideMenuPhotoURL"> -->
+        <img width="100" src='../../../assets/images/med_logo.png'>
+      </div>
+      <div *ngIf="iconOnly" style="height: 100px;" fxLayout="column" fxLayoutAlign="space-around center"  >
+        <!-- <img width="50" [src]="toolbarHelpers.currentUser.sideMenuPhotoURL"> -->
+        <img width="50" src='../../../assets/images/med_logo.png'>
+      </div>
+      <app-sidemenu-item *ngFor="let menu of menus" [menu]="menu" [iconOnly]="iconOnly"> </app-sidemenu-item>
+  </div>
+</perfect-scrollbar>

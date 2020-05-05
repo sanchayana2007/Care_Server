@@ -1,0 +1,40 @@
+<mat-card>
+  <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+    <p>
+      {{title}}
+    </p>
+    <div fxLayoutGap="5px">
+      <button mat-icon-button color="primary" (click)="onSave()">
+        <mat-icon>done</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <div style="margin-bottom:5px;" [fxShow]="loadServiceList">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
+  <mat-card-content>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field>
+        <input matInput placeholder="Service Name English" [(ngModel)]="data.serviceNameEnglish_text">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Service Name Hindi" [(ngModel)]="data.serviceNameHindi_text">
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field>
+        <input matInput placeholder="Service TA/DA" type="number" min="0" [(ngModel)]="data.serviceTaDa_text" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Service Charge" type="number" min="0" [(ngModel)]="data.serviceCharge_text" required>
+      </mat-form-field>
+    </div>
+    <div fxLayoutAlign="start center" style="margin-left: 5px;">
+      Note: * - mandatory.
+    </div>
+  </mat-card-content>
+</mat-card>

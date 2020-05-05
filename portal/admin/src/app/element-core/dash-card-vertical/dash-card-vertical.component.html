@@ -1,0 +1,15 @@
+<mat-card fxLayout="row">
+  <div class="dash-card-icon" fxFlex="25" fxLayout="row" fxLayoutAlign="center center" [style.background]="dashData?.colorLight">
+    <mat-icon class="cardIcon">{{dashData?.icon}}</mat-icon>
+  </div>
+  <div class="dash-card-content" fxFlex="75" fxLayout="column" fxLayoutAlign="center center" [style.background]="dashData?.colorDark">
+    <div fxLayoutAlign="center center" fxLayout="column">
+      <div>
+        <ng2-odometer style="color: white;font-size: 20px;" [number]="dashData?.number" [config]="{ }"></ng2-odometer>
+      </div>
+      <p class="mat-body-1" style="margin: 0px; color: #ffffff">
+        {{dashData?.title}}
+      </p>
+    </div>
+  </div>
+</mat-card>

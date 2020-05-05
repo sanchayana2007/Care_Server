@@ -1,0 +1,42 @@
+<div class="outer" fxLayout="row" fxLayoutAlign="center center">
+  <div id="template_card" fxLayout="column" fxLayoutAlign="start center" fxHide.sm fxHide.xs fxShow.md fxShow.lg
+    fxShow.xl>
+    <img style="height: 60px;" src="../../../assets/images/med_logo.png">
+    <p style="text-align: center; font-size: 18px; color: #ffffff">
+      Stay Connected with Medservice!
+    </p>
+    <P style="text-align: center; font-size:12px;
+          padding-left: 40px; padding-right: 40px;
+          padding-bottom: 10px; color: #ffffff">
+      Medservice Admin Portal
+      <br>
+      <br>
+      <!-- Gives real-time information of all the vehicles, its route, speed, emergency notification, idling period,
+      geo-fence alerts, etc. -->
+    </P>
+    <button class="learn_more" mat-raised-button onclick="window.location.href = 'https://www.trakiga.com';">
+      LEARN MORE
+    </button>
+  </div>
+  <div class="sign_in_card" fxLayout="column" fxLayoutAlign="center center">
+    <img style="height: 40px; margin-bottom: 25px;" src="../../../assets/images/med_logo.png" fxHide.lg fxHide.xl fxHide.md fxShow.sm fxShow.xs>
+    <p style="font-size: 18px; margin: 0px">
+      Hey there! Welcome back.
+    </p>
+    <p style="font-size: 8pt; margin-bottom: 30px;">
+      Enter your sign in details below.
+    </p>
+    <mat-form-field appearance="outline">
+      <mat-label>User Name</mat-label>
+      <input matInput [(ngModel)]="user_id">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Password</mat-label>
+      <input matInput [type]="passwordHide ? 'password' : 'text'" [(ngModel)]="password">
+      <mat-icon matSuffix (click)="passwordHide = !passwordHide">{{passwordHide ? 'visibility_off' : 'visibility'}}</mat-icon>
+    </mat-form-field>
+    <button class="sign_in_button" mat-raised-button (click)='sign_in()'>
+      SIGN IN
+    </button>
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<mat-card [fxLayout]="layoutAlign" fxLayoutAlign="start stretch">
+  <div [style.max-height]="listMaxHeight" style="overflow: auto;" fxFlex.xs="100" fxFlex.sm="100" fxFlex.md="25"
+    fxFlex.lg="25">
+    <mat-selection-list class="mat_selection_list" #vehicles>
+      <mat-list-option (click)="onVehicleSelected(vehicle)" class="mat_list_option" checkboxPosition="before"
+        *ngFor="let vehicle of vehicleData" [value]="vehicle">
+        <div fxLayout="row" fxLayoutAlign="space-between center">
+          <div>{{vehicle.reg_num}}</div>
+          <div fxLayout="row">
+            <div>
+              <mat-icon [fxShow]="vehicle.gps_data[0].ignition" matTooltip="Ignition ON" style="color: red;">vpn_key</mat-icon>
+              <mat-icon [fxHide]="vehicle.gps_data[0].ignition" matTooltip="Ignition OFF" style="color: black;">vpn_key</mat-icon>
+            </div>
+            <div>
+              <mat-icon *ngIf="vehicle.state == 0" matTooltip="Device is Active" style="color: green;">
+                fiber_manual_record</mat-icon>
+              <mat-icon *ngIf="vehicle.state == 1" matTooltip="Device if Inactive" style="color: yellow;">
+                fiber_manual_record</mat-icon>
+              <mat-icon *ngIf="vehicle.state == 2" matTooltip="Device is OFF" style="color: grey;">
+                fiber_manual_record</mat-icon>
+            </div>
+          </div>
+        </div>
+      </mat-list-option>
+    </mat-selection-list>
+  </div>
+  <div [style.max-height]="gMapMaxHeight" id="google_map_canvas" fxFlex.xs="100" fxFlex.sm="100" fxFlex.md="75"
+    fxFlex.lg="75" fxShow.lg fxShow.md fxShow.xl>
+  </div>
+  <!-- <div [fxHide]="getData" [style.max-height]="gMapMaxHeight" id="google_map_canvas" fxFlex.xs="100" fxFlex.sm="100" fxFlex.md="75"
+    fxFlex.lg="75">
+  </div> -->
+</mat-card>

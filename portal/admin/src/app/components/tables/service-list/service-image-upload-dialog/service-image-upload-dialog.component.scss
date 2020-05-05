@@ -1,0 +1,35 @@
+mat-card {
+  height: auto;
+  width: auto;
+}
+
+mat-card-title {
+  height: 35px;
+}
+
+mat-card-content {
+  padding-top: 2%;
+}
+
+mat-form-field {
+  // width: 45%;
+  margin: 2%;
+}
+
+button:hover {
+  background-color: rgb(209, 209, 209);
+}
+
+img {
+  width: 250px;
+  height: 250px;
+  margin-top: 10px;
+}
+
+#upload_div {
+  height: 100%;
+  min-width: auto;
+  border: 1px solid;
+  border-radius: 5px;
+  margin-top: 14px;
+}

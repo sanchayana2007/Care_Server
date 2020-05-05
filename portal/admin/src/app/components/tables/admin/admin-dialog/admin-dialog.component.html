@@ -1,0 +1,51 @@
+<mat-card>
+  <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+    <p>{{title}}</p>
+    <mat-slide-toggle style="color: #ff000d" *ngIf="componentClosed == true" [checked]="data.closed" (change)="onChange($event)">
+      {{componentClosedTitle}}
+    </mat-slide-toggle>
+    <div fxLayoutGap="5px">
+      <button mat-icon-button color="primary" (click)="onSave()" title="Save Changes">
+        <mat-icon>done</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="onClose()" title="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+    <div style="margin-bottom:5px;" [fxShow]="loadAdmin">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field>
+        <input matInput placeholder="First Name" [(ngModel)]="data.first_name_text" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Last Name" [(ngModel)]="data.last_name_text" required>
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field>
+        <input matInput type="number" min="0" placeholder="Contact Number" [(ngModel)]="data.contact_number_text"
+          [disabled]="disabledStatus" (keypress)="isMoValid()" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Email ID" [(ngModel)]="data.email_text" 
+        [disabled]="disabledStatus" required>
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field  [fxHide]="root">
+        <input matInput placeholder="Password" type="text" [(ngModel)]="data.password" required>
+      </mat-form-field>
+      <mat-form-field [fxHide]="password">
+        <input matInput placeholder="Password" [(ngModel)]="data.password" required>
+      </mat-form-field>
+    </div>
+    <div fxLayoutAlign="start center" style="margin-left: 2.2%;">
+      Note: * - mandatory.
+    </div>
+  </mat-card-content>
+</mat-card>

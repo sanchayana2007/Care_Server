@@ -1,0 +1,28 @@
+input[type="text"] {
+  width: 100%;
+  border: 0px solid #aaa;
+  border-radius: 0px;
+  margin: 0px 0;
+  outline: none;
+  padding: 0px;
+  padding-right: 5px;
+  box-sizing: border-box;
+  transition: 0.3s;
+  font-family: roboto;
+  font-size: 13pt;
+  background: #00838f;
+  color: #ffffff;
+}
+
+::placeholder {
+  color: #ffffff;
+  opacity: 1;
+}
+
+mat-card{
+  background: #00838f;
+}
+
+mat-icon {
+  color: #ffffff;
+}

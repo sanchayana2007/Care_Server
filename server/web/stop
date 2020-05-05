@@ -1,0 +1,10 @@
+
+# Remove all the compiled files
+find . -name "*.pyc" -type f -delete
+
+PID_HOME="/tmp/proxy/med-service"
+APPLICATION="mtime_web_server"
+
+# Kill the PIDs
+echo `cat $PID_HOME/$APPLICATION.pid`
+pkill -e -F $PID_HOME/$APPLICATION.pid

@@ -1,0 +1,12 @@
+#WEB SERVER
+
+ulimit -n 10000
+
+PID_HOME="/tmp/proxy/med-service"
+APPLICATION="mtime_web_server"
+LOG_HOME="./log"
+
+mkdir -p $LOG_HOME
+mkdir -p $PID_HOME
+
+PYTHONPATH=`pwd`:`pwd`/lib twistd --pidfile=$PID_HOME/$APPLICATION.pid --logfile=$LOG_HOME/web.log -y ./$APPLICATION.py &  
