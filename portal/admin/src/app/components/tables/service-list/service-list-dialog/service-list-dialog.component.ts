@@ -32,7 +32,8 @@ export class ServiceListDialogComponent implements OnInit {
       this.data = {};
       this.data.serviceNameEnglish_text = '';
       this.data.serviceNameHindi_text = '';
-      this.data.serviceTaDa_text = '';
+      this.data.serviceTA_text = '';
+      this.data.serviceDA_text = '';
       this.data.serviceCharge_text = '';
       this.data.serviceTotal_text = '';
     }
@@ -52,10 +53,11 @@ export class ServiceListDialogComponent implements OnInit {
       this.loadServiceList = true;
       if (this.dialogState === 2) {
         const body = {
-          serviceId: this.data.id,
+          serviceId: this.data._id,
           serNameEnglish: this.data.serviceNameEnglish_text,
           serNameHindi: this.data.serviceNameHindi_text,
-          serTADA: this.data.serviceTaDa_text,
+          serTA: this.data.serviceTA_text,
+          serDA: this.data.serviceDA_text,
           serCharges: this.data.serviceCharge_text,
         };
         this.service.editServiceList(body).subscribe(success => {
@@ -77,7 +79,8 @@ export class ServiceListDialogComponent implements OnInit {
         const body = {
           serNameEnglish: this.data.serviceNameEnglish_text,
           serNameHindi: this.data.serviceNameHindi_text,
-          serTADA: this.data.serviceTaDa_text,
+          serTA: this.data.serviceTA_text,
+          serDA: this.data.serviceDA_text,
           serCharges: this.data.serviceCharge_text,
         };
         this.service.addServiceList(body).subscribe(success => {
@@ -108,8 +111,12 @@ export class ServiceListDialogComponent implements OnInit {
       this.openErrorSnackBar('Enter a Service Name Hindi');
       return false;
     }
-    if (this.data.serviceTaDa_text === null || this.data.serviceTaDa_text === '') {
-      this.openErrorSnackBar('Enter a Service TA/DA');
+    if (this.data.serviceTA_text === null || this.data.serviceTA_text === '') {
+      this.openErrorSnackBar('Enter a Service TA');
+      return false;
+    }
+    if (this.data.serviceDA_text === null || this.data.serviceDA_text === '') {
+      this.openErrorSnackBar('Enter a Service DA');
       return false;
     }
     if (this.data.serviceCharge_text === null || this.data.serviceCharge_text === '') {

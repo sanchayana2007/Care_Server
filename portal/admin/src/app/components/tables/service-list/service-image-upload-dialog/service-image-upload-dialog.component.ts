@@ -74,7 +74,7 @@ export class ServiceImageUploadDialogComponent implements OnInit {
       return;
     }
     this.loadServiceImage = true;
-    const id = this.data.id;
+    const id = this.data._id;
     const body = {
       serviceMedia: this.data.image_url,
     };

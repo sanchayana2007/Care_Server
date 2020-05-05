@@ -105,11 +105,17 @@ export class ServiceListComponent implements OnInit {
           } else {
             data[i].serviceNameHindi_text = data[i].serNameHindi;
           }
-          if (data[i].serTADA === undefined || data[i].serTADA === null ||
-            data[i].serTADA === 0) {
-            data[i].serviceTaDa_text = 0;
+          if (data[i].serTA === undefined || data[i].serTA === null ||
+            data[i].serTA === 0) {
+            data[i].serviceTA_text = 0;
           } else {
-            data[i].serviceTaDa_text = data[i].serTADA;
+            data[i].serviceTA_text = data[i].serTA;
+          }
+          if (data[i].serDA === undefined || data[i].serDA === null ||
+            data[i].serDA === 0) {
+            data[i].serviceDA_text = 0;
+          } else {
+            data[i].serviceDA_text = data[i].serDA;
           }
           if (data[i].serCharges === undefined || data[i].serCharges === null ||
             data[i].serCharges === 0) {
@@ -117,11 +123,17 @@ export class ServiceListComponent implements OnInit {
           } else {
             data[i].serviceCharge_text = data[i].serCharges;
           }
-          if (data[i].serTotal === undefined || data[i].serTotal === null ||
-            data[i].serTotal === 0) {
-            data[i].serviceTotal_text = 'N/A';
+          if (data[i].serTATotal === undefined || data[i].serTATotal === null ||
+            data[i].serTATotal === 0) {
+            data[i].serviceTAtotal_text = 0;
           } else {
-            data[i].serviceTotal_text = data[i].serTotal;
+            data[i].serviceTAtotal_text = data[i].serTATotal;
+          }
+          if (data[i].serDATotal === undefined || data[i].serDATotal === null ||
+            data[i].serDATotal === 0) {
+            data[i].serviceDAtotal_text = 0;
+          } else {
+            data[i].serviceDAtotal_text = data[i].serDATotal;
           }
           if (data[i].media.length === undefined || data[i].media.length === null ||
             data[i].media.length === 0 || data[i].media[0].link === '') {
@@ -176,9 +188,9 @@ export class ServiceListComponent implements OnInit {
     this.openDialog(data);
   }
 
-  onDelete(id) {
+  onDelete(_id) {
     if (window.confirm('Are you sure you want to delete?')) {
-      this.service.deleteServiceList(id).subscribe(success => {
+      this.service.deleteServiceList(_id).subscribe(success => {
         if (success.status) {
           this.openErrorSnackBar(success.message);
           this.onRefresh();
