@@ -165,6 +165,12 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                           SizedBox(
                             height: 20,
                           ),
+                          Text(
+                            '\t\t\tInside city limits/outside city limits',
+                            style: TextStyle(
+                              fontSize: 12
+                            ),
+                          ),
                           TextField(
                             decoration: InputDecoration(
                               hintStyle: TextStyle(
@@ -174,7 +180,6 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                                   color: Colors.black,
                                 ),
                               ),
-                              labelText: "TA / DA",
                               labelStyle: TextStyle(
                                   color: Colors.black,
                                   fontSize: 18
