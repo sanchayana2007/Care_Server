@@ -218,7 +218,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                     )
                             if bookingId:
                                 conn = http.client.HTTPSConnection("api.msg91.com")
-                                sms = 'Thank you for using MEDIX. Your appointement for {} has been requested'.format(serName)
+                                sms = 'Greetings from Ohzas. Your appointement for {} has been requested'.format(serName)
                                 payloadJson = {
                                                 "sender":"SOCKET",
                                                 "route":4,
@@ -409,10 +409,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             }
                                         )
                                 if stage == 'completed':
-                                    sms = 'Your appointment is complete. Thank you for using MEDIX services! \
+                                    sms = 'Greetings from Ohzas! Your appointment is complete. \
                                             We look forward to provide service to you again. '
+                                elif stage == 'declined':
+                                    sms = 'Greetings from Ohzas! We regret to inform you that your \
+                                            appointment for {} has been cancelled. \
+                                            We look forward to provide service to you again.'.format(serName)
                                 else:
-                                    sms = 'Hello! Greetings from MEDIX. Your appointement for {} has been {}'.format(serName,stage)
+                                    sms = 'Hello! Greetings from Ohzas! Your appointement for {} has been {}'.format(serName,stage)
                                 if serUpdate['n']:
                                     conn = http.client.HTTPSConnection("api.msg91.com")
                                     payloadJson = {

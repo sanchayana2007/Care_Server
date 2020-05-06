@@ -196,7 +196,7 @@ class MedServiceUpdateHandler(cyclone.web.RequestHandler,
                                         )
                             if serUpdate['n']:
                                 conn = http.client.HTTPSConnection("api.msg91.com")
-                                sms = 'Hello! Your appointment for {} has been postponed to {}'.format(serName,newDate)
+                                sms = 'Greetings from Ohzas! Your appointment for {} has been postponed to {}'.format(serName,newDate)
                                 print sms
                                 payloadJson = {
                                                 "sender":"SOCKET",
