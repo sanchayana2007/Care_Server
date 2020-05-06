@@ -590,7 +590,6 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                 },
                                                 {
                                                     '_id':0,
-                                                    'serName':1
                                                     'serNameHindi':1,
                                                     'serNameEnglish':1,
                                                     'serCharges':1,
@@ -648,6 +647,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                 },
                                                 {
                                                     '_id':0,
+                                                    'serName':1,
                                                     'serNameHindi':1,
                                                     'serNameEnglish':1,
                                                     'serCharges':1,
