@@ -14,7 +14,6 @@ export class ServiceImageUploadDialogComponent implements OnInit {
   title: string;
   file_name: any;
   loadServiceImage = false;
-  dialogState = 0;
   formData: any = null;
 
   constructor(public thisDialogRef: MatDialogRef<ServiceImageUploadDialogComponent>,
@@ -74,7 +73,7 @@ export class ServiceImageUploadDialogComponent implements OnInit {
       return;
     }
     this.loadServiceImage = true;
-    const id = this.data.id;
+    const id = this.data._id;
     const body = {
       serviceMedia: this.data.image_url,
     };

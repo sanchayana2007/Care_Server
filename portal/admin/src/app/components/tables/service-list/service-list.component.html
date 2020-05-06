@@ -49,7 +49,7 @@
                 <button mat-icon-button color="primary" (click)="onEdit(element)" matTooltip="Edit">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="onDelete(element.id)" matTooltip="Delete">
+                <button mat-icon-button color="warn" (click)="onDelete(element._id)" matTooltip="Delete">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -69,13 +69,6 @@
               {{element.serviceNameHindi_text}}
             </mat-cell>
           </ng-container>
-          <ng-container matColumnDef="serTaDa">
-            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Service TA/DA </mat-header-cell>
-            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
-              <span class="mobile-label">Service TA/DA : </span>
-              {{element.serviceTaDa_text}}
-            </mat-cell>
-          </ng-container>
           <ng-container matColumnDef="serCharge">
             <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Service Charge </mat-header-cell>
             <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
@@ -83,11 +76,18 @@
               {{element.serviceCharge_text}}
             </mat-cell>
           </ng-container>
+          <ng-container matColumnDef="serTaDa">
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Travelling Allowance </mat-header-cell>
+            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
+              <span class="mobile-label">Travelling Allowance : </span>
+              {{element.serviceTA_text}}
+            </mat-cell>
+          </ng-container>
           <ng-container matColumnDef="serTotalAmount">
             <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Total Amount </mat-header-cell>
             <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
               <span class="mobile-label">Total Amount : </span>
-              {{element.serviceTotal_text}}
+              {{element.serviceTAtotal_text}}
             </mat-cell>
           </ng-container>
           <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>

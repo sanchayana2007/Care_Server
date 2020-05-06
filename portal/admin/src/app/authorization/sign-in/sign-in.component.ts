@@ -79,7 +79,7 @@ export class SignInComponent implements OnInit {
   openSuccessSnackBar(message: string, ) {
     const config = new MatSnackBarConfig<any>();
     config.verticalPosition = 'bottom';
-    // config.horizontalPosition = 'right';
+    config.horizontalPosition = 'right';
     config.panelClass = ['snakbar-class-success'];
     config.duration = 3000;
     this.snackBar.open(message, 'Close', config);
@@ -88,7 +88,7 @@ export class SignInComponent implements OnInit {
   openErrorSnackBar(message: string, ) {
     const config = new MatSnackBarConfig<any>();
     config.verticalPosition = 'bottom';
-    // config.horizontalPosition = 'right';
+    config.horizontalPosition = 'right';
     config.panelClass = ['snakbar-class-error'];
     config.duration = 3000;
     this.snackBar.open(message, 'Close', config);

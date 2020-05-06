@@ -19,21 +19,24 @@
   <mat-card-content>
     <div fxLayout="row" fxLayoutAlign="space-between">
       <mat-form-field>
-        <input matInput placeholder="Service Name English" [(ngModel)]="data.serviceNameEnglish_text">
+        <input matInput placeholder="Service Name English" [(ngModel)]="data.serviceNameEnglish_text" required>
       </mat-form-field>
       <mat-form-field>
-        <input matInput placeholder="Service Name Hindi" [(ngModel)]="data.serviceNameHindi_text">
+        <input matInput placeholder="Service Name Hindi" [(ngModel)]="data.serviceNameHindi_text" required>
       </mat-form-field>
     </div>
     <div fxLayout="row" fxLayoutAlign="space-between">
       <mat-form-field>
-        <input matInput placeholder="Service TA/DA" type="number" min="0" [(ngModel)]="data.serviceTaDa_text" required>
-      </mat-form-field>
-      <mat-form-field>
         <input matInput placeholder="Service Charge" type="number" min="0" [(ngModel)]="data.serviceCharge_text" required>
       </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Travelling Allowance" type="number" min="0" [(ngModel)]="data.serviceTA_text" required>
+      </mat-form-field>
+      <!-- <mat-form-field>
+        <input matInput placeholder="Service DA" type="number" min="0" [(ngModel)]="data.serviceDA_text" required>
+      </mat-form-field> -->
     </div>
-    <div fxLayoutAlign="start center" style="margin-left: 5px;">
+    <div fxLayoutAlign="start center" style="margin-left: 10px;">
       Note: * - mandatory.
     </div>
   </mat-card-content>

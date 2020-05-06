@@ -469,6 +469,7 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                                 code = 4050
                                 message = "Invalid service Id"
                                 raise Exception
+                            print serviceId
                             serBook = yield self.serviceList.find(
                                         {
                                             '_id':serviceId
@@ -476,7 +477,7 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                                     )
                             if not len(serBook):
                                 code = 4060
-                                message = "Invalid Booking"
+                                message = "Invalid Service"
                                 raise Exception
                             serNameEnglish = self.request.arguments.get('serNameEnglish')
                             code, message = Validate.i(
