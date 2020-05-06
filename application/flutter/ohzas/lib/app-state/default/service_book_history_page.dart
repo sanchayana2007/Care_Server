@@ -144,7 +144,7 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
                                 Row(
                                   children: <Widget>[
                                     Text(
-                                      bookingHistory[position]['serviceDetails'][0]['name'].toString().toUpperCase(),
+                                      bookingHistory[position]['serviceDetails'][0]['serNameEnglish'].toString().toUpperCase(),
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: Colors.blueGrey[600],
