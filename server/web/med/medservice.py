@@ -143,6 +143,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 code = 4888
                                 message = "Invalid Service Id"
                                 raise Exception
+
                             try:
                                 aTime = long(self.request.arguments.get('time'))
                                 code, message = Validate.i(
@@ -590,7 +591,6 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                 },
                                                 {
                                                     '_id':0,
-                                                    'serName':1
                                                     'serNameHindi':1,
                                                     'serNameEnglish':1,
                                                     'serCharges':1,
