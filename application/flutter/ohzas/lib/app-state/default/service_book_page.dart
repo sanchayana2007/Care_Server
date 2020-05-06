@@ -88,8 +88,8 @@ class _ServiceBookPage extends State<ServiceBookPage> {
     httpRequestHandler = new HttpRequestHandler(context);
     serviceName.text = widget.service['serNameEnglish'].toString();
     serviceCharge.text = widget.service['serCharges'].toString();
-    serviceTADA.text = widget.service['serTA'].toString() + '/' + widget.service['serDA'].toString();
-    serviceTotal.text = widget.service['serTATotal'].toString() + '/' + widget.service['serDATotal'].toString();
+    serviceTADA.text = widget.service['serTA'].toString();
+    serviceTotal.text = widget.service['serTATotal'].toString();
     return WillPopScope(
       onWillPop: null,
       child: Scaffold(
@@ -165,12 +165,13 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                           SizedBox(
                             height: 20,
                           ),
-                          Text(
-                            '\t\t\tInside city limits/outside city limits',
-                            style: TextStyle(
-                              fontSize: 12
-                            ),
-                          ),
+                          // Text(
+                          //   // '\t\t\tInside city limits/outside city limits',
+                          //   '\t\t\tTravelling Allowance',
+                          //   style: TextStyle(
+                          //     fontSize: 12
+                          //   ),
+                          // ),
                           TextField(
                             decoration: InputDecoration(
                               hintStyle: TextStyle(
@@ -180,6 +181,7 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                                   color: Colors.black,
                                 ),
                               ),
+                              labelText: 'Travelling Allowance',
                               labelStyle: TextStyle(
                                   color: Colors.black,
                                   fontSize: 18
