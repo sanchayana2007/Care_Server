@@ -331,14 +331,18 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                                 raise Exception
 
                             serDA = self.request.arguments.get('serDA')
-                            code, message = Validate.i(
-                                    serDA,
-                                    'service DA',
-                                    dataType=int,
-                                    notEmpty=True,
-                                )
-                            if code != 4100:
-                                raise Exception
+                            if serDA != None:
+                                code, message = Validate.i(
+                                        serDA,
+                                        'service DA',
+                                        dataType=int,
+                                        notEmpty=True,
+                                    )
+                                if code != 4100:
+                                    raise Exception
+                            else:
+                                serDA = 0
+
                             serTATotal = serCharges + serTA
                             serDATotal = serCharges + serDA
 
@@ -521,15 +525,19 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                                 )
                             if code != 4100:
                                 raise Exception
+
                             serDA = self.request.arguments.get('serDA')
-                            code, message = Validate.i(
-                                    serDA,
-                                    'service DA',
-                                    dataType=int,
-                                    notEmpty=True,
-                                )
-                            if code != 4100:
-                                raise Exception
+                            if serDA != None:
+                                code, message = Validate.i(
+                                        serDA,
+                                        'service DA',
+                                        dataType=int,
+                                        notEmpty=True,
+                                    )
+                                if code != 4100:
+                                    raise Exception
+                            else:
+                                serDA = 0
 
                             serTATotal = serCharges + serTA
                             serDATotal = serCharges + serDA
