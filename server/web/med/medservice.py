@@ -217,9 +217,9 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                     )
                             if bookingId:
                                 conn = http.client.HTTPSConnection("api.msg91.com")
-                                sms = 'Hello! Thank you for using MEDIX. Your appointement for {} has been requested'.format(serName)
+                                sms = 'Thank you for using MEDIX. Your appointement for {} has been requested'.format(serName)
                                 payloadJson = {
-                                                "sender":"MedService",
+                                                "sender":"SOCKET",
                                                 "route":4,
                                                 "country":91,
                                                 "sms":[
@@ -241,12 +241,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 Log.i('Notification Status',stat['type'])
                                 if stat['type'] == "success":
                                     code = 2000
-                                    message = "Request has been submitted and SMS notification has been sent"
+                                    message = "Request has been submitted."
+                                    Log.i('SMS notification is sent')
                                     status = True
                                 else:
                                     code = 4055
-                                    message = "Request has been submitted but the SMS notification could not be sent"
-                                    status = False
+                                    message = "Request has been submitted."
+                                    Log.i('SMS notification could not be sent')
+                                    status = True
                             else:
                                 code = 4040
                                 message = "Invalid Appointment"
@@ -413,7 +415,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 if serUpdate['n']:
                                     conn = http.client.HTTPSConnection("api.msg91.com")
                                     payloadJson = {
-                                                    "sender":"MedService",
+                                                    "sender":"SOCKET",
                                                     "route":4,
                                                     "country":91,
                                                     "sms":[
@@ -588,6 +590,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                 },
                                                 {
                                                     '_id':0,
+                                                    'serName':1
                                                     'serNameHindi':1,
                                                     'serNameEnglish':1,
                                                     'serCharges':1,
