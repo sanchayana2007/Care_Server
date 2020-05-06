@@ -27,16 +27,14 @@
     </div>
     <div fxLayout="row" fxLayoutAlign="space-between">
       <mat-form-field>
-        <input matInput placeholder="Service TA" type="number" min="0" [(ngModel)]="data.serviceTA_text" required>
-      </mat-form-field>
-      <mat-form-field>
-        <input matInput placeholder="Service DA" type="number" min="0" [(ngModel)]="data.serviceDA_text" required>
-      </mat-form-field>
-    </div>
-    <div fxLayout="row" fxLayoutAlign="space-between">
-      <mat-form-field>
         <input matInput placeholder="Service Charge" type="number" min="0" [(ngModel)]="data.serviceCharge_text" required>
       </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Travelling Allowance" type="number" min="0" [(ngModel)]="data.serviceTA_text" required>
+      </mat-form-field>
+      <!-- <mat-form-field>
+        <input matInput placeholder="Service DA" type="number" min="0" [(ngModel)]="data.serviceDA_text" required>
+      </mat-form-field> -->
     </div>
     <div fxLayoutAlign="start center" style="margin-left: 10px;">
       Note: * - mandatory.

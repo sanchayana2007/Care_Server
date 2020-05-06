@@ -17,7 +17,7 @@ import { ServiceImageUploadDialogComponent } from './service-image-upload-dialog
 export class ServiceListComponent implements OnInit {
 
   displayedColumns: string[] = [
-    'serNameEnglish', 'serNameHindi', 'serTaDa', 'serCharge', 'serTotalAmount',
+    'serNameEnglish', 'serNameHindi', 'serCharge', 'serTaDa', 'serCharge', 'serTotalAmount',
     'actions'
   ];
   dataSource: MatTableDataSource<any>;
@@ -41,7 +41,7 @@ export class ServiceListComponent implements OnInit {
     breakpointObserver.observe(['(max-width: 0px)']).subscribe(result => {
       this.displayedColumns = result.matches ?
         [] :
-        ['serNameEnglish', 'serNameHindi', 'serTaDa', 'serCharge', 'serTotalAmount',
+        ['serNameEnglish', 'serNameHindi', 'serCharge', 'serTaDa', 'serTotalAmount',
         'actions'];
     });
     ToolbarHelpers.toolbarTitle = 'Service List';
@@ -105,36 +105,36 @@ export class ServiceListComponent implements OnInit {
           } else {
             data[i].serviceNameHindi_text = data[i].serNameHindi;
           }
-          if (data[i].serTA === undefined || data[i].serTA === null ||
-            data[i].serTA === 0) {
-            data[i].serviceTA_text = 0;
-          } else {
-            data[i].serviceTA_text = data[i].serTA;
-          }
-          if (data[i].serDA === undefined || data[i].serDA === null ||
-            data[i].serDA === 0) {
-            data[i].serviceDA_text = 0;
-          } else {
-            data[i].serviceDA_text = data[i].serDA;
-          }
           if (data[i].serCharges === undefined || data[i].serCharges === null ||
             data[i].serCharges === 0) {
             data[i].serviceCharge_text = 0;
           } else {
             data[i].serviceCharge_text = data[i].serCharges;
           }
+          if (data[i].serTA === undefined || data[i].serTA === null ||
+            data[i].serTA === 0) {
+            data[i].serviceTA_text = 0;
+          } else {
+            data[i].serviceTA_text = data[i].serTA;
+          }
+          // if (data[i].serDA === undefined || data[i].serDA === null ||
+          //   data[i].serDA === 0) {
+          //   data[i].serviceDA_text = 0;
+          // } else {
+          //   data[i].serviceDA_text = data[i].serDA;
+          // }
           if (data[i].serTATotal === undefined || data[i].serTATotal === null ||
             data[i].serTATotal === 0) {
             data[i].serviceTAtotal_text = 0;
           } else {
             data[i].serviceTAtotal_text = data[i].serTATotal;
           }
-          if (data[i].serDATotal === undefined || data[i].serDATotal === null ||
-            data[i].serDATotal === 0) {
-            data[i].serviceDAtotal_text = 0;
-          } else {
-            data[i].serviceDAtotal_text = data[i].serDATotal;
-          }
+          // if (data[i].serDATotal === undefined || data[i].serDATotal === null ||
+          //   data[i].serDATotal === 0) {
+          //   data[i].serviceDAtotal_text = 0;
+          // } else {
+          //   data[i].serviceDAtotal_text = data[i].serDATotal;
+          // }
           if (data[i].media.length === undefined || data[i].media.length === null ||
             data[i].media.length === 0 || data[i].media[0].link === '') {
             data[i].serviceImage = this.default_image;

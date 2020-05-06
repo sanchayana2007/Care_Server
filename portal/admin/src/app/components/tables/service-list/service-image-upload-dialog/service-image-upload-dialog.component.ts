@@ -14,7 +14,6 @@ export class ServiceImageUploadDialogComponent implements OnInit {
   title: string;
   file_name: any;
   loadServiceImage = false;
-  dialogState = 0;
   formData: any = null;
 
   constructor(public thisDialogRef: MatDialogRef<ServiceImageUploadDialogComponent>,
