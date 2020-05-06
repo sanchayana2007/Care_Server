@@ -392,7 +392,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 message = "Invalid Service"
                                 raise Exception
 
-                            serName = serList[0]['name']
+                            serName = serList[0]['serNameEnglish']
 
                             if stage in ['accepted','declined','completed']:
                                 serUpdate = yield self.serviceBook.update(
