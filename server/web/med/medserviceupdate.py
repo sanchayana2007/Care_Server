@@ -181,8 +181,8 @@ class MedServiceUpdateHandler(cyclone.web.RequestHandler,
                                 raise Exception
                             serName = serList[0]['serNameEnglish']
                             date = int(bookTime/1000000)
-                            print bookTime
-                            newDate = datetime.datetime.fromtimestamp(date).strftime('%Y-%m-%d %H:%M:%S')
+                            date = date + 19800
+                            newDate = datetime.datetime.fromtimestamp(date).strftime('%Y-%m-%d %I:%M:%p')
                             #TODO:: Customer verification remaining
                             serUpdate = yield self.serviceBook.update(
                                             {

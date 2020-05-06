@@ -24,6 +24,7 @@ from lib import *
 from PIL import Image
 import requests
 import http.client
+import datetime
 
 @xenSecureV1
 class MedServiceBookHandler(cyclone.web.RequestHandler,
@@ -216,9 +217,15 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             'comment':comment
                                         }
                                     )
+
+                            date = int(aTime/1000000)
+                            date = date + 19800
+                            newDate = datetime.datetime.fromtimestamp(date).strftime('%Y-%m-%d %I:%M:%p')
+
                             if bookingId:
                                 conn = http.client.HTTPSConnection("api.msg91.com")
-                                sms = 'Greetings from Ohzas. Your appointement for {} has been requested'.format(serName)
+                                sms = 'Greetings from Ohzas. Your appointement for {} at {} has been \
+                                        placed on request'.format(serName,newDate)
                                 payloadJson = {
                                                 "sender":"SOCKET",
                                                 "route":4,
