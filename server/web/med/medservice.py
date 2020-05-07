@@ -262,6 +262,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                         placed through the OHZAS app. The request is placed by \
                                         {} and the contact number is {}'\
                                         .format(serName,newDate,fullName,phoneNumber,)
+                                adminNum = str(CONFIG['medAdmin_contact'][0]['num1'])
                                 payloadJson = {
                                                 "sender":"SOCKET",
                                                 "route":4,
@@ -269,7 +270,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                 "sms":[
                                                         {
                                                             "message":sms,
-                                                            "to":["7985300793"]
+                                                            "to":[adminNum]
                                                         }
                                                     ]
                                                 }
