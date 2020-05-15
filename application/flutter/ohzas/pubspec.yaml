@@ -1,6 +1,6 @@
 name: ohzas
 description: A new Flutter application.
-version: 1.000.000+1
+version: 1.000.001+2
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
