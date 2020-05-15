@@ -341,7 +341,7 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                           height: 20,
                         ),
                         Text(
-                          '\t\t\t\tThe designated personnel has explained to me in my language, and I understand fully the nature, need and purpose of the treatment, possible alternatives, methods of treatment, the risks involved in whole procedure and possible complications. It has been explained to me that during the course of the operation(s) / treatment, unforeseen conditions may be revealed / or encountered which necessitates surgical or other procedures in extension of or in addition to different from those set forth in paragraph 1 above. The designated personnel will not be held responsible for any eventuality if occurs during the treatment.',
+                          '\t\t\t\tThe designated personnel has explained to me in my language, and I understand fully the nature, need and purpose of the treatment, possible alternatives, methods of treatment, the risks involved in whole procedure and possible complications. It has been explained to me that during the course of the operation(s) / treatment, unforeseen conditions may be revealed / or encountered which necessitates surgical or other procedures in extension of or in addition to the complications already explained to me. The designated personnel will not be held responsible for any eventuality if occurs during the treatment.',
                           style: TextStyle(
                             fontSize: 14
                           ),
@@ -351,7 +351,7 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                           height: 20,
                         ),
                         Text(
-                          '\t\t\t\tयहां "ओजस" सेसपेगए योय कमय  को वेछा सेअधकृत करता हूं, जो मझु ेअपनेचकसक क सलाह के अनसार ु करनेक आवयक मामल ू या है।',
+                          '\t\t\t\t मैं यहाँ "ओजस" से सौंपे गए योग्य कर्मियों को स्वेच्छा से अधिकृत करता हूँ, जो मुझे अपने चिकित्सक की सलाह के अनुसार करने की आवश्यक मामूली प्रक्रिया आवश्यक मामूली प्रक्रिया है ।',
                           style: TextStyle(
                             fontSize: 14
                           ),
@@ -361,7 +361,7 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                           height: 20,
                         ),
                         Text(
-                          '\t\t\t\tनामत कमय  नेमझु ेअपनी भाषा मसमझाया है, और मउपचार क कृत, आवयकता और उदेय, संभावत वकप, उपचार के तरके, पर ू या मशामल जोखम और संभावत जटलताओं को पर ू तरह सेसमझता हूं। यह मझु ेसमझाया गया हैक ऑपरेशन (ओ) / ं उपचार के दौरान, अयाशत िथत सामनेआ सकती है / या सामना करना पड़ सकता हैजो ऊपर दए गए परााफ ै 1 म उिलखत उन लोग सेअलग या इसके अतरत सिजकल या अय याओंक आवयकता होती है। उपचार के दौरान होनेवाल कसी भी िथत के लए नामत कमय  को िजमेदार नहंठहराया जाएगा।',
+                          '\t\t\t\tनामित कर्मियों ने मुझे अपनी भाषा में समझाया है, और मैं उपचार की प्रकृति, आवश्यकता और उद्देश्य, संभावित विकल्प, उपचार के तरीके पूर्ण प्रक्रिया में शामिल जोखिम और संभावित जटिलताओं को पूरी तरह से समजता हूँ । यह मुझे समझाया है की ऑपरे शन (ओं ) / उपचार के दौरान, अप्रत्याशित परिस्तिथियों का खुलासा किया जा सकता है जो पहले से ही मुझे बताई गयी जटिलताओं के अलावा शल्य  चिकित्सा या अन्य प्रक्रियाओं के विस्तार की आवश्यकता है । उपचार के दौरान होने वाली किसी बी स्तिथि के लिए नामित कर्मियों को ज़िम्मेदार नहीं ठहराया जायेगा । ',
                           style: TextStyle(
                             fontSize: 14
                           ),

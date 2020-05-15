@@ -8,6 +8,7 @@ import 'package:ohzas/handler/network_handler.dart';
 import 'package:ohzas/util/log_util.dart';
 import 'package:ohzas/util/toast_util.dart';
 import 'package:toast/toast.dart';
+import 'package:ohzas/authorization/signUpFail.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -49,7 +50,11 @@ class _SignInPage extends State<SignInPage> {
           ),
         );
       } else {
-        Toaster.e(context, message: resp['message']);
+        Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (context) => SignUpFailPage()),
+                              );
+        //Toaster.e(context, message: resp['message']);
       }
     } catch (e) {
       Toaster.e(context, message: 'Internal Server Response');

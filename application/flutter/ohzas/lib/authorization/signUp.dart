@@ -134,7 +134,7 @@ class _SignUpPage extends State<SignUpPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            Text("Sign Up",
+                            Text("Sign Up / रजिस्टर करें",
                                 style: TextStyle(
                                     fontSize:
                                         ScreenUtil.getInstance().setSp(30),
@@ -162,7 +162,7 @@ class _SignUpPage extends State<SignUpPage> {
                                           border: OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.black)),
-                                          labelText: "First Name",
+                                          labelText: "First Name / पहला नाम",
                                           labelStyle:
                                               TextStyle(color: Colors.black)),
                                       controller: signUpFirstName,
@@ -177,7 +177,7 @@ class _SignUpPage extends State<SignUpPage> {
                                           border: OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.black)),
-                                          labelText: "Last Name",
+                                          labelText: "Last Name / उपनाम",
                                           labelStyle:
                                               TextStyle(color: Colors.black)),
                                       controller: signUpLastName,
@@ -193,7 +193,7 @@ class _SignUpPage extends State<SignUpPage> {
                                           border: OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.black)),
-                                          labelText: "Phone Number",
+                                          labelText: "Phone Number / फ़ोन नंबर",
                                           labelStyle:
                                               TextStyle(color: Colors.black)),
                                       controller: signUpMobileNumber,
@@ -209,7 +209,7 @@ class _SignUpPage extends State<SignUpPage> {
                                           border: OutlineInputBorder(
                                               borderSide:
                                                   BorderSide(color: Colors.black)),
-                                          labelText: "Email ( Optional )",
+                                          labelText: "Email (Optional) / ईमेल (ऐच्छिक)",
                                           labelStyle:
                                               TextStyle(color: Colors.black)),
                                       controller: signUpEmail,
@@ -253,7 +253,7 @@ class _SignUpPage extends State<SignUpPage> {
                                   initSignUpRequest();
                                 },
                                 child: Center(
-                                  child: Text("Next",
+                                  child: Text("Next / आगे",
                                       style: TextStyle(
                                           color: Colors.white,
                                           fontFamily: "Poppins-Bold",
