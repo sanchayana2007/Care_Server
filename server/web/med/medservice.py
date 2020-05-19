@@ -169,6 +169,18 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             if code != 4100:
                                 raise Exception
 
+                            session = self.request.arguments.get('session')
+                            if session == None or session == 'One-time-session':
+                                session = 1
+                            else:
+                                code, message = Validate.i(
+                                                session,
+                                                'session',
+                                                datatype=int,
+                                            )
+                                if code != 4100:
+                                    raise Exception
+
                             accDetails = yield self.account.find(
                                             {
                                                 '_id':self.accountId,
@@ -212,6 +224,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             'stage':'new',
                                             'serviceId':serviceId,
                                             'booktime':aTime,
+                                            'session':session,
                                             'requestedTime':timeNow(),
                                             'profileId':self.profileId,
                                             'entityId':self.entityId,
@@ -399,6 +412,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                         )
                 if len(app):
                     self.apiId = app[0]['apiId']
+                    Log.i(self.apiId)
                     if self.apiId in [ 502020, 502022]:
                         if self.apiId == 502022:
                             try:
@@ -536,7 +550,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                         },
                                         {
                                         '$set':{
-                                                    'stage':declined
+                                                    'stage':'declined'
                                                 }
                                         }
                                     )
