@@ -41,7 +41,7 @@ class _SplashScreen extends State<SplashScreen> {
   BuildContext _context;
   intTimer() async {
     Timer.periodic(
-      Duration(seconds: 2),
+      Duration(seconds: 3),
       (Timer t) {
         t.cancel();
         if (exit) {
@@ -76,44 +76,82 @@ class _SplashScreen extends State<SplashScreen> {
     Log.i(BuildConfig.xAuthorization);
     return BuildConfig.xAuthorization;
   }
-
-  @override
+@override
   Widget build(BuildContext context) {
     _context = context;
     intTimer();
     return Scaffold(
-      body: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Row(
+      body: Stack(
+        children: <Widget>[
+          Container(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Image.asset(
-                  'assets/logo.jpg',
-                  height: 150,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Image.asset(
+                      'assets/logo.jpg',
+                      height: 150,
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      "",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontFamily: "Poppins-Bold",
+                        letterSpacing: .6,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            SizedBox(
-              height: 20,
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width,
+            alignment: Alignment.bottomCenter,
+            margin: EdgeInsets.only(
+              bottom: 30
             ),
-            Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  "",
+                  'Powered By',
                   style: TextStyle(
-                    fontSize: 22,
-                    fontFamily: "Poppins-Bold",
-                    letterSpacing: .6,
+                    fontFamily: "Poppins-Regular",
+                    fontSize: 14,
+                    color: Colors.blueGrey
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Container(
+                  height: 30,
+                  width: 1,
+                  color: Colors.grey,
+                ),
+                Container(
+                  child: Image.asset(
+                    'assets/xlayer_logo_v2.png',
+                    height: 48,
                   ),
                 ),
               ],
             ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }
