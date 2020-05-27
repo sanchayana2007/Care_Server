@@ -268,6 +268,23 @@ class HttpRequestHandler {
     }
   }
 
+  Future<Map<String, dynamic>> putSubmitBooking(Object jsonBody) async {
+    if (!await NetworkHandler.isOnlineWithToast(context)) {
+      return null;
+    }
+    await getHeaders();
+    http.Response response = await http.put(
+        Uri.encodeFull(BuildConfig.serverUrl + '/web/api/med/book'),
+        headers: headers,
+        body: jsonEncode(jsonBody));
+    try {
+      Map<String, dynamic> respJson = jsonDecode(response.body);
+      return respJson;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<Map<String, dynamic>> postPreRegisteredBooking(Object jsonBody) async {
     if (!await NetworkHandler.isOnlineWithToast(context)) {
       return null;

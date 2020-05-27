@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:ohzas/handler/http_request_handler.dart';
 import 'package:ohzas/util/log_util.dart';
@@ -18,8 +17,32 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
 
   var bookingHistory = [];
 
-  _ServiceBookHistoryPage() {
-    
+  _ServiceBookHistoryPage() {}
+  bool buttonState = true;
+
+  void _buttonChange() {
+    setState(() {
+      buttonState ? _buttonChange : null;
+    });
+  }
+
+  cancelAppointment(context, bookingId) async {
+    Log.i(bookingId);
+    Object body = {
+      "bookingId": bookingId,
+    };
+    var resp = await httpRequestHandler.putSubmitBooking(body);
+    try {
+      Log.i(resp);
+      if (resp['status']) {
+        Toaster.s(context, message: resp['message']);
+        getAllBookings();
+      } else {
+        Toaster.e(context, message: resp['message']);
+      }
+    } catch (e) {
+      Toaster.e(context, message: 'Internal Server Response');
+    }
   }
 
   getAllBookings() async {
@@ -38,7 +61,7 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
   }
 
   loadAllBookings(var data) async {
-    for(int i=0; i < data.length; i++) {
+    for (int i = 0; i < data.length; i++) {
       try {
         Map index = data[i];
         index['stageColor'] = Colors.black;
@@ -56,6 +79,7 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
             Log.i('default 2');
             break;
           case 'declined':
+            index['stage'] = 'cancelled';
             index['stageColor'] = Colors.red[500];
             Log.i('default 2');
             break;
@@ -91,9 +115,7 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
           title: Text('Booking History'),
           actions: <Widget>[
             IconButton(
-              icon: Icon(
-                Icons.refresh
-              ),
+              icon: Icon(Icons.refresh),
               onPressed: () {
                 getAllBookings();
               },
@@ -112,11 +134,7 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
                     itemBuilder: (context, position) {
                       return Card(
                         margin: EdgeInsets.only(
-                            top: 10,
-                            bottom: 5,
-                            left: 10,
-                            right: 10
-                        ),
+                            top: 10, bottom: 5, left: 10, right: 10),
                         child: InkWell(
                           onTap: () {},
                           child: Container(
@@ -130,10 +148,13 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Text(
-                                      bookingHistory[position]['stage'].toString().toUpperCase(),
+                                      bookingHistory[position]['stage']
+                                          .toString()
+                                          .toUpperCase(),
                                       style: TextStyle(
                                         fontSize: 16,
-                                        color: bookingHistory[position]['stageColor'],
+                                        color: bookingHistory[position]
+                                            ['stageColor'],
                                       ),
                                     )
                                   ],
@@ -144,13 +165,26 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
                                 Row(
                                   children: <Widget>[
                                     Text(
-                                      bookingHistory[position]['serviceDetails'][0]['serNameEnglish'].toString().toUpperCase(),
+                                      bookingHistory[position]['serviceDetails']
+                                              [0]['serNameEnglish']
+                                          .toString()
+                                          .toUpperCase(),
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: Colors.blueGrey[600],
-                                          fontWeight: FontWeight.bold
-                                      ),
+                                          fontWeight: FontWeight.bold),
                                     ),
+                                    // Text(' / '),
+                                    // Text(
+                                    //   bookingHistory[position]['serviceDetails']
+                                    //           [0]['serNameHindi']
+                                    //       .toString()
+                                    //       .toUpperCase(),
+                                    //   style: TextStyle(
+                                    //       fontSize: 16,
+                                    //       color: Colors.blueGrey[600],
+                                    //       fontWeight: FontWeight.bold),
+                                    // ),
                                   ],
                                 ),
                                 SizedBox(
@@ -162,17 +196,17 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
                                       'Requested :',
                                       style: TextStyle(
                                           fontSize: 14,
-                                          fontWeight: FontWeight.bold
-                                      ),
+                                          fontWeight: FontWeight.bold),
                                     ),
                                     SizedBox(
                                       width: 10,
                                     ),
                                     Text(
                                       TimeUtil.getStringTimeFromIntTime(
-                                          timeInMicroSeconds: bookingHistory[position]['requestedTime'],
-                                          dateFormat: 'yyyy/MM/dd hh:mm a'
-                                      ),
+                                          timeInMicroSeconds:
+                                              bookingHistory[position]
+                                                  ['requestedTime'],
+                                          dateFormat: 'yyyy/MM/dd hh:mm a'),
                                       style: TextStyle(
                                         fontSize: 14,
                                       ),
@@ -188,23 +222,47 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
                                       'Appointed :',
                                       style: TextStyle(
                                           fontSize: 14,
-                                          fontWeight: FontWeight.bold
-                                      ),
+                                          fontWeight: FontWeight.bold),
                                     ),
                                     SizedBox(
                                       width: 12,
                                     ),
                                     Text(
                                       TimeUtil.getStringTimeFromIntTime(
-                                          timeInMicroSeconds: bookingHistory[position]['booktime'],
-                                          dateFormat: 'yyyy/MM/dd hh:mm a'
-                                      ),
+                                          timeInMicroSeconds:
+                                              bookingHistory[position]
+                                                  ['booktime'],
+                                          dateFormat: 'yyyy/MM/dd hh:mm a'),
                                       style: TextStyle(
                                         fontSize: 14,
                                       ),
                                     )
                                   ],
                                 ),
+                                SizedBox(height: 10),
+                                Visibility(
+                                  visible: (DateTime.now().microsecondsSinceEpoch - bookingHistory[position]['requestedTime']) < 300000000 * 6 && bookingHistory[position]['stage'] != 'declined' && bookingHistory[position]['stage'] != 'completed' && bookingHistory[position]['stage'] != 'cancelled',
+                                  child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        RaisedButton(
+                                          child: Text("Cancel Appointment / अपॉइंटमेंट रद्द करें"),
+                                          onPressed: (){
+                                            Log.i((DateTime.now().microsecondsSinceEpoch - bookingHistory[position]['requestedTime']));
+                                            cancelAppointment(context, 
+                                              bookingHistory[position]
+                                                    ['_id']);
+                                          },
+                                          //onPressed:buttonState ? _buttonChange : null,
+                                          color: Colors.orange,
+                                          textColor: Colors.white,
+                                          padding:
+                                              EdgeInsets.fromLTRB(10, 10, 10, 10),
+                                          splashColor: Colors.grey,
+                                        )
+                                      ],
+                                  ),
+                                )
                               ],
                             ),
                           ),
