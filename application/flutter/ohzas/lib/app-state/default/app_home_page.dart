@@ -325,6 +325,9 @@ class _AppHomePage extends State<AppHomePage> {
                 child: Expanded(
                   child: GridView.count(
                     crossAxisCount: 2,
+                    childAspectRatio: (2 / 2.5),
+                    controller: new ScrollController(keepScrollOffset: false),
+                    shrinkWrap: true,
                     children: List.generate(
                       serviceList.length,
                       (position) {
@@ -335,6 +338,7 @@ class _AppHomePage extends State<AppHomePage> {
                             padding: EdgeInsets.only(
                               top: 15
                             ),
+                            height: 500,
                             child: InkWell(
                               splashColor: Colors.white.withAlpha(100),
                               onTap: () {
@@ -359,13 +363,27 @@ class _AppHomePage extends State<AppHomePage> {
                                   SizedBox(
                                     height: 5,
                                   ),
-                                  Text(
-                                    serviceList[position]['serNameEnglish'],
-                                    style: TextStyle(
-                                        fontSize: 14, 
-                                        color: Colors.black,
+                                  Container(
+                                    padding: EdgeInsets.only(
+                                      left: 10,
+                                      right: 10
                                     ),
-                                    textAlign: TextAlign.center,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Flexible(
+                                          flex: 1,
+                                          child: Text(
+                                            serviceList[position]['serNameEnglish'],
+                                            style: TextStyle(
+                                                fontSize: 14, 
+                                                color: Colors.black,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
