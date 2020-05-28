@@ -325,7 +325,7 @@ class _AppHomePage extends State<AppHomePage> {
                 child: Expanded(
                   child: GridView.count(
                     crossAxisCount: 2,
-                    childAspectRatio: (2 / 2.5),
+                    childAspectRatio: (2 / 3),
                     controller: new ScrollController(keepScrollOffset: false),
                     shrinkWrap: true,
                     children: List.generate(
@@ -355,7 +355,7 @@ class _AppHomePage extends State<AppHomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: <Widget>[
                                   FadeInImage.assetNetwork(
-                                    height: (MediaQuery.of(context).size.width / 100) * 30,
+                                    height: (MediaQuery.of(context).size.width / 100) * 31,
                                     fit: BoxFit.contain,
                                     placeholder: 'assets/loading_wt.gif',
                                     image: serviceList[position]['media'][0]['link'],
@@ -374,7 +374,29 @@ class _AppHomePage extends State<AppHomePage> {
                                         Flexible(
                                           flex: 1,
                                           child: Text(
-                                            serviceList[position]['serNameEnglish'],
+                                            serviceList[position]['serNameEnglish']  ,
+                                            style: TextStyle(
+                                                fontSize: 14, 
+                                                color: Colors.black,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsets.only(
+                                      left: 10,
+                                      right: 10
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Flexible(
+                                          flex: 1,
+                                          child: Text(
+                                            serviceList[position]['serNameHindi']  ,
                                             style: TextStyle(
                                                 fontSize: 14, 
                                                 color: Colors.black,

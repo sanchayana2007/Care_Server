@@ -9,6 +9,7 @@ import 'package:ohzas/util/log_util.dart';
 import 'package:ohzas/util/toast_util.dart';
 import 'package:toast/toast.dart';
 import 'package:ohzas/authorization/signUpFail.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -21,9 +22,7 @@ class _SignInPage extends State<SignInPage> {
 
   HttpRequestHandler _requestHandler;
 
-  _SignInPage() {
-    
-  }
+  _SignInPage() {}
 
   initSignInRequest() async {
     if (signInMobileNumber.text.length == 0) {
@@ -51,9 +50,8 @@ class _SignInPage extends State<SignInPage> {
         );
       } else {
         Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) => SignUpFailPage()),
-                              );
+          MaterialPageRoute(builder: (context) => SignUpFailPage()),
+        );
         //Toaster.e(context, message: resp['message']);
       }
     } catch (e) {
@@ -158,9 +156,7 @@ class _SignInPage extends State<SignInPage> {
                                     ),
                                     labelText: "Phone Number",
                                     labelStyle: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 18
-                                    ),
+                                        color: Colors.black, fontSize: 18),
                                   ),
                                   controller: signInMobileNumber,
                                   maxLength: 10,
@@ -206,11 +202,11 @@ class _SignInPage extends State<SignInPage> {
                                   child: Text(
                                     "Next",
                                     style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: "Poppins-Bold",
-                                          fontSize: 18,
-                                          letterSpacing: 1.0,
-                                      ),
+                                      color: Colors.white,
+                                      fontFamily: "Poppins-Bold",
+                                      fontSize: 18,
+                                      letterSpacing: 1.0,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -229,17 +225,17 @@ class _SignInPage extends State<SignInPage> {
                           Text(
                             "Don't have any Account ? ",
                             style: TextStyle(
-                                fontFamily: "Poppins-Medium",
-                                fontSize: 16,
-                                fontWeight: FontWeight.normal,
-                                color: Colors.black,
+                              fontFamily: "Poppins-Medium",
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.black,
                             ),
                           ),
                           InkWell(
                             onTap: () {
                               Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (context) => SignUpPage()),
+                                MaterialPageRoute(
+                                    builder: (context) => SignUpPage()),
                               );
                             },
                             child: Container(
@@ -252,6 +248,32 @@ class _SignInPage extends State<SignInPage> {
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "Poppins-Bold")),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: ScreenUtil.getInstance().setHeight(60),
+                    ),
+                    Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          InkWell(
+                            onTap: () => launch("tel://7985300793"),
+                            child: Container(
+                              decoration: new BoxDecoration(
+                                  color: Colors.greenAccent[700],
+                                  borderRadius: new BorderRadius.circular(5)),
+                              padding: const EdgeInsets.only(
+                                  left: 8, right: 8, top: 8, bottom: 8),
+                              child: Text("Call Us / हमें कॉल करें",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: "Poppins-Bold")),
                             ),
