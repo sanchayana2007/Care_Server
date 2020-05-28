@@ -720,6 +720,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             'accountDetails':bookInfo['accountDetails'],
                                             'booktime':bookInfo['booktime'],
                                             'stage':bookInfo['stage'],
+                                            'session':bookInfo['session'],
                                             'disabled':bookInfo['disabled'],
                                             'requestedTime':bookInfo['requestedTime'],
                                             'comment':bookInfo['comment']
@@ -739,6 +740,15 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                     'serDATotal':1
                                                 }
                                             )
+                                    if bookInfo['session'] in [5,6,7,8,9,10]:
+                                        discount = 0.1
+                                    elif bookInfo['session'] in [11,12,13,14,15]:
+                                        discount = 0.15
+                                    elif bookInfo['session'] in [16,17,18,19,20]:
+                                        discount = 0.2
+                                    else:
+                                        discount = 0
+                                    serInfo[0]['serTATotal'] = serInfo[0]['serTATotal'] - (discount * serInfo[0]['serTATotal'])
                                     v['serviceDetails'] = serInfo
                                     result.append(v)
                                 result.reverse()
