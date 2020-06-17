@@ -750,6 +750,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                         discount = 0
                                     serInfo[0]['serTATotal'] = serInfo[0]['serTATotal'] - (discount * serInfo[0]['serTATotal'])
                                     v['serviceDetails'] = serInfo
+                                    v['serviceTotal'] = serInfo[0]['serTATotal']
                                     result.append(v)
                                 result.reverse()
                                 code = 2000
