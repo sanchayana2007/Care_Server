@@ -723,7 +723,9 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             'session':bookInfo['session'],
                                             'disabled':bookInfo['disabled'],
                                             'requestedTime':bookInfo['requestedTime'],
-                                            'comment':bookInfo['comment']
+                                            'comment':bookInfo['comment'],
+                                            'logo':"https://medix.xlayer.in/uploads/default/logo.jpg",
+                                            'address':'Ohzas,Banaras.'
                                         }
                                     serInfo = yield self.serviceList.find(
                                                 {
