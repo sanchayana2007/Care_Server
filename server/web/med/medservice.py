@@ -89,6 +89,9 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
     serviceList = MongoMixin.medicineDb[
                     CONFIG['database'][2]['table'][1]['name']
                 ]
+    cancelFee = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][2]['name']
+                ]
 
     fu = FileUtil()
 
@@ -217,9 +220,20 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
 
                             serName = serList[0]['serNameEnglish']
 
+                            cancelFeeQ = yield self.cancelFee.find(
+                                            {
+                                                'profileId':self.profileId
+                                            }
+                                        )
+                            if len(cancelFeeQ):
+                                cancelFeeAmt = cancelFeeQ[0]['cancellationFee']
+                            else:
+                                cancelFeeAmt = 0
+
                             bookingId = yield self.serviceBook.insert(
                                         {
                                             'disabled':False,
+                                            'cancelFee':cancelFeeAmt,
                                             'accountDetails':accDetails,
                                             'stage':'new',
                                             'serviceId':serviceId,
@@ -237,6 +251,11 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             newDate = datetime.datetime.fromtimestamp(date).strftime('%Y-%m-%d %I:%M:%p')
 
                             if bookingId:
+                                cancelFeeDel = yield self.cancelFee.remove(
+                                                {
+                                                    'profileId':self.profileId
+                                                }
+                                            )
                                 conn = http.client.HTTPSConnection("api.msg91.com")
                                 sms = 'Greetings from Ohzas. Your appointement for {} at {} has been \
                                         placed on request'.format(serName,newDate)
@@ -452,7 +471,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
 
                             serName = serList[0]['serNameEnglish']
 
-                            if stage in ['accepted','declined','completed']:
+                            if stage in ['accepted','declined','completed','declined_fee']:
                                 serUpdate = yield self.serviceBook.update(
                                             {
                                                 '_id':bookingId
@@ -470,6 +489,27 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                     sms = 'Greetings from Ohzas! We regret to inform you that your \
                                             appointment for {} has been cancelled. \
                                             We look forward to provide service to you again.'.format(serName)
+                                elif stage == 'declined_fee':
+                                    sms = 'Greetings from Ohzas! We regret to inform you that your \
+                                            appointment for {} has been cancelled. \
+                                            You will be charged \
+                                            a cancellation fee in your next appointment.\
+                                            We look forward to provide service to you again.'.format(serName)
+                                    cancelUpdate = yield self.cancelFee.update(
+                                                    {
+                                                        'profileId':serBook[0]['profileId']
+                                                    },
+                                                    {
+                                                    '$set':{
+                                                                'profileId':serBook[0]['profileId'],
+                                                                'cancellationFee':50,
+                                                                'bookingId':bookingId,
+                                                                'cancelTime':timeNow(),
+                                                                'bookingTime':serBook[0]['booktime']
+                                                            }
+                                                    },
+                                                    upsert=True
+                                                )
                                 else:
                                     sms = 'Hello! Greetings from Ohzas! Your appointement for {} has been {}'.format(serName,stage)
                                 if serUpdate['n']:
@@ -750,7 +790,16 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                         discount = 0.2
                                     else:
                                         discount = 0
-                                    serInfo[0]['serTATotal'] = serInfo[0]['serTATotal'] - (discount * serInfo[0]['serTATotal'])
+                                    try:
+                                        if len(str(bookInfo['cancelFee'])):
+                                            cancelFeeAmt = bookInfo['cancelFee']
+                                        else:
+                                            cancelFeeAmt = 0
+                                    except:
+                                        cancelFeeAmt = 0
+                                    serInfo[0]['serTATotal'] = serInfo[0]['serTATotal'] - (discount * serInfo[0]['serTATotal'])\
+                                            + cancelFeeAmt
+                                    v['cancelFee'] = cancelFeeAmt
                                     v['serviceDetails'] = serInfo
                                     v['serviceTotal'] = serInfo[0]['serTATotal']
                                     result.append(v)

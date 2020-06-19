@@ -161,6 +161,10 @@
                 {
                     "name":"serviceList",
                     "code":1
+                },
+                {
+                    "name":"cancelFee",
+                    "code":2
                 }
             ]
         },

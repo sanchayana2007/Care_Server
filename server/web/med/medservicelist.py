@@ -86,6 +86,9 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
     serviceList = MongoMixin.medicineDb[
                     CONFIG['database'][2]['table'][1]['name']
                 ]
+    cancelFee = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][2]['name']
+                ]
 
     fu = FileUtil()
 
@@ -152,6 +155,15 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                                             'disabled':False
                                         }
                                     )
+                        cancelFeeQ = yield self.cancelFee.find(
+                                    {
+                                        'profileId':self.profileId
+                                    }
+                                )
+                        if len(cancelFeeQ):
+                            cancelFeeAmt = cancelFeeQ[0]['cancellationFee']
+                        else:
+                            cancelFeeAmt = 0
                         if len(res):
                             for serInfo in res:
                                 v = {
@@ -163,7 +175,8 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                                         'serDA':serInfo['serDA'],
                                         'serTATotal':serInfo['serTATotal'],
                                         'serDATotal':serInfo['serDATotal'],
-                                        'media':serInfo['media']
+                                        'media':serInfo['media'],
+                                        'cancelFee':cancelFeeAmt
                                     }
                                 if len(v['media']):
                                     for docx in v['media']:
