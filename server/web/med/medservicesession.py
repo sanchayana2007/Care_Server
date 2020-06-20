@@ -27,7 +27,7 @@ import http.client
 import datetime
 
 @xenSecureV1
-class MedServiceBookHandler(cyclone.web.RequestHandler,
+class MedServiceSessionHandler(cyclone.web.RequestHandler,
         MongoMixin, RedisMixin):
 
     SUPPORTED_METHODS = ('GET','POST','PUT','DELETE')
@@ -95,298 +95,6 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
 
     fu = FileUtil()
 
-    @defer.inlineCallbacks
-    def post(self):
-
-        status = False
-        code = 4000
-        result = []
-        message = ''
-
-        try:
-            try:
-                # CONVERTS BODY INTO JSON
-                self.request.arguments = json.loads(self.request.body)
-            except Exception as e:
-                code = 4100
-                message = 'Expected Request Type JSON.'
-                raise Exception
-            # TODO: this need to be moved in a global class, from here
-	    profile = yield self.profile.find(
-                            {
-                                'closed': False,
-                                'entityId': self.entityId,
-                                'accountId': self.accountId,
-                                'applicationId': self.applicationId
-                            },
-                            {
-                                '_id': 1
-                            },
-                            limit=1
-                        )
-            if len(profile):
-                self.profileId = profile[0]['_id']
-                Log.i('PID', self.profileId)
-                app = yield self.applications.find(
-                            {
-                                '_id': self.applicationId
-                            },
-                            {
-                                '_id': 1,
-                                'apiId': 1
-                            },
-                            limit=1
-                        )
-                if len(app):
-                    self.apiId = app[0]['apiId']
-                    if self.apiId in [ 502020, 502022]:
-                        if self.apiId == 502020:
-                            try:
-                                serviceId = ObjectId(self.request.arguments.get('serviceId'))
-                            except:
-                                code = 4888
-                                message = "Invalid Service Id"
-                                raise Exception
-
-                            try:
-                                aTime = long(self.request.arguments.get('time'))
-                                code, message = Validate.i(
-                                         aTime,
-                                         'Time',
-                                        )
-                                if code != 4100:
-                                    raise Exception
-                            except Exception as e:
-                                code = 4210
-                                message = 'Invalid Argument - [ time ].'
-                                raise Exception
-
-
-                            comment = self.request.arguments.get('comment')
-                            code, message = Validate.i(
-                                            comment,
-                                            'Comment',
-                                            dataType=unicode,
-                                            maxLength=400
-                                        )
-                            if code != 4100:
-                                raise Exception
-
-                            session = self.request.arguments.get('session')
-                            if session == None or session == 'One-time-session':
-                                session = 1
-                            else:
-                                code, message = Validate.i(
-                                                session,
-                                                'session',
-                                                datatype=int,
-                                            )
-                                if code != 4100:
-                                    raise Exception
-
-                            accDetails = yield self.account.find(
-                                            {
-                                                '_id':self.accountId,
-                                            },
-                                            {
-                                                '_id':0,
-                                                'firstName':1,
-                                                'lastName':1,
-                                                'contact':1
-                                            }
-                                        )
-                            if not len(accDetails):
-                                code= 4055
-                                status = False
-                                message = "No Account Found"
-                                raise Exception
-
-                            fullName = str(accDetails[0]['firstName']) + ' ' + str(accDetails[0]['lastName'])
-                            phoneNumber = accDetails[0]['contact'][0]['value']
-                            # TODO: Country code hard coded
-                            phoneNumber = str(phoneNumber - 910000000000)
-                            Log.i('Customer Phone Number', phoneNumber)
-
-
-                            serList = yield self.serviceList.find(
-                                        {
-                                            '_id':serviceId
-                                        }
-                                    )
-                            if not len(serList):
-                                code = 4060
-                                message = "Invalid Service"
-                                raise Exception
-
-                            serName = serList[0]['serNameEnglish']
-
-                            cancelFeeQ = yield self.cancelFee.find(
-                                            {
-                                                'profileId':self.profileId
-                                            }
-                                        )
-                            if len(cancelFeeQ):
-                                cancelFeeAmt = cancelFeeQ[0]['cancellationFee']
-                            else:
-                                cancelFeeAmt = 0
-
-                            bookingId = yield self.serviceBook.insert(
-                                        {
-                                            'disabled':False,
-                                            'cancelFee':cancelFeeAmt,
-                                            'accountDetails':accDetails,
-                                            'stage':'new',
-                                            'serviceId':serviceId,
-                                            'booktime':aTime,
-                                            'session':session,
-                                            'session_remaining':session,
-                                            'requestedTime':timeNow(),
-                                            'profileId':self.profileId,
-                                            'entityId':self.entityId,
-                                            'comment':comment
-                                        }
-                                    )
-
-                            date = int(aTime/1000000)
-                            date = date + 19800
-                            newDate = datetime.datetime.fromtimestamp(date).strftime('%Y-%m-%d %I:%M:%p')
-
-                            if bookingId:
-                                cancelFeeDel = yield self.cancelFee.remove(
-                                                {
-                                                    'profileId':self.profileId
-                                                }
-                                            )
-                                conn = http.client.HTTPSConnection("api.msg91.com")
-                                sms = 'Greetings from Ohzas. Your appointement for {} at {} has been \
-                                        placed on request'.format(serName,newDate)
-                                payloadJson = {
-                                                "sender":"SOCKET",
-                                                "route":4,
-                                                "country":91,
-                                                "sms":[
-                                                        {
-                                                            "message":sms,
-                                                            "to":[phoneNumber]
-                                                        }
-                                                    ]
-                                                }
-                                payload = json.dumps(payloadJson)
-                                headers = {
-                                            'authkey': MSG91_GW_ID,
-                                            'content-type': "application/json"
-                                        }
-                                conn.request("POST", "/api/v2/sendsms", payload, headers)
-                                res = conn.getresponse()
-                                data = res.read()
-                                stat = json.loads(data.decode("utf-8"))
-                                Log.i('Notification Status',stat['type'])
-                                if stat['type'] == "success":
-                                    code = 2000
-                                    message = "Request has been submitted."
-                                    Log.i('SMS notification is sent')
-                                    status = True
-                                else:
-                                    code = 4055
-                                    message = "Request has been submitted."
-                                    Log.i('SMS notification could not be sent')
-                                    status = True
-                                sms = 'Hi! A Request to appointement for {} at {} has been \
-                                        placed through the OHZAS app. The request is placed by \
-                                        {} and the contact number is {}'\
-                                        .format(serName,newDate,fullName,phoneNumber,)
-                                adminNum = str(CONFIG['medAdmin_contact'][0]['num1'])
-                                payloadJson = {
-                                                "sender":"SOCKET",
-                                                "route":4,
-                                                "country":91,
-                                                "sms":[
-                                                        {
-                                                            "message":sms,
-                                                            "to":[adminNum]
-                                                        }
-                                                    ]
-                                                }
-                                payload = json.dumps(payloadJson)
-                                headers = {
-                                            'authkey': MSG91_GW_ID,
-                                            'content-type': "application/json"
-                                        }
-                                conn.request("POST", "/api/v2/sendsms", payload, headers)
-                                res = conn.getresponse()
-                                data = res.read()
-                                stat = json.loads(data.decode("utf-8"))
-                                Log.i('Notification Status',stat['type'])
-                                if stat['type'] == "success":
-                                    code = 2000
-                                    status = True
-                                else:
-                                    code = 4055
-                                    Log.i('SMS notification could not be sent to admin to check the request')
-                                    status = False
-                            else:
-                                code = 4040
-                                message = "Invalid Appointment"
-                                status = False
-                                raise Exception
-                        else:
-                            code = 4003
-                            self.set_status(401)
-                            message = 'You are not Authorized.'
-                    else:
-                        code = 4003
-                        self.set_status(401)
-                        message = 'You are not Authorized.'
-                else:
-                    code = 4003
-                    self.set_status(401)
-                    message = 'You are not Authorized.'
-
-            else:
-                code = 4003
-                self.set_status(401)
-                message = 'You are not Authorized.'
-        except Exception as e:
-            status = False
-            #self.set_status(400)
-            if not len(message):
-                template = 'Exception: {0}. Argument: {1!r}'
-                code = 5010
-                iMessage = template.format(type(e).__name__, e.args)
-                Log.w('EXC', iMessage)
-                message = 'Internal Error Please Contact the Support Team.'
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = exc_tb.tb_frame.f_code.co_filename
-                Log.d('EX2', 'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
-        response =  {
-                    'code': code,
-                    'status': status,
-                    'message': message
-                }
-        Log.d('RSP', response)
-        try:
-            response['result'] = result
-            self.write(response)
-            self.finish()
-            return
-        except Exception as e:
-            status = False
-            template = 'Exception: {0}. Argument: {1!r}'
-            code = 5011
-            iMessage = template.format(type(e).__name__, e.args)
-            message = 'Internal Error Please Contact the Support Team.'
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = exc_tb.tb_frame.f_code.co_filename
-            Log.w('EXC', iMessage)
-            Log.d('EX2', 'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
-            response =  {
-                    'code': code,
-                    'status': status,
-                    'message': message
-                }
-            self.write(response)
-            self.finish()
-            return
 
     @defer.inlineCallbacks
     def put(self):
@@ -398,11 +106,11 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
 
         try:
             try:
-                # CONVERTS BODY INTO JSON
-                self.request.arguments = json.loads(self.request.body)
-            except Exception as e:
-                code = 4100
-                message = 'Expected Request Type JSON.'
+                bookingId = ObjectId(self.request.arguments['id'][0])
+            except:
+                code = 4855
+                status = False
+                message = "Invalid booking ID"
                 raise Exception
             # TODO: this need to be moved in a global class, from here
 	    profile = yield self.profile.find(
@@ -435,16 +143,6 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                     Log.i(self.apiId)
                     if self.apiId in [ 502020, 502022]:
                         if self.apiId == 502022:
-                            try:
-                                bookingId = ObjectId(self.request.arguments.get('bookingId'))
-                            except:
-                                code = 4050
-                                message = "Invalid Booking Id"
-                                raise Exception
-                            try:
-                                stage = self.request.arguments.get('stage').lower()
-                            except:
-                                stage = None
 
                             serBook = yield self.serviceBook.find(
                                         {
@@ -469,100 +167,60 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 code = 4060
                                 message = "Invalid Service"
                                 raise Exception
-
-                            serName = serList[0]['serNameEnglish']
-
-                            if stage in ['accepted','declined','completed','declined_fee']:
-                                serUpdate = yield self.serviceBook.update(
-                                            {
-                                                '_id':bookingId
-                                            },
-                                            {
-                                            '$set':{
-                                                        'stage':stage
-                                                   }
-                                            }
-                                        )
-                                if stage in ['declined','completed','declined_fee']:
-                                    sessionUpdate = yield self.serviceBook.update(
-                                                {
-                                                    '_id':bookingId
-                                                },
-                                                {
-                                                '$set':{
-                                                            'session_remaining':0
-                                                       }
-                                                }
-                                            )
-                                if stage == 'completed':
-                                    sms = 'Greetings from Ohzas! Your appointment is complete. \
-                                            We look forward to provide service to you again. '
-                                elif stage == 'declined':
-                                    sms = 'Greetings from Ohzas! We regret to inform you that your \
-                                            appointment for {} has been cancelled. \
-                                            We look forward to provide service to you again.'.format(serName)
-                                elif stage == 'declined_fee':
-                                    sms = 'Greetings from Ohzas! We regret to inform you that your \
-                                            appointment for {} has been cancelled. \
-                                            You will be charged \
-                                            a cancellation fee in your next appointment.\
-                                            We look forward to provide service to you again.'.format(serName)
-                                    cancelUpdate = yield self.cancelFee.update(
+                            if serBook[0]['stage'] == 'accepted':
+                                if serBook[0]['session_remaining'] <= 0:
+                                    code = 4565
+                                    status = False
+                                    message = "Invalid Session Update"
+                                    raise Exception
+                                if serBook[0]['session_remaining'] == 1:
+                                    serBookUpdate = yield self.serviceBook.update(
                                                     {
-                                                        'profileId':serBook[0]['profileId']
+                                                        '_id':bookingId
                                                     },
                                                     {
                                                     '$set':{
-                                                                'profileId':serBook[0]['profileId'],
-                                                                'cancellationFee':50,
-                                                                'bookingId':bookingId,
-                                                                'cancelTime':timeNow(),
-                                                                'bookingTime':serBook[0]['booktime']
-                                                            }
-                                                    },
-                                                    upsert=True
-                                                )
-                                else:
-                                    sms = 'Hello! Greetings from Ohzas! Your appointement for {} has been {}'.format(serName,stage)
-                                if serUpdate['n']:
-                                    conn = http.client.HTTPSConnection("api.msg91.com")
-                                    payloadJson = {
-                                                    "sender":"SOCKET",
-                                                    "route":4,
-                                                    "country":91,
-                                                    "sms":[
-                                                            {
-                                                                "message":sms,
-                                                                "to":[phoneNumber]
-                                                            }
-                                                        ]
+                                                            'stage':'completed'
+                                                            },
+                                                    '$inc':{
+                                                            'session_remaining':-1
+                                                           }
                                                     }
-                                    payload = json.dumps(payloadJson)
-                                    headers = {
-                                                'authkey': MSG91_GW_ID,
-                                                'content-type': "application/json"
-                                            }
-                                    conn.request("POST", "/api/v2/sendsms", payload, headers)
-                                    res = conn.getresponse()
-                                    data = res.read()
-                                    stat = json.loads(data.decode("utf-8"))
-                                    Log.i('Notification Status',stat['type'])
-                                    if stat['type'] == "success":
+                                                )
+                                    if serBookUpdate['n']:
                                         code = 2000
-                                        message = "Request has been submitted and SMS notification has been sent"
                                         status = True
+                                        message = "Session is updated and booking is complete."
                                     else:
-                                        code = 4055
-                                        message = "Request has been submitted but the SMS notification could not be sent"
+                                        code = 4555
                                         status = False
+                                        message = "Session could not be updated."
+                                        raise Exception
                                 else:
-                                    code = 2000
-                                    message = "Invalid booking"
-                                    status = True
+                                    serBookUpdate = yield self.serviceBook.update(
+                                                    {
+                                                        '_id':bookingId
+                                                    },
+                                                    {
+                                                    '$inc':{
+                                                            'session_remaining':-1
+                                                           }
+                                                    }
+                                                )
+                                    if serBookUpdate['n']:
+                                        code = 2000
+                                        status = True
+                                        message = "Session is updated."
+                                    else:
+                                        code = 4555
+                                        status = False
+                                        message = "Session could not be updated."
+                                        raise Exception
                             else:
                                 code = 4070
                                 status = False
-                                message = "Invalid Option"
+                                message = "Invalid Session Update"
+                                raise Exception
                         elif self.apiId == 502020:
                             try:
                                 bookingId = ObjectId(self.request.arguments.get('bookingId'))
@@ -781,9 +439,9 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                         }
                                     try:
                                         if len(str(bookInfo['session_remaining'])) and bookInfo['stage'] in ['new','accepted']:
-                                            v['session_remaining'] = bookInfo['session_remaining']
+                                            v['session_remaining'] = bookInfo['session']
                                         else:
-                                            v['session_remaining'] = 0
+                                            v['session_remaining'] = bookInfo['session_remaining']
                                     except:
                                         v['session_remaining'] = 'N/A'
                                     serInfo = yield self.serviceList.find(

@@ -32,6 +32,7 @@ from medservice import MedServiceBookHandler
 from medserviceupdate import MedServiceUpdateHandler
 from medservicelist import MedServiceListHandler
 from medservicemedia import MedServiceMediaHandler
+from medservicesession import MedServiceSessionHandler
 
 from restoremedservice import MedServiceBookRestoreHandler
 from restoremedservicelist import MedRestoreServiceListHandler

@@ -22,6 +22,7 @@ class WebServerApplication(cyclone.web.Application):
             (r'/web/api/med/update', MedServiceUpdateHandler),
             (r'/web/api/med/servicelist', MedServiceListHandler),
             (r'/web/api/med/servicemedia', MedServiceMediaHandler),
+            (r'/web/api/med/servicesession', MedServiceSessionHandler),
 
 
             (r'/web/api/med/restore/book/', MedServiceBookRestoreHandler),
