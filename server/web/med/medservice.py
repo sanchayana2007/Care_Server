@@ -357,6 +357,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 code = 4060
                                 message = "Invalid Service"
                                 raise Exception
+                            serName = serList[0]['serNameEnglish']
                             if serBook[0]['stage'] == 'accepted':
                                 if serBook[0]['session_remaining'] <= 0:
                                     code = 4565
@@ -381,6 +382,39 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                         code = 2000
                                         status = True
                                         message = "Session is updated and booking is complete."
+                                        sms = 'Greetings from Ohzas! Your session is complete\
+                                                and your appointment for {} has been finished.\
+                                            We look forward to provide service to you again. '.format(serName)
+                                        conn = http.client.HTTPSConnection("api.msg91.com")
+                                        payloadJson = {
+                                                    "sender":"SOCKET",
+                                                    "route":4,
+                                                    "country":91,
+                                                    "sms":[
+                                                            {
+                                                                "message":sms,
+                                                                "to":[phoneNumber]
+                                                            }
+                                                        ]
+                                                    }
+                                        payload = json.dumps(payloadJson)
+                                        headers = {
+                                                'authkey': MSG91_GW_ID,
+                                                'content-type': "application/json"
+                                            }
+                                        conn.request("POST", "/api/v2/sendsms", payload, headers)
+                                        res = conn.getresponse()
+                                        data = res.read()
+                                        stat = json.loads(data.decode("utf-8"))
+                                        Log.i('Notification Status',stat['type'])
+                                        if stat['type'] == "success":
+                                            code = 2000
+                                            message = "Request has been submitted and SMS notification has been sent"
+                                            status = True
+                                        else:
+                                            code = 4055
+                                            message = "Request has been submitted but the SMS notification could not be sent"
+                                            status = False
                                     else:
                                         code = 4555
                                         status = False
