@@ -329,6 +329,87 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 message = "Invalid Appointment"
                                 status = False
                                 raise Exception
+                        elif self.apiId == 502022:
+                            try:
+                                bookingId = ObjectId(self.request.arguments.get('bookingId'))
+                            except:
+                                code = 4888
+                                message = "Invalid Booking Id"
+                                raise Exception
+                            serBook = yield self.serviceBook.find(
+                                    {
+                                        '_id':bookingId
+                                    }
+                                )
+                            if not len(serBook):
+                                code = 4060
+                                message = "Invalid Booking"
+                                raise Exception
+                            phoneNumber = serBook[0]['accountDetails'][0]['contact'][0]['value']
+                            phoneNumber = str(phoneNumber - 910000000000)
+                            Log.i('Customer Phone Number', phoneNumber)
+                            serList = yield self.serviceList.find(
+                                    {
+                                        '_id':serBook[0]['serviceId']
+                                    }
+                                )
+                            if not len(serList):
+                                code = 4060
+                                message = "Invalid Service"
+                                raise Exception
+                            if serBook[0]['stage'] == 'accepted':
+                                if serBook[0]['session_remaining'] <= 0:
+                                    code = 4565
+                                    status = False
+                                    message = "Invalid Session Update"
+                                    raise Exception
+                                if serBook[0]['session_remaining'] == 1:
+                                    serBookUpdate = yield self.serviceBook.update(
+                                                    {
+                                                        '_id':bookingId
+                                                    },
+                                                    {
+                                                    '$set':{
+                                                            'stage':'completed'
+                                                            },
+                                                    '$inc':{
+                                                            'session_remaining':-1
+                                                            }
+                                                    }
+                                                )
+                                    if serBookUpdate['n']:
+                                        code = 2000
+                                        status = True
+                                        message = "Session is updated and booking is complete."
+                                    else:
+                                        code = 4555
+                                        status = False
+                                        message = "Session could not be updated."
+                                        raise Exception
+                                else:
+                                    erBookUpdate = yield self.serviceBook.update(
+                                                    {
+                                                        '_id':bookingId
+                                                    },
+                                                    {
+                                                    '$inc':{
+                                                            'session_remaining':-1
+                                                            }
+                                                    }
+                                                )
+                                    if serBookUpdate['n']:
+                                        code = 2000
+                                        status = True
+                                        message = "Session is updated."
+                                    else:
+                                        code = 4555
+                                        status = False
+                                        message = "Session could not be updated."
+                                        raise Exception
+                            else:
+                                code = 2000
+                                status = False
+                                message = "Invalid Session Update"
                         else:
                             code = 4003
                             self.set_status(401)
