@@ -853,7 +853,6 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             'accountDetails':bookInfo['accountDetails'],
                                             'booktime':bookInfo['booktime'],
                                             'stage':bookInfo['stage'],
-                                            'session':bookInfo['session'],
                                             'disabled':bookInfo['disabled'],
                                             'requestedTime':bookInfo['requestedTime'],
                                             'comment':bookInfo['comment'],
@@ -867,6 +866,13 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             v['session_remaining'] = 0
                                     except:
                                         v['session_remaining'] = 'N/A'
+                                    try:
+                                        if len(str(bookInfo['session'])):
+                                            v['session'] = bookInfo['session']
+                                        else:
+                                            v['session'] = 'N/A'
+                                    except:
+                                        v['session'] = 'N/A'
                                     serInfo = yield self.serviceList.find(
                                                 {
                                                     '_id':bookInfo['serviceId']
@@ -940,6 +946,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             '_id':str(bookInfo['_id']),
                                             'booktime':bookInfo['booktime'],
                                             'stage':bookInfo['stage'],
+                                            'disabled':bookInfo['disabled'],
                                             'requestedTime':bookInfo['requestedTime'],
                                             'comment':bookInfo['comment']
                                         }
@@ -956,6 +963,20 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                     'serTotal':1
                                                 }
                                             )
+                                    try:
+                                        if len(str(bookInfo['session_remaining'])) and bookInfo['stage'] in ['new','accepted']:
+                                            v['session_remaining'] = bookInfo['session_remaining']
+                                        else:
+                                            v['session_remaining'] = 0
+                                    except:
+                                        v['session_remaining'] = 'N/A'
+                                    try:
+                                        if len(str(bookInfo['session'])):
+                                            v['session'] = bookInfo['session']
+                                        else:
+                                            v['session'] = 'N/A'
+                                    except:
+                                        v['session'] = 'N/A'
                                     v['serviceDetails'] = serInfo
                                     result.append(v)
                                 result.reverse()
