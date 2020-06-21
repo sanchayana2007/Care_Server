@@ -7,6 +7,8 @@ import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/l
 import { AppointmentsService } from './appointments.service';
 import { AppointmentsDialogComponent } from './appointments-dialog/appointments-dialog.component';
 import * as moment from 'moment';
+import {AppointmentsPreviewComponent} from './appointments-preview/appointments-preview.component'
+import { element } from '@angular/core/src/render3/instructions';
 
 @Component({
   selector: 'app-appointments',
@@ -27,6 +29,7 @@ export class AppointmentsComponent implements OnInit {
   dialogResult = '';
   appointmentsTable = true;
   errorMessage: string;
+  element:string;
   isMobile = true;
   value: boolean;
 
@@ -39,7 +42,7 @@ export class AppointmentsComponent implements OnInit {
       this.displayedColumns = result.matches ?
         [] :
         ['requestedDateTime', 'bookingDateTime', 'coustomerName', 'contactNumber',
-        'email', 'serviceName', 'stage', 'actions'];
+         'serviceName', 'stage','session','serviceCharge', 'actions'];
     });
     ToolbarHelpers.toolbarTitle = 'Appointments';
   }
@@ -51,6 +54,7 @@ export class AppointmentsComponent implements OnInit {
   getAppointments() {
     this.loadAppointments = true;
     this.service.getAppointments().subscribe(success => {
+
       try {
         if (success.status) {
           this.loadAppointmentsData(success.result);
@@ -69,6 +73,30 @@ export class AppointmentsComponent implements OnInit {
     });
   }
 
+  onOrderInfo(element) {
+    this.element = element
+    const data = {
+      dialog_data: element
+    };
+    this.openDownloadDialog(data);
+  }
+  openDownloadDialog(data): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true
+    dialogConfig.panelClass = ['dialog-class'];
+    dialogConfig.height = '100%';
+    dialogConfig.width = '100%';
+    dialogConfig.data = data;
+    const dialogRef = this.dialog.open(AppointmentsPreviewComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      if (AppointmentsService.dialogResult) {
+        this.getAppointments();
+      } else {
+        // closed
+      }
+    });
+  }
   loadAppointmentsData(data: any) {
     try {
       if (data !== undefined && data !== null
@@ -103,13 +131,6 @@ export class AppointmentsComponent implements OnInit {
           } else {
             data[i].contact_number_text = data[i].accountDetails[0].contact[0].value;
           }
-          if (data[i].accountDetails[0].contact.length === undefined ||
-            data[i].accountDetails[0].contact.length === 0 ||
-            data[i].accountDetails[0].contact.length < 2) {
-              data[i].email_text = 'N/A';
-          } else {
-            data[i].email_text = data[i].accountDetails[0].contact[1].value;
-          }
           if (data[i].serviceDetails.length === undefined || data[i].serviceDetails.length === 0 ||
             data[i].serviceDetails[0].serNameEnglish === '') {
             data[i].serviceNameEnglish_text = 'N/A';
@@ -121,6 +142,24 @@ export class AppointmentsComponent implements OnInit {
             data[i].stage_text = 'N/A';
           } else {
             data[i].stage_text = data[i].stage;
+          }
+          if (data[i].session === undefined || data[i].session === null ||
+            data[i].session === '') {
+            data[i].session = 'N/A';
+          } else {
+            data[i].session = data[i].session;
+          }
+          if (data[i].session_remaining === undefined || data[i].session_remaining === null ||
+            data[i].session_remaining === '') {
+            data[i].session_remaining = 'N/A';
+          } else {
+            data[i].session_remaining = data[i].session_remaining;
+          }
+          if (data[i].serviceDetails.length === undefined || data[i].serviceDetails.length === 0 ||
+            data[i].serviceDetails[0].serTATotal === '') {
+            data[i].serviceDetails[0].serTATotal = 'N/A';
+          } else {
+            data[i].serviceDetails[0].serTATotal = data[i].serviceDetails[0].serTATotal;
           }
         }
         this.appointmentsTable = true;
@@ -184,6 +223,31 @@ export class AppointmentsComponent implements OnInit {
         }
       );
     } else {
+    }
+  }
+  onSession(element) {
+  
+    if (element.stage_text === 'completed' && element.session_remaining === 0) {
+      this.openDefaultSnackBar('Appointment already completed ');
+    } else if (element.stage_text === "new" ) {
+      this.openDefaultSnackBar('Please accept the Appointment');
+    } else if (element.stage_text === "declined" || element.stage_text === 'declined_fee' ) {
+      this.openDefaultSnackBar('The Appointment has been cancelled.');
+    }
+    else {
+      console.log("222",element._id)
+      this.service.sessionupdate(element._id).subscribe(success => {
+        console.log("succ",success)
+        if (success.status) {
+
+       
+          this.onRefresh();
+        }
+      },
+        error => {
+
+        }
+      );
     }
   }
 

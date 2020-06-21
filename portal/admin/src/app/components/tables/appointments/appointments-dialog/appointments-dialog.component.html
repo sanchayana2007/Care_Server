@@ -18,7 +18,7 @@
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     </div>
     <div fxLayout="row" fxLayoutAlign="space-between">
-      <mat-form-field>
+      <mat-form-field >
         <input type="text" matInput placeholder=" Requested Date/Time" [(ngModel)]="selectedMomentOne"
           [disabled]="disabledStatus" [owlDateTimeTrigger]="dtPicker1" [owlDateTime]="dtPicker1">
         <owl-date-time #dtPicker1></owl-date-time>
@@ -41,15 +41,10 @@
     </div>
     <div fxLayout="row" fxLayoutAlign="space-between">
       <mat-form-field>
-        <input matInput [disabled]="disabledStatus" type="text"
-        placeholder="Email Address" [(ngModel)]="data.email_text" required>
-      </mat-form-field>
-      <mat-form-field>
         <input matInput type="text" [disabled]="disabledStatus"
-        placeholder="Service Name" [(ngModel)]="data.serviceNameEnglish_text" required>
+        placeholder="Service Name" color= "#800000" [(ngModel)]="data.serviceNameEnglish_text" required>
       </mat-form-field>
-    </div>
-    <div fxLayout="row" fxLayoutAlign="space-between">
+    
       <mat-form-field [fxShow]="stageFormField">
         <input matInput type="text" [disabled]="disabledStatus" placeholder="Stage"
           [(ngModel)]="data.stage_text" required>

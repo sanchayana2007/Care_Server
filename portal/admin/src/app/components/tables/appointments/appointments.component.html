@@ -41,10 +41,15 @@
               Actions
             </mat-header-cell>
             <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
-              <div>
+              <div><button mat-icon-button style="color: rgb(4, 142, 206)" title="Download Invoice" (click)="onOrderInfo(element)">
+                <mat-icon>info</mat-icon>
+              </button>
                 <button mat-icon-button style="color:rgb(16, 107, 4)" (click)="onDateTime(element)" matTooltip="Update Date Time ">
                   <mat-icon>update</mat-icon>
                 </button>
+                <button mat-icon-button style="color:rgb(216, 108, 35)" (click)="onSession(element)" matTooltip="Update session">
+                    <mat-icon>medical_services</mat-icon>
+                  </button>
                 <button mat-icon-button color="primary" (click)="onEdit(element)" matTooltip="Edit">
                   <mat-icon>edit</mat-icon>
                 </button>
@@ -61,6 +66,13 @@
               {{element.requestedDateTime_text}}
             </mat-cell>
           </ng-container>
+          <ng-container matColumnDef="session">
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Visit Session / Session Remaining </mat-header-cell>
+            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
+              <span class="mobile-label">Visit Session / Session Remaining : </span>
+              {{element.session}} / {{element.session_remaining}}
+            </mat-cell>
+          </ng-container>
           <ng-container matColumnDef="bookingDateTime">
             <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Booking Date/Time </mat-header-cell>
             <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
@@ -69,9 +81,9 @@
             </mat-cell>
           </ng-container>
           <ng-container matColumnDef="coustomerName">
-            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Coustomer Name </mat-header-cell>
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Customer Name </mat-header-cell>
             <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
-              <span class="mobile-label">Coustomer Name : </span>
+              <span class="mobile-label">Customer Name : </span>
               {{element.fullName_text}}
             </mat-cell>
           </ng-container>
@@ -80,13 +92,6 @@
             <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
               <span class="mobile-label">Contact Number : </span>
               {{element.contact_number_text}}
-            </mat-cell>
-          </ng-container>
-          <ng-container matColumnDef="email">
-            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Email Id </mat-header-cell>
-            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
-              <span class="mobile-label">Email Id : </span>
-              {{element.email_text}}
             </mat-cell>
           </ng-container>
           <ng-container matColumnDef="serviceName">
@@ -101,6 +106,15 @@
             <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
               <span class="mobile-label">Stage : </span>
               {{element.stage_text}}
+            </mat-cell>
+          </ng-container>
+          
+          <ng-container matColumnDef="serviceCharge">
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Service Total Charge </mat-header-cell>
+            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
+              <span class="mobile-label">Service Total Charge : </span>
+             
+              {{element.serviceTotal}}
             </mat-cell>
           </ng-container>
           <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>

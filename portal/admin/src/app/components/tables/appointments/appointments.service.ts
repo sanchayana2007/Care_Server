@@ -51,5 +51,16 @@ export class AppointmentsService {
       headers: this.headers,
     });
   }
+  sessionupdate(body): Observable<any> {
+    const myObj = {
+      bookingId:body
+    };
+    const myObjStr = JSON.stringify(myObj);
+    return this.http.post<any>(environment.proxyApiUrl +
+    '/web/api/med/book', myObjStr, {
+      headers: this.headers,
+
+    });
+  }
 }
 

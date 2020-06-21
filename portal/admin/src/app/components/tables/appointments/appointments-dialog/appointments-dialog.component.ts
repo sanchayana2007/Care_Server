@@ -33,6 +33,10 @@ export class AppointmentsDialogComponent implements OnInit {
     {
       type: 'completed',
       value: 'completed'
+    },
+    {
+      type: 'Declined(cancellation fee)',
+      value: 'declined_fee'
     }
   ];
 

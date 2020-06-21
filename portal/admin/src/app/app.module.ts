@@ -51,6 +51,7 @@ import { ServiceListDialogComponent } from './components/tables/service-list/ser
 import { AppointmentsComponent } from './components/tables/appointments/appointments.component';
 import { AppointmentsDialogComponent } from './components/tables/appointments/appointments-dialog/appointments-dialog.component';
 import { ServiceImageUploadDialogComponent } from './components/tables/service-list/service-image-upload-dialog/service-image-upload-dialog.component';
+import { AppointmentsPreviewComponent } from './components/tables/appointments/appointments-preview/appointments-preview.component';
 
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
@@ -88,11 +89,13 @@ const routes: Routes = [
     AppointmentsComponent,
     AppointmentsDialogComponent,
     ServiceImageUploadDialogComponent,
+    AppointmentsPreviewComponent,
   ],
   entryComponents: [
     AdminDialogComponent,
     ProfileComponent,
     HelpComponent,
+    AppointmentsPreviewComponent,
     ServiceListDialogComponent,
     AppointmentsDialogComponent,
     ServiceImageUploadDialogComponent
@@ -141,6 +144,7 @@ const routes: Routes = [
     Ng2OdometerModule,
     MatStepperModule,
     MatTooltipModule,
+   // AppointmentsPreviewComponent,
     ToasterModule.forRoot(),
     RouterModule.forRoot(routes)
   ],
