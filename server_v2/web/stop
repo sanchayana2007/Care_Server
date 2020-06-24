@@ -1,0 +1,11 @@
+
+# Remove all the compiled files
+find . -name "*.pyc" -type f -delete
+
+PID_HOME="/tmp/proxy/core/mtime/v2/web"
+APPLICATION="run.py"
+
+# Kill the PIDs
+echo `cat $PID_HOME/$APPLICATION.pid`
+pkill -e -F $PID_HOME/$APPLICATION.pid
+
