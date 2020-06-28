@@ -37,6 +37,9 @@ from medservicesession import MedServiceSessionHandler
 from restoremedservice import MedServiceBookRestoreHandler
 from restoremedservicelist import MedRestoreServiceListHandler
 
+from userinfo import MedServiceInfoHandler
+from service_provider import MedServiceProviderHandler
+
 from files import *
 from sign_in import SignInHandler
 from sign_up import SignUpHandler
