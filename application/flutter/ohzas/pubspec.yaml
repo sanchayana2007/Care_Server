@@ -1,6 +1,6 @@
 name: ohzas
 description: A new Flutter application.
-version: 1.000.002+3
+version: 1.000.003+4
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -21,6 +21,8 @@ dependencies:
   intl: 0.16.1
   toast: ^0.1.5
   url_launcher: ^5.4.10
+  share: 0.6.4+3
+  firebase_messaging: 6.0.16
 
 dev_dependencies:
   flutter_test:
@@ -37,6 +39,8 @@ flutter:
     - assets/logo.jpg
     - assets/pf_back_1600x900.jpg
     - assets/loading_wt.gif
+    - assets/discount.png
+    - assets/discount_new.png
 
   fonts:
     - family: CustomIcons

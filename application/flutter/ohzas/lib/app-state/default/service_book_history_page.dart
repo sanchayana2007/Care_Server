@@ -83,6 +83,11 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
             index['stageColor'] = Colors.red[500];
             Log.i('default 2');
             break;
+          case 'declined_fee':
+            index['stage'] = 'cancelled(with fee)';
+            index['stageColor'] = Colors.red[500];
+            Log.i('default 2');
+            break;
           default:
             Log.i('default');
             index['stageColor'] = Colors.black;
@@ -242,9 +247,57 @@ class _ServiceBookHistoryPage extends State<ServiceBookHistoryPage> {
                                     )
                                   ],
                                 ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Text(
+                                      'Session Booked :',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      width: 12,
+                                    ),
+                                    Text(
+                                      bookingHistory[position]['session']
+                                            .toString()
+                                            .toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Text(
+                                      'Session Remaining :',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      width: 12,
+                                    ),
+                                    Text(
+                                      bookingHistory[position]['session_remaining']
+                                            .toString()
+                                            .toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    )
+                                  ],
+                                ),
                                 SizedBox(height: 10),
                                 Visibility(
-                                  visible: (DateTime.now().microsecondsSinceEpoch - bookingHistory[position]['requestedTime']) < 300000000 * 6 && bookingHistory[position]['stage'] != 'declined' && bookingHistory[position]['stage'] != 'completed' && bookingHistory[position]['stage'] != 'cancelled',
+                                  visible: (DateTime.now().microsecondsSinceEpoch - bookingHistory[position]['requestedTime']) < 300000000 * 6 && bookingHistory[position]['stage'] != 'declined' && bookingHistory[position]['stage'] != 'completed' && bookingHistory[position]['stage'] != 'cancelled' && bookingHistory[position]['stage'] != 'declined_fee',
                                   child: Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: <Widget>[

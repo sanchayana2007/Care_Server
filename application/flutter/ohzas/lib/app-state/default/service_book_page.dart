@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:ohzas/app-state/about_page.dart';
 import 'package:ohzas/authorization/signIn.dart';
+import 'package:ohzas/app-state/default/app_home_page.dart';
 import 'package:ohzas/handler/http_request_handler.dart';
 import 'package:ohzas/handler/network_handler.dart';
 import 'package:ohzas/handler/shared_pref_handler.dart';
@@ -27,11 +28,33 @@ class ServiceBookPage extends StatefulWidget {
   }
 }
 
+
+
 class _ServiceBookPage extends State<ServiceBookPage> {
   SharedPrefHandler sharedPrefHandler;
   HttpRequestHandler httpRequestHandler;
   String newValue = 'One-time-session';
   String selected;
+  String cancelFee = '0';
+
+  // getAllData() async {
+  // var resp1 = await httpRequestHandler.getServiceList();
+  //     try {
+  //       //Log.i(resp1);
+  //       Log.i("Me");
+  //       if (resp1['status']) {
+  //         Log.i("Okay");
+  //       } 
+  //       else {
+  //         cancelFee = '0';
+  //       }
+  //     } catch (e) {
+  //       Log.i(e);
+  //       Toaster.e(_context, message: 'Invalid Server Response.');
+  //     }
+  // }
+
+  
 
   
 
@@ -51,11 +74,14 @@ class _ServiceBookPage extends State<ServiceBookPage> {
   BuildContext _context;
   String TAG = "Servce Book Page";
 
+  
+
   onSubmitBooking() async {
     if (dateAndTime.text.isEmpty) {
       Toaster.e(_context, message: 'Please Enter date and Time / कृपया दिनांक और समय दर्ज करें');
       return;
     }
+    goBack();
     String mainTimeString = '';
     List<String> timeInString = dateAndTime.text.split(' ');
     mainTimeString = timeInString[0];
@@ -122,12 +148,14 @@ class _ServiceBookPage extends State<ServiceBookPage> {
   @override
   Widget build(BuildContext context) {
     if (_context == null) {
+      //getAllData();
       _context = context;
       httpRequestHandler = new HttpRequestHandler(context);
       serviceName.text = widget.service['serNameEnglish'].toString();
       serviceCharge.text = widget.service['serCharges'].toString();
       serviceTADA.text = widget.service['serTA'].toString();
       srvTotal = widget.service['serTATotal'].toString();
+      //cancelFee.text = widget.service['cancelFee'].toString();
     }
     return WillPopScope(
       onWillPop: null,
@@ -197,6 +225,22 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                             keyboardType: TextInputType.phone,
                             style: TextStyle(fontSize: 20),
                           ),
+                          // SizedBox(
+                          //   height: 20,
+                          // ),
+                          // Text('Cancellation Fee'),
+                          // Container(
+                          //   width: MediaQuery.of(context).size.width,
+                          //   padding:
+                          //       EdgeInsets.only(left: 10, top: 15, bottom: 15),
+                          //   decoration: BoxDecoration(
+                          //       border: Border.all(color: Colors.grey),
+                          //       borderRadius: BorderRadius.circular(5)),
+                          //   child: Text(
+                          //     cancelFee,
+                          //     style: TextStyle(fontSize: 20),
+                          //   ),
+                          // ),
                           SizedBox(
                             height: 20,
                           ),
@@ -366,7 +410,7 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                                             new BorderRadius.circular(30.0),
                                       ),
                                       onPressed: () {
-                                        onSubmitBooking();
+                                        confirmPop();
                                       },
                                       child: Container(
                                         child: Row(
@@ -526,6 +570,36 @@ class _ServiceBookPage extends State<ServiceBookPage> {
         ),
       ),
     );
+  }
+
+  goBack() {
+    Navigator.of(_context).pushReplacement(
+      MaterialPageRoute(builder: (context) => AppHomePage()),
+    );
+  }
+
+ 
+
+  Future<bool> confirmPop() async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Are you sure? \n\nCancellation after 30 minutes chargeable and will be added to your next invoice'),
+            content: new Text(''),
+            actions: <Widget>[
+              new FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: new Text('No'),
+              ),
+              new FlatButton(
+                onPressed: () => [onSubmitBooking()],
+                //},
+                child: new Text('Yes'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
   }
 }
 

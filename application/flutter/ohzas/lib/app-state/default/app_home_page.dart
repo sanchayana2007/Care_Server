@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ohzas/app-state/about_page.dart';
+import 'package:ohzas/app-state/contactus_page.dart';
 import 'package:ohzas/app-state/default/service_book_history_page.dart';
 import 'package:ohzas/app-state/default/service_book_page.dart';
 import 'package:ohzas/authorization/signIn.dart';
@@ -14,6 +15,7 @@ import 'package:ohzas/handler/network_handler.dart';
 import 'package:ohzas/handler/shared_pref_handler.dart';
 import 'package:ohzas/util/log_util.dart';
 import 'package:ohzas/util/toast_util.dart';
+import 'package:share/share.dart';
 
 class AppHomePage extends StatefulWidget {
   @override
@@ -30,11 +32,13 @@ class _AppHomePage extends State<AppHomePage> {
     sharedPrefHandler = new SharedPrefHandler();
   }
 
-  List<dynamic> serviceList =  [];
+  List<dynamic> serviceList = [];
 
   getAllData() async {
     await httpRequestHandler.getHeaders();
-    if (!await NetworkHandler.isOnlineWithToast(_context, )) {
+    if (!await NetworkHandler.isOnlineWithToast(
+      _context,
+    )) {
       var value = await sharedPrefHandler.getString('\$TrstProfile');
       Map<String, dynamic> respJson = jsonDecode(value);
       updateProfileDetails(respJson);
@@ -164,6 +168,9 @@ class _AppHomePage extends State<AppHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var assetsImage = new AssetImage(
+        'assets/discount.png'); //<- Creates an object that fetches an image.
+    var image = new Image(image: assetsImage, fit: BoxFit.cover);
     _context = context;
     if (profileLoaded) {
       httpRequestHandler = new HttpRequestHandler(context);
@@ -240,7 +247,9 @@ class _AppHomePage extends State<AppHomePage> {
 //              ),
               InkWell(
                 onTap: () async {
-                  if (await NetworkHandler.isOnlineWithToast(context, )) {
+                  if (await NetworkHandler.isOnlineWithToast(
+                    context,
+                  )) {
                     Navigator.of(_context).push(MaterialPageRoute(
                         builder: (context) => ServiceBookHistoryPage()));
                   }
@@ -251,6 +260,34 @@ class _AppHomePage extends State<AppHomePage> {
                     Icons.assignment,
                     color: Colors.black,
                   ),
+                ),
+              ),
+              Divider(
+                color: Colors.grey[600],
+              ),
+              InkWell(
+                onTap: () async {
+                  if (await NetworkHandler.isOnlineWithToast(
+                    context,
+                  )) {
+                    Navigator.of(_context).push(MaterialPageRoute(
+                        builder: (context) => ContactusPage()));
+                  }
+                },
+                child: ListTile(
+                  title: Text("Contact Us"),
+                  leading: Icon(Icons.contact_phone, color: Colors.green),
+                ),
+              ),
+              Divider(
+                color: Colors.grey[600],
+              ),
+              InkWell(
+                onTap: () => Share.share(
+                    'Download the OHZAS app for the best online health service: https://play.google.com/store/apps/details?id=com.xlayer.med.ohzas'),
+                child: ListTile(
+                  title: Text("Share"),
+                  leading: Icon(Icons.share, color: Colors.blue),
                 ),
               ),
               Divider(
@@ -320,6 +357,24 @@ class _AppHomePage extends State<AppHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
+              new Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Image.network(
+                        "https://medix.xlayer.in/uploads/default/discount_new.png"),
+                  ),
+                  // new Container(
+                  //   padding: EdgeInsets.all(2),
+                  //   child: new Image.asset(
+                  //     'assets/discount_new.png',
+                  //     height: 110.0,
+                  //     width:350,
+                  //     //fit: BoxFit.fitWidth,
+                  //     //fit: BoxFit.cover,
+                  //   ),
+                  // ),
+                ],
+              ),
               Visibility(
                 visible: serviceList.length > 0,
                 child: Expanded(
@@ -335,19 +390,16 @@ class _AppHomePage extends State<AppHomePage> {
                           margin: EdgeInsets.all(8),
                           elevation: 20,
                           child: Container(
-                            padding: EdgeInsets.only(
-                              top: 15
-                            ),
+                            padding: EdgeInsets.only(top: 15),
                             height: 500,
                             child: InkWell(
                               splashColor: Colors.white.withAlpha(100),
                               onTap: () {
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return ServiceBookPage(serviceList[position]);
-                                    }
-                                  ),
+                                  MaterialPageRoute(builder: (context) {
+                                    return ServiceBookPage(
+                                        serviceList[position]);
+                                  }),
                                 );
                               },
                               child: Column(
@@ -355,29 +407,32 @@ class _AppHomePage extends State<AppHomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: <Widget>[
                                   FadeInImage.assetNetwork(
-                                    height: (MediaQuery.of(context).size.width / 100) * 31,
+                                    height: (MediaQuery.of(context).size.width /
+                                            100) *
+                                        31,
                                     fit: BoxFit.contain,
                                     placeholder: 'assets/loading_wt.gif',
-                                    image: serviceList[position]['media'][0]['link'],
+                                    image: serviceList[position]['media'][0]
+                                        ['link'],
                                   ),
                                   SizedBox(
                                     height: 5,
                                   ),
                                   Container(
-                                    padding: EdgeInsets.only(
-                                      left: 10,
-                                      right: 10
-                                    ),
+                                    padding:
+                                        EdgeInsets.only(left: 10, right: 10),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         Flexible(
                                           flex: 1,
                                           child: Text(
-                                            serviceList[position]['serNameEnglish']  ,
+                                            serviceList[position]
+                                                ['serNameEnglish'],
                                             style: TextStyle(
-                                                fontSize: 14, 
-                                                color: Colors.black,
+                                              fontSize: 14,
+                                              color: Colors.black,
                                             ),
                                             textAlign: TextAlign.center,
                                           ),
@@ -386,20 +441,20 @@ class _AppHomePage extends State<AppHomePage> {
                                     ),
                                   ),
                                   Container(
-                                    padding: EdgeInsets.only(
-                                      left: 10,
-                                      right: 10
-                                    ),
+                                    padding:
+                                        EdgeInsets.only(left: 10, right: 10),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: <Widget>[
                                         Flexible(
                                           flex: 1,
                                           child: Text(
-                                            serviceList[position]['serNameHindi']  ,
+                                            serviceList[position]
+                                                ['serNameHindi'],
                                             style: TextStyle(
-                                                fontSize: 14, 
-                                                color: Colors.black,
+                                              fontSize: 14,
+                                              color: Colors.black,
                                             ),
                                             textAlign: TextAlign.center,
                                           ),
@@ -421,9 +476,7 @@ class _AppHomePage extends State<AppHomePage> {
                 visible: serviceList.length == 0,
                 child: Column(
                   children: <Widget>[
-                    Text(
-                      srvMessage
-                    ),
+                    Text(srvMessage),
                   ],
                 ),
               ),
@@ -436,23 +489,22 @@ class _AppHomePage extends State<AppHomePage> {
 
   Future<bool> _onWillPop() async {
     return (await showDialog(
-      context: _context,
-      builder: (context) => new AlertDialog(
-        title: new Text('Do you want to go back?'),
-        content: new Text(''),
-        actions: <Widget>[
-          new FlatButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: new Text('No'),
+          context: _context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Do you want to go back?'),
+            content: new Text(''),
+            actions: <Widget>[
+              new FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: new Text('No'),
+              ),
+              new FlatButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: new Text('Yes'),
+              ),
+            ],
           ),
-          new FlatButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: new Text('Yes'),
-          ),
-        ],
-      ),
-    )) ??
+        )) ??
         false;
   }
-
 }

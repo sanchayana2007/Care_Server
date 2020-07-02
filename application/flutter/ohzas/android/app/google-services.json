@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "364544633046",
+    "firebase_url": "https://ohzas-f586d.firebaseio.com",
+    "project_id": "ohzas-f586d",
+    "storage_bucket": "ohzas-f586d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364544633046:android:19af552dcae838d21fc177",
+        "android_client_info": {
+          "package_name": "com.xlayer.med.ohzas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "364544633046-orbaqk9ctmocqbqubcjb91p7j331up7b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCa3_Wc_IkzYJhJAveMD1x9rHGgNEMm2U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "364544633046-orbaqk9ctmocqbqubcjb91p7j331up7b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
