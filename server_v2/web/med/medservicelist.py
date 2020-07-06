@@ -457,7 +457,7 @@ class MedServiceListHandler(tornado.web.RequestHandler):
             self.write(response)
             self.finish()
             return
-    '''
+
     async def put(self):
 
         status = False
@@ -468,7 +468,7 @@ class MedServiceListHandler(tornado.web.RequestHandler):
         try:
             try:
                 # CONVERTS BODY INTO JSON
-                self.request.arguments = json.loads(self.request.body)
+                self.request.arguments = json.loads(self.request.body.decode())
             except Exception as e:
                 code = 4100
                 message = 'Expected Request Type JSON.'
@@ -517,11 +517,14 @@ class MedServiceListHandler(tornado.web.RequestHandler):
                                 code = 4050
                                 message = "Invalid service Id"
                                 raise Exception
-                            serBook = yield self.serviceList.find(
+                            serBookQ = self.serviceList.find(
                                         {
                                             '_id':serviceId
                                         }
                                     )
+                            serBook = []
+                            async for i in serBookQ:
+                                serBook.append(i)
                             if not len(serBook):
                                 code = 4060
                                 message = "Invalid Service"
@@ -584,7 +587,7 @@ class MedServiceListHandler(tornado.web.RequestHandler):
 
                             serTATotal = serCharges + serTA
                             serDATotal = serCharges + serDA
-                            serUpdate = yield self.serviceList.update(
+                            serUpdate = self.serviceList.update_one(
                                                 {
                                                     '_id':serviceId,
                                                 },
@@ -666,7 +669,7 @@ class MedServiceListHandler(tornado.web.RequestHandler):
             self.write(response)
             self.finish()
             return
-    '''
+
     async def delete(self):
 
         status = False
@@ -675,11 +678,9 @@ class MedServiceListHandler(tornado.web.RequestHandler):
         message = ''
 
         try:
-		a = self.request.arguments['id'][0]
-	   print (a)
             try:
                 # CONVERTS BODY INTO JSON
-                serviceId = ObjectId(self.request.arguments['id'][0]).decode()
+                serviceId = ObjectId(self.request.arguments['id'][0].decode())
             except Exception as e:
                 code = 4100
                 message = 'Invalid ID'

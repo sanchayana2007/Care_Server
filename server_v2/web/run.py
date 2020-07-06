@@ -106,6 +106,9 @@ class App(tornado.web.Application):
                 (r'/v2/web/api/sign/up', SignUpHandler),
                 #(r'/v2/web/api/pass/qr', PassQRHandler),
                 (r'/v2/web/api/med/servicelist', MedServiceListHandler),
+                (r'/v2/web/api/med/servicesession', MedServiceSessionHandler ),
+                (r'/v2/web/api/med/update', MedServiceUpdateHandler ),
+                (r'/v2/web/api/med/book', MedServiceBookHandler ),
             ],
             **settings)
         Log.i('APP', 'Running Tornado Application Port - [ {} ]'.format(WEB_SERVER_PORT))

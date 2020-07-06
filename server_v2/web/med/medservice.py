@@ -20,15 +20,14 @@
 '''
 
 from __future__ import division
-from lib import *
 from PIL import Image
+from ..lib.lib import *
 import requests
 import http.client
 import datetime
 
 @xenSecureV1
-class MedServiceBookHandler(cyclone.web.RequestHandler,
-        MongoMixin, RedisMixin):
+class MedServiceBookHandler(tornado.web.RequestHandler):
 
     SUPPORTED_METHODS = ('GET','POST','PUT','DELETE')
 
@@ -95,8 +94,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
 
     fu = FileUtil()
 
-    @defer.inlineCallbacks
-    def post(self):
+    async def post(self):
 
         status = False
         code = 4000
@@ -106,37 +104,45 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
         try:
             try:
                 # CONVERTS BODY INTO JSON
-                self.request.arguments = json.loads(self.request.body)
+                self.request.arguments = json.loads(self.request.body.decode())
             except Exception as e:
                 code = 4100
                 message = 'Expected Request Type JSON.'
                 raise Exception
             # TODO: this need to be moved in a global class, from here
-	    profile = yield self.profile.find(
-                            {
-                                'closed': False,
-                                'entityId': self.entityId,
-                                'accountId': self.accountId,
-                                'applicationId': self.applicationId
-                            },
-                            {
-                                '_id': 1
-                            },
-                            limit=1
-                        )
+            profileQ = self.profile.find(
+                    {
+                        'closed': False,
+                        'entityId': self.entityId,
+                        'accountId': self.accountId,
+                        'applicationId': self.applicationId
+                    },
+                    {
+                        '_id': 1
+                    },
+                    limit=1
+                )
+            profile = []
+            async for i in profileQ:
+                profile.append(i)
+
             if len(profile):
                 self.profileId = profile[0]['_id']
                 Log.i('PID', self.profileId)
-                app = yield self.applications.find(
-                            {
-                                '_id': self.applicationId
-                            },
-                            {
-                                '_id': 1,
-                                'apiId': 1
-                            },
-                            limit=1
-                        )
+                appQ = self.applications.find(
+                        {
+                            '_id': self.applicationId
+                        },
+                        {
+                            '_id': 1,
+                            'apiId': 1
+                        },
+                        limit=1
+                )
+                app = []
+                async for i in appQ:
+                        app.append(i)
+
                 if len(app):
                     self.apiId = app[0]['apiId']
                     if self.apiId in [ 502020, 502022]:
@@ -184,7 +190,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 if code != 4100:
                                     raise Exception
 
-                            accDetails = yield self.account.find(
+                            accDetailsQ = self.account.find(
                                             {
                                                 '_id':self.accountId,
                                             },
@@ -195,6 +201,10 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                 'contact':1
                                             }
                                         )
+                            accDetails = []
+                            async for i in accDetailsQ:
+                                accDetails.append(i)
+
                             if not len(accDetails):
                                 code= 4055
                                 status = False
@@ -208,11 +218,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             Log.i('Customer Phone Number', phoneNumber)
 
 
-                            serList = yield self.serviceList.find(
+                            serListQ = self.serviceList.find(
                                         {
                                             '_id':serviceId
                                         }
                                     )
+                            serList = []
+                            async for i in serListQ:
+                                serList.append(i)
                             if not len(serList):
                                 code = 4060
                                 message = "Invalid Service"
@@ -220,17 +233,20 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
 
                             serName = serList[0]['serNameEnglish']
 
-                            cancelFeeQ = yield self.cancelFee.find(
+                            cancelFeeQQ = self.cancelFee.find(
                                             {
                                                 'profileId':self.profileId
                                             }
                                         )
+                            cancelFeeQ = []
+                            async for i in cancelFeeQQ:
+                                cancelFeeQ.append(i)
                             if len(cancelFeeQ):
                                 cancelFeeAmt = cancelFeeQ[0]['cancellationFee']
                             else:
                                 cancelFeeAmt = 0
 
-                            bookingId = yield self.serviceBook.insert(
+                            bookingId = self.serviceBook.insert_one(
                                         {
                                             'disabled':False,
                                             'cancelFee':cancelFeeAmt,
@@ -252,7 +268,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             newDate = datetime.datetime.fromtimestamp(date).strftime('%Y-%m-%d %I:%M:%p')
 
                             if bookingId:
-                                cancelFeeDel = yield self.cancelFee.remove(
+                                cancelFeeDel = self.cancelFee.delete_many(
                                                 {
                                                     'profileId':self.profileId
                                                 }
@@ -336,11 +352,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 code = 4888
                                 message = "Invalid Booking Id"
                                 raise Exception
-                            serBook = yield self.serviceBook.find(
+                            serBookQ = self.serviceBook.find(
                                     {
                                         '_id':bookingId
                                     }
                                 )
+                            serBook = []
+                            async for i in serBookQ:
+                                serBook.append(i)
                             if not len(serBook):
                                 code = 4060
                                 message = "Invalid Booking"
@@ -348,11 +367,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             phoneNumber = serBook[0]['accountDetails'][0]['contact'][0]['value']
                             phoneNumber = str(phoneNumber - 910000000000)
                             Log.i('Customer Phone Number', phoneNumber)
-                            serList = yield self.serviceList.find(
+                            serListQ = self.serviceList.find(
                                     {
                                         '_id':serBook[0]['serviceId']
                                     }
                                 )
+                            serList = []
+                            async for i in serListQ:
+                                serList.append(i)
                             if not len(serList):
                                 code = 4060
                                 message = "Invalid Service"
@@ -365,7 +387,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                     message = "Invalid Session Update"
                                     raise Exception
                                 if serBook[0]['session_remaining'] == 1:
-                                    serBookUpdate = yield self.serviceBook.update(
+                                    serBookUpdate = self.serviceBook.update_one(
                                                     {
                                                         '_id':bookingId
                                                     },
@@ -421,7 +443,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                         message = "Session could not be updated."
                                         raise Exception
                                 else:
-                                    erBookUpdate = yield self.serviceBook.update(
+                                    erBookUpdate = self.serviceBook.update_one(
                                                     {
                                                         '_id':bookingId
                                                     },
@@ -503,8 +525,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
             self.finish()
             return
 
-    @defer.inlineCallbacks
-    def put(self):
+    async def put(self):
 
         status = False
         code = 4000
@@ -514,37 +535,45 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
         try:
             try:
                 # CONVERTS BODY INTO JSON
-                self.request.arguments = json.loads(self.request.body)
+                self.request.arguments = json.loads(self.request.body.decode())
             except Exception as e:
                 code = 4100
                 message = 'Expected Request Type JSON.'
                 raise Exception
             # TODO: this need to be moved in a global class, from here
-	    profile = yield self.profile.find(
-                            {
-                                'closed': False,
-                                'entityId': self.entityId,
-                                'accountId': self.accountId,
-                                'applicationId': self.applicationId
-                            },
-                            {
-                                '_id': 1
-                            },
-                            limit=1
-                        )
+            profileQ = self.profile.find(
+                    {
+                        'closed': False,
+                        'entityId': self.entityId,
+                        'accountId': self.accountId,
+                        'applicationId': self.applicationId
+                    },
+                    {
+                        '_id': 1
+                    },
+                    limit=1
+                )
+            profile = []
+            async for i in profileQ:
+                profile.append(i)
+
             if len(profile):
                 self.profileId = profile[0]['_id']
                 Log.i('PID', self.profileId)
-                app = yield self.applications.find(
-                            {
-                                '_id': self.applicationId
-                            },
-                            {
-                                '_id': 1,
-                                'apiId': 1
-                            },
-                            limit=1
-                        )
+                appQ = self.applications.find(
+                        {
+                            '_id': self.applicationId
+                        },
+                        {
+                            '_id': 1,
+                            'apiId': 1
+                        },
+                        limit=1
+                )
+                app = []
+                async for i in appQ:
+                        app.append(i)
+
                 if len(app):
                     self.apiId = app[0]['apiId']
                     Log.i(self.apiId)
@@ -561,11 +590,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             except:
                                 stage = None
 
-                            serBook = yield self.serviceBook.find(
+                            serBookQ = self.serviceBook.find(
                                         {
                                             '_id':bookingId
                                         }
                                     )
+                            serBook = []
+                            async for i in serBookQ:
+                                serBook.append(i)
                             if not len(serBook):
                                 code = 4060
                                 message = "Invalid Booking"
@@ -575,11 +607,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             phoneNumber = str(phoneNumber - 910000000000)
                             Log.i('Customer Phone Number', phoneNumber)
 
-                            serList = yield self.serviceList.find(
+                            serListQ = self.serviceList.find(
                                         {
                                             '_id':serBook[0]['serviceId']
                                         }
                                     )
+                            serList = []
+                            async for i in serListQ:
+                                serList.append(i)
                             if not len(serList):
                                 code = 4060
                                 message = "Invalid Service"
@@ -588,7 +623,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             serName = serList[0]['serNameEnglish']
 
                             if stage in ['accepted','declined','completed','declined_fee']:
-                                serUpdate = yield self.serviceBook.update(
+                                serUpdate = self.serviceBook.update_one(
                                             {
                                                 '_id':bookingId
                                             },
@@ -599,7 +634,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             }
                                         )
                                 if stage in ['declined','completed','declined_fee']:
-                                    sessionUpdate = yield self.serviceBook.update(
+                                    sessionUpdate = self.serviceBook.update_one(
                                                 {
                                                     '_id':bookingId
                                                 },
@@ -622,7 +657,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             You will be charged \
                                             a cancellation fee in your next appointment.\
                                             We look forward to provide service to you again.'.format(serName)
-                                    cancelUpdate = yield self.cancelFee.update(
+                                    cancelUpdate = self.cancelFee.update_one(
                                                     {
                                                         'profileId':serBook[0]['profileId']
                                                     },
@@ -685,11 +720,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 code = 4050
                                 message = "Invalid Booking Id"
                                 raise Exception
-                            serBook = yield self.serviceBook.find(
+                            serBookQ = self.serviceBook.find(
                                         {
                                             '_id':bookingId
                                         }
                                     )
+                            serBook = []
+                            async for i in serBookQ:
+                                serBook.append(i)
                             if not len(serBook):
                                 code = 4060
                                 message = "Invalid Booking"
@@ -699,11 +737,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             phoneNumber = str(phoneNumber - 910000000000)
                             Log.i('Customer Phone Number', phoneNumber)
 
-                            serList = yield self.serviceList.find(
+                            serListQ = self.serviceList.find(
                                         {
                                             '_id':serBook[0]['serviceId']
                                         }
                                     )
+                            serList = []
+                            async for i in serListQ:
+                                serList.append(i)
                             if not len(serList):
                                 code = 4060
                                 message = "Invalid Service"
@@ -711,7 +752,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
 
                             serName = serList[0]['serNameEnglish']
 
-                            serUpdate = yield self.serviceBook.update(
+                            serUpdate = self.serviceBook.update_one(
                                         {
                                             '_id':bookingId
                                         },
@@ -817,8 +858,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
             self.finish()
             return
 
-    @defer.inlineCallbacks
-    def get(self):
+    async def get(self):
 
         status = False
         code = 4000
@@ -830,42 +870,53 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
             bookingId = None
         try:
             # TODO: this need to be moved in a global class
-            profile = yield self.profile.find(
-                            {
-                                'closed': False,
-                                'entityId': self.entityId,
-                                'accountId': self.accountId,
-                                'applicationId': self.applicationId
-                            },
-                            {
-                                '_id': 1
-                            },
-                            limit=1
-                        )
+            profileQ = self.profile.find(
+                    {
+                        'closed': False,
+                        'entityId': self.entityId,
+                        'accountId': self.accountId,
+                        'applicationId': self.applicationId
+                    },
+                    {
+                        '_id': 1
+                    },
+                    limit=1
+                )
+            profile = []
+            async for i in profileQ:
+                profile.append(i)
+
             if len(profile):
                 self.profileId = profile[0]['_id']
                 Log.i('PID', self.profileId)
-                app = yield self.applications.find(
-                            {
-                                '_id': self.applicationId
-                            },
-                            {
-                                '_id': 0,
-                                'apiId': 1
-                            },
-                            limit=1
-                        )
+                appQ = self.applications.find(
+                        {
+                            '_id': self.applicationId
+                        },
+                        {
+                            '_id': 1,
+                            'apiId': 1
+                        },
+                        limit=1
+                )
+                app = []
+                async for i in appQ:
+                        app.append(i)
+
                 if len(app):
                     self.apiId = app[0]['apiId']
                     if app[0]['apiId'] in [ 502020, 502022]: # TODO: till here
                         if self.apiId == 502022:
                             if bookingId == None:
-                                res = yield self.serviceBook.find(
+                                resQ = self.serviceBook.find(
                                         {
                                             'entityId':self.entityId,
                                             'disabled':False
                                         }
                                     )
+                                res = []
+                                async for i in resQ:
+                                    res.append(i)
                             else:
                                 try:
                                     bookingId = ObjectId(bookingId)
@@ -873,13 +924,16 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                     code = 4050
                                     status = False
                                     message = "Invalid Booking Id"
-                                res = yield self.serviceBook.find(
+                                resQ = self.serviceBook.find(
                                         {
                                             'entityId':self.entityId,
                                             '_id':bookingId,
                                             'disabled':False
                                         }
                                     )
+                                res = []
+                                async for i in resQ:
+                                    res.append(i)
                             if len(res):
                                 for bookInfo in res:
                                     v = {
@@ -907,7 +961,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             v['session'] = 'N/A'
                                     except:
                                         v['session'] = 'N/A'
-                                    serInfo = yield self.serviceList.find(
+                                    serInfoQ = self.serviceList.find(
                                                 {
                                                     '_id':bookInfo['serviceId']
                                                 },
@@ -922,6 +976,9 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                     'serDATotal':1
                                                 }
                                             )
+                                    serInfo = []
+                                    async for i in serInfoQ:
+                                        serInfo.append(i)
                                     if bookInfo['session'] in [5,6,7,8,9,10]:
                                         discount = 0.1
                                     elif bookInfo['session'] in [11,12,13,14,15]:
@@ -952,14 +1009,15 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 message = "No data found"
                         elif self.apiId == 502020:
                             if bookingId == None:
-                                print self.entityId
-                                print self.profileId
-                                res = yield self.serviceBook.find(
+                                resQ = self.serviceBook.find(
                                         {
                                             'entityId':self.entityId,
                                             'profileId':self.profileId
                                         }
                                     )
+                                res = []
+                                async for i in resQ:
+                                    res.append(i)
                             else:
                                 try:
                                     bookingId = ObjectId(bookingId)
@@ -967,13 +1025,16 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                     code = 4050
                                     status = False
                                     message = "Invalid Booking Id"
-                                res = yield self.serviceBook.find(
+                                resQ = self.serviceBook.find(
                                         {
                                             'entityId':self.entityId,
                                             'profileId':self.profileId,
                                             '_id':bookingId
                                         }
                                     )
+                                res = []
+                                async for i in resQ:
+                                    res.append(i)
                             if len(res):
                                 for bookInfo in res:
                                     v = {
@@ -984,7 +1045,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             'requestedTime':bookInfo['requestedTime'],
                                             'comment':bookInfo['comment']
                                         }
-                                    serInfo = yield self.serviceList.find(
+                                    serInfoQ = self.serviceList.find(
                                                 {
                                                     '_id':bookInfo['serviceId']
                                                 },
@@ -997,6 +1058,9 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                     'serTotal':1
                                                 }
                                             )
+                                    serInfo = []
+                                    async for i in serInfoQ:
+                                        serInfo.append(i)
                                     try:
                                         if len(str(bookInfo['session_remaining'])) and bookInfo['stage'] in ['new','accepted']:
                                             v['session_remaining'] = bookInfo['session_remaining']
@@ -1081,9 +1145,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
             return
 
 
-
-    @defer.inlineCallbacks
-    def delete(self):
+    async def delete(self):
 
         status = False
         code = 4000
@@ -1093,31 +1155,49 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
         try:
             try:
                 # CONVERTS BODY INTO JSON
-                bookingId = ObjectId(self.request.arguments['id'][0])
+                bookingId = ObjectId(self.request.arguments['id'][0].decode())
             except Exception as e:
                 code = 4100
                 message = 'Invalid ID'
                 raise Exception
             # TODO: this need to be moved in a global class, from here
-            profile = yield self.profile.find(
-                            {
-                                'closed': False,
-                                'accountId': self.accountId,
-                                'entityId': self.entityId,
-                                'applicationId': self.applicationId
-                            },
-                            limit=1
-                        )
+            profileQ = self.profile.find(
+                    {
+                        'closed': False,
+                        'entityId': self.entityId,
+                        'accountId': self.accountId,
+                        'applicationId': self.applicationId
+                    },
+                    {
+                        '_id': 1
+                    },
+                    limit=1
+                )
+            profile = []
+            async for i in profileQ:
+                profile.append(i)
+
             if len(profile):
-                app = yield self.applications.find(
-                            {
-                                '_id': profile[0]['applicationId']
-                            },
-                            limit=1
-                        )
+                self.profileId = profile[0]['_id']
+                Log.i('PID', self.profileId)
+                appQ = self.applications.find(
+                        {
+                            '_id': self.applicationId
+                        },
+                        {
+                            '_id': 1,
+                            'apiId': 1
+                        },
+                        limit=1
+                )
+                app = []
+                async for i in appQ:
+                        app.append(i)
+
                 if len(app):
+                    self.apiId = app[0]['apiId']
                     if app[0]['apiId'] == 502022:# TODO: till here
-                        bookDel = yield self.serviceBook.update(
+                        bookDel = self.serviceBook.update_one(
                                     {
                                         '_id':bookingId
                                     },
