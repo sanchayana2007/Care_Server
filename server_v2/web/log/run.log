@@ -1,7 +1,0 @@
-| 2020:07:06 12:25:42,273 | I | root | ------
-| 2020:07:06 12:25:42,302 | I | root | lib/log_util.py +50 <module> All Logs written in ./log/run.log
-| 2020:07:06 12:25:42,947 | D | asyncio | Using selector: EpollSelector
-| 2020:07:06 12:25:42,997 | I | root | lib/conn_util.py +39 MongoMixin MONGO	User Database has been Initialized!
-| 2020:07:06 12:25:43,029 | I | root | lib/conn_util.py +58 MongoMixin MONGO	Service Database has been Initialized!
-| 2020:07:06 12:25:43,060 | I | root | lib/conn_util.py +77 MongoMixin MONGO	Service Database has been Initialized!
-| 2020:07:06 12:25:43,137 | I | root | run.py +114 __init__ APP	Running Tornado Application Port - [ 2331 ]
