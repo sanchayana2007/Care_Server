@@ -1,0 +1,57 @@
+/* You can add global styles to this file, and also import other style files */
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+button.mat-raised-button:hover {
+    background-color: "blue";
+}
+
+
+// For Defult Snakbar
+snack-bar-container.snakbar-class-default {
+    background: #0000ff;
+    font-weight: 800;
+    border-radius: 5px;
+    // font-weight: bold;
+}
+
+.snakbar-class-default .mat-simple-snackbar .mat-button {
+    color: #ffffff;
+    // font-weight: 1000;
+    // font-weight: bold;
+    display: none;
+}
+
+// For Success Snakbar
+snack-bar-container.snakbar-class-success {
+    background: #0ea309;
+    color: #ffffff;
+    // font-weight: bold;
+    border-radius: 5px;
+}
+
+.snakbar-class-success .mat-simple-snackbar .mat-button {
+    color: #ffffff;
+    // font-weight: 2000;
+    // font-weight: bold;
+    display: none;
+}
+
+// For Error Snakbar
+snack-bar-container.snakbar-class-error {
+    background: #d43c3c;
+    color: #ffffff;
+    // font-weight: bold;
+    border-radius: 5px;
+}
+
+.snakbar-class-error .mat-simple-snackbar .mat-button {
+    color: #ffffff;
+    // font-weight: 2000;
+    // font-weight: bold;
+    display: none;
+}

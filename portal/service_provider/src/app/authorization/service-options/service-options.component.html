@@ -1,0 +1,37 @@
+<div class="outer">
+  <perfect-scrollbar>
+    <p class="headingPtag"> SERVICE TYPES </p>
+    <div style="padding: 60px; padding-top: 0px; padding-bottom: 30px;" fxLayout="column">
+      <div fxLayout="row wrap" fxLayoutAlign="center center">
+        <div mat-raised-button id="imgDiv" fxLayout="column" fxLayoutAlign="center center"
+          (click)="onServiceOptions(0)">
+          <p class="Ptag">{{data[0].serNameEnglish}}</p>
+          <img [src]="Image1">
+        </div>
+        <div mat-raised-button id="imgDiv" fxLayout="column" fxLayoutAlign="center center"
+          (click)="onServiceOptions(1)">
+          <p class="Ptag">{{data[1].serNameEnglish}}</p>
+          <img [src]="Image2">
+        </div>
+        <div mat-raised-button id="imgDiv" fxLayout="column" fxLayoutAlign="center center"
+          (click)="onServiceOptions(2)">
+          <p class="Ptag">{{data[2].serNameEnglish}}</p>
+          <img [src]="Image3">
+        </div>
+      </div>
+      <div fxLayout="row wrap" fxLayoutAlign="center center">
+        <div mat-raised-button id="imgDiv" fxLayout="column" fxLayoutAlign="center center"
+          (click)="onServiceOptions(3)">
+          <p class="Ptag">{{data[3].serNameEnglish}}</p>
+          <img [src]="Image4">
+        </div>
+        <div mat-raised-button id="imgDiv" fxLayout="column" fxLayoutAlign="center center"
+          (click)="onServiceOptions(4)">
+          <p class="Ptag">{{data[4].serNameEnglish}}</p>
+          <img [src]="Image5">
+          
+        </div>
+      </div>
+    </div>
+  </perfect-scrollbar>
+</div>

@@ -150,20 +150,6 @@ export class AdminComponent implements OnInit {
 
   onDelete(id) {
     this.openErrorSnackBar('Do not delete the Admin');
-    // if (window.confirm('Are you sure you want to delete?')) {
-    //   this.service.deleteAdmins(id).subscribe(
-    //     success => {
-    //       if (success.status) {
-    //         this.onRefresh();
-    //       }
-    //     },
-    //     error => {
-
-    //     }
-    //   );
-    // } else {
-
-    // }
   }
 
   openDialog(data): void {

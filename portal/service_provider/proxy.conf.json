@@ -1,0 +1,17 @@
+{
+  "/web": {
+    "target": "https://mtime.xlayer.in",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/notification": {
+    "target": "https://mtime.xlayer.in",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/report": {
+    "target": "https://mtime.xlayer.in",
+    "secure": true,
+    "changeOrigin": true
+  }
+}

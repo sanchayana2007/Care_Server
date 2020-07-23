@@ -1,0 +1,46 @@
+img {
+  min-height: 240px;
+  max-height: 240px;
+  max-width: 380px;
+  min-width: 300px;
+  padding: 10px;
+  margin-top: 10px;
+}
+.uploadButton {
+  margin: 4px;
+  font-weight: bold;
+  height: 59px;
+  margin-left: 6px;
+}
+h1 {
+  font-size: 25px;
+}
+h2 {
+  font-size: 20px;
+}
+.example-card {
+  max-height: 300px;
+  overflow-y: auto;
+ 
+} 
+@media only screen and (max-width: 480px) {
+  img {
+    min-height: 240px;
+    max-height: 240px;
+    max-width: 290px;
+    min-width: 290px;
+    padding: 10px;
+  }
+  mat-card {
+    height: auto;
+    width: auto;
+  }
+  .serif {
+    font-family: "Times New Roman", Times, serif;
+  }
+ 
+  .button:hover {
+    background-color: gray;
+  }
+  
+}
