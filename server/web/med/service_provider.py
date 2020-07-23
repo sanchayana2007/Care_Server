@@ -112,33 +112,6 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
 
         try:
 
-
-            # GET FILES FROM REQUEST BODY
-            '''
-            try:
-                liveProof = self.request.files['liveProof'][0]
-            except Exception as e:
-                code = 4100
-                message = 'Need a Live Video Proof.'
-                raise Exception
-            '''
-
-
-            try:
-                id1Proof = self.request.files['id1Proof'][0]
-            except Exception as e:
-                code = 4102
-                message = 'Please upload the image of the relevant document'
-                raise Exception
-
-            try:
-                id2Proof = self.request.files['id2Proof'][0]
-            except Exception as e:
-                code = 4102
-                message = 'Please upload the image of the relevant declaration'
-                raise Exception
-
-            print self.entityId
             # TODO: this need to be moved in a global class, from here
 	    profile = yield self.profile.find(
                             {
@@ -170,6 +143,19 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
 		    if self.apiId in [ 502021]:
 			if self.apiId == 502021: # TODO: till here
                             try:
+                                idType = self.get_arguments('idType')[0]
+                            except:
+                                code = 4655
+                                status = False
+                                message = "Argument missing - idType"
+                                raise Exception
+                            if idType not in ['document','declaration']:
+                                code = 4560
+                                status = False
+                                message = 'Invalid ID Type'
+                                raise Exception
+
+                            try:
                                 serviceId = ObjectId(self.request.arguments['serviceId'][0])
                             except:
                                 code = 4565
@@ -188,40 +174,40 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                 code = 4210
                                 message = 'Invalid Argument - [ Address ].'
                                 raise Exception
-
+                            try:
+                                idProof = self.request.files['idProof'][0]
+                            except Exception as e:
+                                code = 4830
+                                status = False
+                                message = "Media File is missing"
                             filepath = []
 
-                            id1ProofType = id1Proof['content_type']
-                            id1ProofType = yield mimetypes.guess_extension(
-                                            id1ProofType,
+                            idProofType = idProof['content_type']
+                            idProofType = yield mimetypes.guess_extension(
+                                            idProofType,
                                             strict=True
                                 )
 
-                            id2ProofType = id2Proof['content_type']
-                            id2ProofType = yield mimetypes.guess_extension(
-                                            id2ProofType,
-                                            strict=True
-                                )
 
                             aTime = timeNow()
-                            id1Time = aTime
-                            if str(id1ProofType) in [ '.png','.jpeg', '.jpg', '.jpe']:
-                                fName = id1Time
-                                fRaw = id1Proof['body']
+                            idTime = aTime
+                            if str(idProofType) in [ '.png','.jpeg', '.jpg', '.jpe']:
+                                fName = idTime
+                                fRaw = idProof['body']
                                 fp = self.fu.tmpPath
                                 if not os.path.exists(fp):
                                     Log.i('DRV-Profile', 'Creating Directories')
                                     os.system('mkdir -p ' + fp)
-                                fpm = fp + '/' + str(fName) + id1ProofType
+                                fpm = fp + '/' + str(fName) + idProofType
                                 fh = open(fpm, 'w')
                                 fh.write(fRaw)
                                 fh.close()
 
                                 mainFile = ''
                                 # Converting to PNG
-                                if str(id1ProofType) not in ['.png']:
-                                    id1ProofType = '.png'
-                                    fpx = fp + '/' + str(fName) + id1ProofType
+                                if str(idProofType) not in ['.png']:
+                                    idProofType = '.png'
+                                    fpx = fp + '/' + str(fName) + idProofType
                                     filepath.append(fpx)
                                     im = Image.open(fpm)
                                     im.save(fpx, 'PNG')
@@ -234,41 +220,6 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                     mainFile = fpm
                             else:
                                 message = 'Invalid File Type for Document'
-                                code = 4011
-                                raise Exception
-
-                            aTime = aTime + 1
-                            id2Time = aTime
-                            if str(id2ProofType) in [ '.png','.jpeg', '.jpg', '.jpe']:
-                                fName = id2Time
-                                fRaw = id2Proof['body']
-                                fp = self.fu.tmpPath
-                                if not os.path.exists(fp):
-                                    Log.i('DRV-Profile', 'Creating Directories')
-                                    os.system('mkdir -p ' + fp)
-                                fpm = fp + '/' + str(fName) + id2ProofType
-                                fh = open(fpm, 'w')
-                                fh.write(fRaw)
-                                fh.close()
-
-                                mainFile = ''
-                                # Converting to PNG
-                                if str(id2ProofType) not in ['.png']:
-                                    id2ProofType = '.png'
-                                    fpx = fp + '/' + str(fName) + id2ProofType
-                                    filepath.append(fpx)
-                                    im = Image.open(fpm)
-                                    im.save(fpx, 'PNG')
-                                    os.system('rm ' + fpm)
-                                    os.system('chmod 755 -R ' + fp + '*')
-                                    mainFile = fpx
-                                else:
-                                    filepath.append(fpm)
-                                    os.system('chmod 755 -R ' + fpm + '*')
-                                    mainFile = fpm
-
-                            else:
-                                message = 'Invalid File Type for Declaration.'
                                 code = 4011
                                 raise Exception
 
@@ -303,18 +254,12 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                             {
                                             '$set':{
                                                         'address':address,
-                                                        'docUpload':[
+                                                        idType:[
                                                                         {
-                                                                            'time':id1Time,
-                                                                            'mimeType':id1ProofType
+                                                                            'time':idTime,
+                                                                            'mimeType':idProofType
                                                                         }
                                                                     ],
-                                                        'declarationUpload':[
-                                                                                {
-                                                                                    'time':id2Time,
-                                                                                    'mimeType':id2ProofType
-                                                                                }
-                                                                            ],
                                                     }
                                             }
                                         )
@@ -338,18 +283,12 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                             'verified':False,
                                             'submitRequest':[0,1],
                                             'address':address,
-                                            'docUpload':[
+                                            idType:[
                                                             {
-                                                                'time':id1Time,
-                                                                'mimeType':id1ProofType
+                                                                'time':idTime,
+                                                                'mimeType':idProofType
                                                             }
                                                         ],
-                                            'declarationUpload':[
-                                                                    {
-                                                                        'time':id2Time,
-                                                                        'mimeType':id2ProofType
-                                                                    }
-                                                                ]
                                         }
                                     )
 
@@ -706,10 +645,6 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
             profileId = None
         '''
 
-        try:
-            serId = ObjectId(self.request.arguments['id'][0])
-        except:
-            serId = None
 
         try:
             method = int(self.request.arguments['method'][0])
@@ -749,13 +684,18 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
 
                         # For Service Provider GET
                         if self.apiId == 502021:
+                            try:
+                                serId = ObjectId(self.request.arguments['id'][0])
+                            except:
+                                serId = None
                             if serId:
                                 serProf = yield self.serviceProvider.find(
                                             {
-                                                '_id':serId,
+                                                'serviceId':serId,
                                                 'profileId':self.profileId
                                             }
                                         )
+                                print serProf
                             else:
                                 serProf = yield self.serviceProvider.find(
                                             {
@@ -767,17 +707,17 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                     v = {
                                             '_id':str(res['_id']),
                                             'address':res['address'],
-                                            'docUpload':res['docUpload'],
-                                            'declaration':res['declarationUpload'],
+                                            'document':res['document'],
+                                            'declaration':res['declaration'],
                                             'verified':res['verified']
                                         }
-                                    if len(res['docUpload']):
-                                        for docx in res['docUpload']:
+                                    if len(res['document']):
+                                        for docx in res['document']:
                                             docx['link'] = self.fu.serverUrl + '/uploads/' \
                                                         + str(self.entityId) + '/service_provider/' \
                                                         + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
-                                    if len(res['declarationUpload']):
-                                        for docx in res['declarationUpload']:
+                                    if len(res['declaration']):
+                                        for docx in res['declaration']:
                                             docx['link'] = self.fu.serverUrl + '/uploads/' \
                                                         + str(self.entityId) + '/service_provider/' \
                                                         + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
@@ -787,40 +727,73 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                 status = False
                                 message = "No Data Found"
                         elif self.apiId == 502022:
-                            # For Admin GET
-                            if serId:
-                                serProf = yield self.serviceProvider.find(
-                                            {
-                                                '_id': serId,
-                                                'disabled': False,
-                                            },
-                                            {
-                                                '_id':1,
-                                                'docUpload':1,
-                                                'declarationUpload':1
-                                            }
-                                        )
-                                if len(serProf):
-                                    if len(serProf[0]['docUpload']):
-                                        for docx in serProf[0]['docUpload']:
-                                            docx['link'] = self.fu.serverUrl + '/uploads/' \
-                                                        + str(self.entityId) + '/service_provider/' \
-                                                        + str(serProf[0]['_id']) + '/' + str(docx['time']) + docx['mimeType']
-                                    if len(serProf[0]['declarationUpload']):
-                                        for docx in serProf[0]['declarationUpload']:
-                                            docx['link'] = self.fu.serverUrl + '/uploads/' \
-                                                        + str(self.entityId) + '/service_provider/' \
-                                                        + str(serProf[0]['_id']) + '/' + str(docx['time']) + docx['mimeType']
-                                    serProf[0]['id'] = str(serProf[0]['_id'])
-                                    del serProf[0]['_id']
-                                    result.append(serProf)
-                                else:
-                                    code = 4555
+                            try:
+                                verified = int(self.request.arguments['verified'][0])
+                            except:
+                                verified = None
+
+
+                            if verified != None:
+                                if  verified not in [0,1]:
+                                    code = 4355
                                     status = False
-                                    message = "No Data Found"
+                                    message = "Invalid Verification Status"
+                                    raise Exception
+                                if int(verified) == 0:
+                                    verified = False
+                                else:
+                                    verified = True
+
+
+                            try:
+                                serviceId = ObjectId(self.request.arguments['serviceId'][0])
+                            except:
+                                serviceId = None
+                            # For Admin GET
+                            try:
+                                serProId = ObjectId(self.request.arguments['serviceProviderId'][0])
+                            except:
+                                serProId = None
+                            if serviceId == None:
+                                if verified == None:
+                                    serProf = yield self.serviceProvider.find(
+                                                {
+                                                    'disabled': False,
+                                                },
+                                                {
+                                                    '_id': 1,
+                                                    'profileId':1,
+                                                    'disabled':1,
+                                                    'serviceId':1,
+                                                    'verified':1,
+                                                    'address':1,
+                                                    'document':1,
+                                                    'declaration':1
+                                                }
+                                            )
+                                else:
+                                    serProf = yield self.serviceProvider.find(
+                                                {
+                                                    'disabled': False,
+                                                    'verified': verified
+                                                },
+                                                {
+                                                    '_id': 1,
+                                                    'profileId':1,
+                                                    'disabled':1,
+                                                    'serviceId':1,
+                                                    'verified':1,
+                                                    'address':1,
+                                                    'document':1,
+                                                    'declaration':1
+                                                }
+                                            )
+
                             else:
-                                serProf = yield self.serviceProvider.find(
+                                if verified == None:
+                                    serProf = yield self.serviceProvider.find(
                                             {
+                                                'serviceId':serviceId,
                                                 'disabled': False,
                                             },
                                             {
@@ -830,45 +803,73 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                                 'serviceId':1,
                                                 'verified':1,
                                                 'address':1,
-                                                'docUpload':1,
-                                                'declarationUpload':1
+                                                'document':1,
+                                                'declaration':1
                                             }
                                         )
-                                for res in serProf:
-                                    service = yield self.serviceList.find(
-                                                {
-                                                    '_id':res['serviceId']
-                                                }
-                                            )
-                                    serviceName = service[0]['serNameEnglish']
-                                    proFind = yield self.profile.find(
+                                else:
+                                    serProf = yield self.serviceProvider.find(
+                                            {
+                                                'serviceId':serviceId,
+                                                'disabled': False,
+                                                'verified':verified
+                                            },
+                                            {
+                                                '_id': 1,
+                                                'profileId':1,
+                                                'disabled':1,
+                                                'serviceId':1,
+                                                'verified':1,
+                                                'address':1,
+                                                'document':1,
+                                                'declaration':1
+                                            }
+                                        )
+
+                            for res in serProf:
+                                service = yield self.serviceList.find(
+                                            {
+                                                '_id':res['serviceId']
+                                            }
+                                        )
+                                serviceName = service[0]['serNameEnglish']
+                                proFind = yield self.profile.find(
                                             {
                                                 '_id':res['profileId']
                                             }
                                         )
-                                    if len(proFind):
-                                        accFind = yield self.account.find(
+                                if len(proFind):
+                                    accFind = yield self.account.find(
                                             {
                                                 '_id':proFind[0]['accountId']
                                             }
                                         )
+                                    if len(accFind):
                                         regNum = accFind[0]['contact'][0]['value'] - 910000000000
-                                    else:
-                                        regNum = None
-                                    v = {
-                                            'registeredPhoneNum':regNum,
-                                            'fullName' : accFind[0]['firstName'] + ' ' + accFind[0]['lastName'],
-                                            'serviceId':str(res['serviceId']),
-                                            'serviceName':serviceName,
-                                            'disabled':res['disabled'],
-                                            'verified':res['verified'],
-                                            'serviceProfileId':str(res['profileId']),
-                                            'address':res['address'],
-                                            'docUpload':res['docUpload'],
-                                            'declarationUpload':res['declarationUpload'],
-                                            'id':str(res['_id'])
-                                        }
-                                    result.append(v)
+                                        v = {
+                                                'registeredPhoneNum':regNum,
+                                                'fullName' : accFind[0]['firstName'] + ' ' + accFind[0]['lastName'],
+                                                'serviceId':str(res['serviceId']),
+                                                'serviceName':serviceName,
+                                                'disabled':res['disabled'],
+                                                'verified':res['verified'],
+                                                'serviceProfileId':str(res['profileId']),
+                                                'address':res['address'],
+                                                'document':res['document'],
+                                                'declaration':res['declaration'],
+                                                'id':str(res['_id'])
+                                            }
+                                        if len(res['document']):
+                                            for docx in res['document']:
+                                                docx['link'] = self.fu.serverUrl + '/uploads/' \
+                                                    + str(self.entityId) + '/service_provider/' \
+                                                    + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
+                                        if len(res['declaration']):
+                                            for docx in res['declaration']:
+                                                docx['link'] = self.fu.serverUrl + '/uploads/' \
+                                                    + str(self.entityId) + '/service_provider/' \
+                                                    + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
+                                result.append(v)
 			    if len(result):
                                 code = 2000
 			        status = True
@@ -919,6 +920,154 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
         except Exception as e:
             status = False
             result = []
+            template = 'Exception: {0}. Argument: {1!r}'
+            code = 5011
+            iMessage = template.format(type(e).__name__, e.args)
+            message = 'Internal Error Please Contact the Support Team.'
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = exc_tb.tb_frame.f_code.co_filename
+            Log.w('EXC', iMessage)
+            Log.d('EX2', 'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
+            response =  {
+                    'code': code,
+                    'status': status,
+                    'message': message
+                }
+            self.write(response)
+            self.finish()
+            return
+
+
+    @defer.inlineCallbacks
+    def put(self):
+
+        status = False
+        code = 4000
+        result = []
+        message = ''
+
+
+
+        try:
+            try:
+                # CONVERTS BODY INTO JSON
+                self.request.arguments = json.loads(self.request.body)
+            except Exception as e:
+                code = 4100
+                message = 'Expected Request Type JSON.'
+                raise Exception
+
+            # TODO: this need to be moved in a global class, from here
+            profile = yield self.profile.find(
+                            {
+                                'closed': False,
+                                'entityId': self.entityId,
+                                'accountId': self.accountId,
+                                'applicationId': self.applicationId
+                            },
+                            {
+                                '_id': 1
+                            },
+                            limit=1
+                        )
+            if len(profile):
+                self.profileId = profile[0]['_id']
+                Log.i('PID', self.profileId)
+                app = yield self.applications.find(
+                            {
+                                'disabled': False,
+                                '_id': self.applicationId
+                            },
+                            {
+                                'apiId': 1
+                            },
+                            limit=1
+                        )
+                if len(app):
+                    self.apiId = app[0]['apiId']
+                    if self.apiId in [502022,502021]:
+                        if self.apiId in [ 502021 ]: # TODO: till here
+                            code = 4755
+                            status = False
+                            message = "API not yet implemeted."
+                            raise Exception
+                        elif self.apiId in [ 502022 ]: # TODO: till here
+                            statusValue = self.request.arguments.get('statusValue')
+                            code,message = Validate.i(
+                                            statusValue,
+                                            'Status Value',
+                                            dataType = bool,
+                                        )
+                            if code != 4100:
+                                raise Exception
+                            #TODO::Need to send notication based on status
+                            accConfId = self.request.arguments.get('id')
+                            accConfVerify = yield self.serviceProvider.update(
+                                            {
+                                                '_id':ObjectId(accConfId)
+                                            },
+                                            {
+                                            '$set': {
+                                                        'verified': statusValue,
+                                                    },
+                                            '$inc': {
+                                                        'submitRequest.0':1
+                                                    },
+                                            }
+                                        )
+                            if accConfVerify['n']:
+                                code = 2000
+                                status = True
+                                if statusValue:
+                                    message = "Service Account has been approved"
+                                else:
+                                    message = "Service Account has been declined."
+                            else:
+                                code = 2003
+                                status = False
+                                message = "Invalid verification request"
+                        else:
+                            code = 4003
+                            self.set_status(401)
+                            message = 'You are not Authorized.'
+                    else:
+                        code = 4003
+                        self.set_status(401)
+                        message = 'You are not Authorized.'
+                else:
+                    code = 4003
+                    self.set_status(401)
+                    message = 'You are not Authorized.'
+            else:
+                code = 4003
+                self.set_status(401)
+                message = 'You are not Authorized.'
+
+        except Exception as e:
+            status = False
+            #self.set_status(400)
+            if not len(message):
+                template = 'Exception: {0}. Argument: {1!r}'
+                code = 5010
+                iMessage = template.format(type(e).__name__, e.args)
+                message = 'Internal Error Please Contact the Support Team.'
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = exc_tb.tb_frame.f_code.co_filename
+                Log.w('EXC', iMessage)
+                Log.d('EX2', 'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
+        response =  {
+                    'code': code,
+                    'status': status,
+                    'message': message
+                }
+        Log.d('RSP', response)
+        try:
+            response['result'] = result
+            self.write(response)
+            self.finish()
+            return
+        except Exception as e:
+            status = False
             template = 'Exception: {0}. Argument: {1!r}'
             code = 5011
             iMessage = template.format(type(e).__name__, e.args)

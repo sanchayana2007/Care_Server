@@ -133,7 +133,7 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                 if len(app):
                     self.apiId = app[0]['apiId']
                     Log.i(self.apiId)
-                    if app[0]['apiId'] in [ 502020, 502022]: # TODO: till here
+                    if app[0]['apiId'] in [ 502020, 502022, 502021]: # TODO: till here
                         if serviceId == None:
                             res = yield self.serviceList.find(
                                         {

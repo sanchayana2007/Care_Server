@@ -92,7 +92,7 @@ class MmsProfileHandler(cyclone.web.RequestHandler, MongoMixin):
                         )
                 if len(app):
                     self.apiId = app[0]['apiId']
-                    if self.apiId in [ 502022, 502020 ]: # TODO: till here
+                    if self.apiId in [ 502022, 502020,502021 ]: # TODO: till here
                         pAccount = yield self.account.find(
                                     {
                                         '_id': profile[0]['accountId']

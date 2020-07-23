@@ -29,7 +29,7 @@ class WebServerApplication(cyclone.web.Application):
 
             (r'/web/api/med/restore/book/', MedServiceBookRestoreHandler),
             (r'/web/api/med/restore/list/', MedRestoreServiceListHandler),
-
+            (r'/web/api/account/overview', MedServiceAccountOverviewHandler),
             (r'/web/api/component/vehicle', VehicleHandler),
             (r'/web/api/component/device', DeviceHandler),
             (r'/web/api/component/service/area', ServiceAreaHandler),
