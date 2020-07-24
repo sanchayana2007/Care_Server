@@ -1,0 +1,92 @@
+@import "../../../../theme/theme.scss";
+
+.outer {
+  // display: table;
+  // position: absolute;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("../../../../assets/images/backgrounds/homePage.jpg") no-repeat center
+      center fixed;
+  background-position: top center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.ptag {
+  margin: 3px;
+  font-size: 14px;
+  color: #fff;
+  font-family: sans-serif;
+}
+
+.pSubmit {
+  font-size: 20px;
+  color: rgb(255, 255, 255);
+  font-weight: bolder;
+  // margin-right: 10px;
+  margin: 2px;
+  font-family: sans-serif;
+}
+
+.pTableCount {
+  font-size: 20px;
+  color: rgb(94, 255, 0);
+  font-weight: bolder;
+  margin-left: 10px;
+  margin: 2px;
+  font-family: sans-serif;
+}
+
+.pTotalCount {
+  font-size: 20px;
+  color: rgb(30, 255, 0);
+  font-weight: bolder;
+  margin-right: 10px;
+  margin: 2px;
+  font-family: sans-serif;
+}
+
+// .imgBackground {
+//   width: 200px;
+//   height: 200px;
+//   padding: 0px;
+//   border: 2px solid white;
+//   background: linear-gradient(rgba(165, 3, 3, 0.6), rgba(165, 3, 3, 0.6)),
+//   url("../../../../assets/images/backgrounds/covid19_background.jpg") no-repeat;
+// }
+
+.serviceRegButton {
+  background: rgb(255, 115, 0);
+  color: #fff;
+  font-size: 19px;
+  font-weight: bolder;
+  width: 46%;
+}
+
+.covid19Button {
+  height: 70px;
+  background-color: rgb(206, 6, 6);
+  color: #fff;
+  font-size: 14px;
+  font-weight: bolder;
+  line-height: 24px;
+  text-align: center;
+  margin: 0px;
+}
+
+button:hover {
+  background-color: rgb(209, 209, 209);
+}
+
+.mat-raised-button {
+  border-radius: 5px;
+}
+
+@media only screen and (max-width: 480px) {
+  .serviceRegButton {
+    width: auto;
+  }
+}

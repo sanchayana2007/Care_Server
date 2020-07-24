@@ -1,0 +1,77 @@
+<div class="outer" fxLayout="row" fxLayoutAlign="center center">
+  <div id="template_card" fxLayout="column" fxLayoutAlign="start center" fxHide.sm fxHide.xs fxShow.md fxShow.lg
+    fxShow.xl>
+    <img style="height: 60px;" src="https://medix.xlayer.in/service/assets/images/ohzas.png">
+    <p style="text-align: center; font-size: 18px; color: #ffffff">
+      Stay Connected with Ohzas!
+    </p>
+    <P style="text-align: center; font-size:14px;
+          padding-left: 40px; padding-right: 40px;
+          padding-bottom: 10px; color: #ffffff">
+      Ohzas Service Provider
+      <br>
+      <br>
+      <!-- Gives real-time information of all the vehicles, its route, speed, emergency notification, idling period,
+      geo-fence alerts, etc. -->
+    </P>
+    <button class="learn_more" mat-raised-button onclick="window.location.href = 'https://www.trakiga.com';">
+      LEARN MORE
+    </button>
+    <div fxLayout="column" fxLayoutAlign="start center">
+      <p style="margin-top: 43px; font-size: 13px; text-align: center;
+          color:rgb(255, 255, 255);">
+        Powered by xLayer Technologies Pvt. Ltd.
+      </p>
+      <p style="margin:0px; font-size: 12px; text-align: center;
+          color:rgb(255, 255, 255);">
+
+      </p>
+    </div>
+  </div>
+  <div class="sign_in_card" fxLayout="column" fxLayoutAlign="center center">
+    <img style="height: 40px; margin-bottom: 5px;" src="https://medix.xlayer.in/service/assets/images/ohzas.png" fxHide.lg fxHide.xl fxHide.md
+      fxShow.sm fxShow.xs>
+    <p style="font-size: 18px; margin: 0px">
+      Hey there! Welcome back.
+    </p>
+    <p class="title">
+      {{title}}
+    </p>
+    <mat-form-field dense [fxShow]="submitDiv" appearance="outline">
+      <mat-label>First Name</mat-label>
+      <input matInput [(ngModel)]="firstName_text" required>
+    </mat-form-field>
+    <mat-form-field dense class="formField" [fxShow]="submitDiv" appearance="outline">
+      <mat-label>Last Name</mat-label>
+      <input matInput [(ngModel)]="lastName_text" required>
+    </mat-form-field>
+    <mat-form-field dense [fxShow]="submitDiv" appearance="outline">
+      <mat-label>Phone Number</mat-label>
+      <input matInput [(ngModel)]="phoneNumber_text" required>
+    </mat-form-field>
+    <mat-form-field dense [fxShow]="submitDiv" appearance="outline">
+      <mat-label>Email Address (Optional)</mat-label>
+      <input matInput [(ngModel)]="email_text">
+    </mat-form-field>
+    <mat-form-field [fxHide]="verifyOtp" appearance="outline">
+      <mat-label style="background-color:#fff;">Enter OTP</mat-label>
+      <input matInput [(ngModel)]="otp_text">
+    </mat-form-field>
+    <button mat-raised-button class="submitButton" [fxHide]="verifyOtp" (click)='verify()'>
+      VERIFY
+    </button>
+    <div style="width: 100%;" fxLayout="row" fxLayoutAlign="space-between center">
+      <div style="width: 25%; margin-right: 20px;">
+        <button style="background-color: rgb(2, 158, 2);" [fxShow]="submitDiv" class="submitButton"
+        mat-raised-button (click)='onBack()'>
+          BACK
+        </button>
+      </div>
+      <div style="width: 75%;">
+        <button [fxShow]="submitDiv" class="submitButton" mat-raised-button (click)='onSubmit()'>
+          SUBMIT
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

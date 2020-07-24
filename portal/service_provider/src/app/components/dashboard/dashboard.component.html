@@ -1,0 +1,55 @@
+<!-- <p>
+  dashboard works!
+</p> -->
+<perfect-scrollbar style="height: 99%;">
+  <div fxLayout="row" fxLayout="row wrap">
+    <div *ngFor="let dash of dashCardFour" fxFlex.lt-sm="100" fxFlex.sm="50" fxFlex.md="25">
+      <app-dash-card [data]="dash" [iconOnly]="false"></app-dash-card>
+    </div>
+  </div>
+  <div fxLayout="row" fxLayout="row wrap">
+    <div *ngFor="let graph of graphCard; let i = index" fxFlex.lt-sm="100" fxFlex="50" fxFlex.sm="100">
+      <mat-card style="margin-left: 5px; margin-right: 5px;" fxLayoutAlign="space-around center">{{graph.title}}</mat-card>
+      <app-graph-card [data]="graph" [index]="i"></app-graph-card>
+    </div>
+  </div>
+  <!-- <mat-card controls id="full_screen" style="padding: 5px; margin: 5px;">
+    <mat-toolbar style="background: #fff" fxLayout="row" fxLayoutAlign="center center">
+      <a style="margin-right: -40px;" fxFlex="100" fxLayoutAlign="center center">Vehicle Status</a>
+      <button mat-icon-button (click)="toggleFullScreen()" fxHide.lt-md>
+        <mat-icon *ngIf="!isScreen">fullscreen</mat-icon>
+        <mat-icon *ngIf="isScreen">fullscreen_exit</mat-icon>
+      </button>
+    </mat-toolbar>
+    <div fxLayout="row" fxLayout="row wrap">
+      <button style="padding: 0px; margin: 0px; box-shadow: none;" (click)="dashTotall()"
+        mat-raised-button *ngFor="let dash of dashCardTotal" fxFlex.lt-sm="50" fxFlex.sm="50" fxFlex.md="25">
+        <app-dash-card [data]="dash" [iconOnly]="true"></app-dash-card>
+      </button>
+      <button style="padding: 0px; margin: 0px; box-shadow: none;" (click)="dashRunning()"
+      mat-raised-button *ngFor="let dash of dashCardRunning" fxFlex.lt-sm="50" fxFlex.sm="50" fxFlex.md="25">
+        <app-dash-card [data]="dash" [iconOnly]="true"></app-dash-card>
+      </button>
+      <button style="padding: 0px; margin: 0px; box-shadow: none;" (click)="dashIdle()"
+      mat-raised-button *ngFor="let dash of dashCardIdle" fxFlex.lt-sm="50" fxFlex.sm="50" fxFlex.md="25">
+        <app-dash-card [data]="dash" [iconOnly]="true"></app-dash-card>
+      </button>
+      <button style="padding: 0px; margin: 0px; box-shadow: none;" (click)="dashInactive()"
+      mat-raised-button *ngFor="let dash of dashCardInactive" fxFlex.lt-sm="50" fxFlex.sm="50" fxFlex.md="25">
+        <app-dash-card [data]="dash" [iconOnly]="true"></app-dash-card>
+      </button>
+      <button style="padding: 0px; margin: 0px; box-shadow: none;" (click)="dashStop()"
+        mat-raised-button *ngFor="let dash of dashCardStop" fxFlex.lt-sm="50"
+        fxFlex.sm="50" fxFlex.md="25">
+        <app-dash-card [data]="dash" [iconOnly]="true"></app-dash-card>
+      </button>
+      <button style="padding: 0px; margin: 0px; box-shadow: none;" (click)="dashNoData()"
+      mat-raised-button *ngFor="let dash of dashCardNoData" fxFlex.lt-sm="50" fxFlex.sm="50" fxFlex.md="25">
+        <app-dash-card [data]="dash" [iconOnly]="true"></app-dash-card>
+      </button>
+    </div>
+    <div style="margin-left: 5px; margin-right: 5px; margin-top: 10px">
+      <app-google-map-canvas></app-google-map-canvas>
+    </div>
+  </mat-card> -->
+</perfect-scrollbar>

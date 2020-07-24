@@ -1,0 +1,22 @@
+<mat-card>
+<perfect-scrollbar style="height: 100%;">
+  <div [fxShow]="matProgressBar" style="margin-bottom:15px;">
+    <mat-progress-bar style="height: 8px;" mode="determinate" [value]="progressBarValue"></mat-progress-bar>
+    <p class="progressBarText"> {{progressBarValue}}%</p>
+  </div>
+  <div style="width: 100%;" fxLayout="row warp" fxLayoutAlign="space-around">
+    <mat-card class="covidMatCard" fxFlex.lt-sm="100" fxFlex="30" fxFlex.sm="100" fxLayout="column"
+      fxLayoutAlign="start center">
+      <p class="cardHeadingText">Service Provider Details (mandatory)</p>
+      <mat-card class="matCardClick" (click)="onServiceProvider()" fxLayout="row" fxLayoutAlign="space-between center">
+        <p class="clickText">Service Provider Details</p>
+        <mat-icon class="iconGreen" [fxHide]="serviceInfoIcon">done</mat-icon>
+        <mat-icon class="iconRed" [fxShow]="serviceInfoIcon">close</mat-icon>
+      </mat-card>
+    </mat-card>
+
+
+  </div>
+  <!-- </perfect-scrollbar> -->
+  </perfect-scrollbar>
+</mat-card>

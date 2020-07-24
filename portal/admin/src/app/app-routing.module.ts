@@ -6,7 +6,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AdminComponent } from './components/tables/admin/admin.component';
 import { ServiceListComponent } from './components/tables/service-list/service-list.component';
 import { AppointmentsComponent } from './components/tables/appointments/appointments.component';
-
+import {ServiceProviderComponent} from './components/tables/service-provider/service-provider.component';
+import {UsersComponent} from './components/tables/users/users.component';
 const appRoutes: Routes = [
   {
     path: 'admin',
@@ -31,6 +32,14 @@ const appRoutes: Routes = [
       {
         path: 'table/appointments',
         component: AppointmentsComponent
+      },
+      {
+        path: 'table/users',
+        component: UsersComponent
+      },
+      {
+        path: 'table/service-provider',
+        component: ServiceProviderComponent
       },
     ]
   },

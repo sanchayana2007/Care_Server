@@ -52,7 +52,9 @@ import { AppointmentsComponent } from './components/tables/appointments/appointm
 import { AppointmentsDialogComponent } from './components/tables/appointments/appointments-dialog/appointments-dialog.component';
 import { ServiceImageUploadDialogComponent } from './components/tables/service-list/service-image-upload-dialog/service-image-upload-dialog.component';
 import { AppointmentsPreviewComponent } from './components/tables/appointments/appointments-preview/appointments-preview.component';
-
+import { ServiceProviderComponent } from './components/tables/service-provider/service-provider.component';
+import { ServiceProviderDetailsInfoComponent } from './components/tables/service-provider/service-provider-details-info/service-provider-details-info.component';
+import {UsersComponent} from './components/tables/users/users.component'
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: false,
@@ -83,13 +85,15 @@ const routes: Routes = [
     AdminDialogComponent,
     ProfileComponent,
     HelpComponent,
-
+    UsersComponent,
     ServiceListComponent,
     ServiceListDialogComponent,
     AppointmentsComponent,
     AppointmentsDialogComponent,
     ServiceImageUploadDialogComponent,
     AppointmentsPreviewComponent,
+    ServiceProviderComponent,
+    ServiceProviderDetailsInfoComponent,
   ],
   entryComponents: [
     AdminDialogComponent,
@@ -98,7 +102,8 @@ const routes: Routes = [
     AppointmentsPreviewComponent,
     ServiceListDialogComponent,
     AppointmentsDialogComponent,
-    ServiceImageUploadDialogComponent
+    ServiceImageUploadDialogComponent,
+    ServiceProviderDetailsInfoComponent
   ],
   imports: [
     ElementCoreModule,

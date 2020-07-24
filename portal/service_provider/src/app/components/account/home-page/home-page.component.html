@@ -1,0 +1,86 @@
+<div class="outer" style="min-width: auto;">
+  <perfect-scrollbar style="height: 100%;">
+    <div [fxShow]="firstStage">
+      <p style="font-size: 20px; color: #fff; text-align: center; font-weight: bolder;
+        text-align: center; font-family: sans-serif;">
+        Your Registration number is
+      </p>
+      <div fxLayout="column" fxLayoutAlign="center center">
+        <p style="margin: 0px; margin-bottom: 3px; color: #fff; font-weight: bolder;
+        font-family: sans-serif;">
+          {{data.phoneNumber_text}}
+        </p>
+        <p class="ptag">Please refer this number for any Query</p>
+        <div fxLayout="row" fxLayout="row wrap" fxLayoutAlign="center center">
+          <p class="pSubmit">You have Submitted </p>
+          <p class="pTableCount">{{data.tableCount}}
+            <a style="color: #fff;font-size: 20px; margin-right: 5px">of </a>
+          </p>
+          <p class="pTotalCount">{{data.totalCount}}
+            <a style="color: #fff;font-size: 20px; margin-left: 5px;">forms.</a>
+          </p>
+        </div>
+        <p style="font-size: 18px; color:rgb(0, 255, 12); font-weight: bolder; margin: 2px;
+          font-family: sans-serif;">
+          Please complete the remaning.
+        </p>
+        <p class="ptag">For further information, please Contact</p>
+        <p class="ptag">Email: support@xlayer.in</p>
+      </div>
+    </div>
+
+    <!-- COVID-19 Stage -->
+    <div [fxHide]="covid19Stage" fxLayout="column" fxLayoutAlign="center center">
+      <p style="font-size: 20px; color: #fff; text-align: center; font-weight: bolder;
+        text-align: center; margin-bottom: 10px; font-family: sans-serif;">
+        Your Registration number is
+      </p>
+      <p style="margin-bottom: 6px; margin-top: 6px; color: #fff; font-weight: bolder;
+      text-align: center; font-family: sans-serif;">
+        {{data.phoneNumber_text}}
+      </p>
+      <!-- <mat-card (click)="onCovid19()" style="cursor: pointer;" class="imgBackground" fxLayoutAlign="center center">
+        <p style="color: #fff; font-size: 14px; font-weight: bolder; text-align: center;">
+          {{data.covid19_text}} </p>
+      </mat-card> -->
+      <button mat-raised-button class="covid19Button" (click)="onCovid19()">
+          Your COVID-19 <br>Declaration is Pending
+      </button>
+      <div style="margin-top: 6px;" fxLayout="column" fxLayoutAlign="center center">
+        <p class="ptag">Please refer this number for any Query</p>
+        <p class="ptag">For further information, please Contact</p>
+        <p class="ptag">Email: support@xlayer.in</p>
+      </div>
+    </div>
+
+    <!-- QrCode Stage -->
+    <div [fxHide]="qrCodeStage">
+      <p style="font-size: 20px; color: #fff; text-align: center; font-weight: bolder;
+        text-align: center; font-family: sans-serif;">
+        Your Registration number is
+      </p>
+      <div fxLayoutAlign="center center">
+        <mat-card style=" padding: 4px; width: 236px;">
+          <qrcode [qrdata]="scanQrCode" style="pointer-events: none" [size]="236" [level]="'M'"></qrcode>
+        </mat-card>
+      </div>
+      <div fxLayout="column" fxLayoutAlign="center center">
+        <p style="margin-bottom: 3px; color: #fff; font-weight: bolder; font-family: sans-serif;">
+          {{data.phoneNumber_text}}
+        </p>
+        <p class="ptag">Please refer this number for any Query</p>
+        <p [fxShow]="activation" style="font-size: 16px; color:rgb(252, 113, 0);
+          font-weight: bolder; margin: 2px; font-family: sans-serif;">
+          {{data.activation_text}}
+        </p>
+        <p class="ptag">For further information, please Contact</p>
+        <p class="ptag">Email: support@xlayer.in</p>
+      </div>
+    </div>
+    <div style="margin-top: 10px; margin-bottom: 10px;" fxLayout="row" fxLayoutAlign="center center">
+      <button class="serviceRegButton" mat-raised-button (click)="onServiceRegistration()">
+        Service Registration
+      </button>
+    </div>
+  </perfect-scrollbar>
+</div>

@@ -23,45 +23,16 @@ export class AuthorizationComponent implements OnInit {
       'icon': 'dashboard',
       'link': 'dashboard'
     },
-    // {
-    //   'name': 'Live track',
-    //   'icon': 'location_on',
-    //   'link': 'live_track'
-    // },
-    // {
-    //   'name': 'Reports',
-    //   'link': false,
-    //   'icon': 'developer_board',
-    //   'open': false,
-    //   'chip': {
-    //     'value': 3,
-    //     'color': 'accent'
-    //   },
-    //   'sub': [
-    //     {
-    //       'name': 'Location',
-    //       'link': 'report/location',
-    //       'icon': 'my_location',
-    //       'open': true
-    //     },
-    //     {
-    //       'name': 'Distance',
-    //       'link': 'report/distance',
-    //       'icon': 'airport_shuttle',
-    //       'open': true
-    //     },
-    //     {
-    //       'name': 'Fuel',
-    //       'link': 'report/fuel',
-    //       'icon': 'local_gas_station',
-    //       'open': true
-    //     }
-    //   ]
-    // },
     {
       'name': 'Admins',
       'link': 'table/resource/admin',
       'icon': 'account_box',
+      'open': true
+    },
+    {
+      'name': 'Users',
+      'link': 'table/users',
+      'icon': 'supervised_user_circle',
       'open': true
     },
     {
@@ -73,9 +44,16 @@ export class AuthorizationComponent implements OnInit {
     {
       'name': 'Service List',
       'link': 'table/service-list',
-      'icon': 'assignment',
+      'icon': 'medical_services',
       'open': true
     },
+    {
+      'name': 'Service Providers',
+      'link': 'table/service-provider',
+      'icon': 'medical_services',
+      'open': true
+    },
+    
   ];
 
   @Input() isVisible = true;

@@ -1,0 +1,58 @@
+<mat-card>
+  <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+    <p>
+      Profile
+    </p>
+    <div fxLayoutGap="5px">
+      <button mat-icon-button color="primary">
+        <!-- <button mat-icon-button color="primary" (click)="onSave()"> -->
+        <mat-icon>done</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content fxLayout="row" fxLayoutAlign="space-evenly center">
+    <div fxFlex="30">
+      <div style="margin-top: 0%;" fxLayout="column" fxLayoutAlign="space-evenly center">
+        <!-- <img [src]="data.image_url" height="200" (error)="setDefaultPic()"> -->
+        <img [src]="data.image_url" height="200">
+        <input id="upload" [fxShow]="false" type="file" accept=".png, .jpg, .jpeg">
+        <p style="cursor: pointer;color: #094a9e;
+                font-weight: bold; font-size: 110%;" fxLayout="row" fxLayoutAlign="start center">
+          {{picture_upload_title}}</p>
+      </div>
+    </div>
+    <div fxFlex="70">
+      <div fxLayout="row" fxLayoutAlign="space-around">
+        <mat-form-field>
+          <input matInput placeholder="First Name" [(ngModel)]="data.first_name" required>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Last Name" [(ngModel)]="data.last_name" required>
+        </mat-form-field>
+      </div>
+      <br><br><br>
+      <div fxLayout="row" fxLayoutAlign="space-around">
+        <mat-form-field>
+          <input matInput placeholder="Email ID" [(ngModel)]="data.email" required>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput required type="number" min="0" placeholder="Mobile Number" [(ngModel)]="data.phone_number"
+            >
+        </mat-form-field>
+      </div>
+      <br><br><br>
+      <div fxLayout="row" fxLayoutAlign="space-around">
+        <mat-form-field>
+          <input matInput type="password" placeholder="Current Password" required>
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput type="password" placeholder="New Password" required>
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

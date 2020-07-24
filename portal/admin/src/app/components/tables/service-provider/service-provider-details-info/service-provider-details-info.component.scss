@@ -1,0 +1,67 @@
+mat-card {
+  height: auto;
+  width: auto;
+}
+
+img {
+  width: 200px;
+  height: 200px;
+}
+
+mat-card-title {
+  height: 35px;
+}
+
+mat-card-content {
+  padding: 2%;
+}
+
+button:hover {
+  background-color: rgb(209, 209, 209);
+}
+
+.p_data {
+  font-size: 10pt;
+  margin: 0px;
+  font-weight: 500;
+  padding-bottom: 10px;
+}
+
+.p_type {
+  font-size: 16px;
+  font-weight: bolder;
+  text-align: center;
+}
+.accept {
+  width: 78%;
+  height: 40px;
+  margin-top: 10px;
+  margin-left: 30px;
+  background-color: #37c843;
+  color: #ffffff;
+  font-weight: bolder;
+  font-size: 11.5pt;
+  outline: none;
+  border-radius: 6px;
+  border-radius: 10px 10px 10px 10px;
+  -moz-border-radius: 10px 10px 10px 10px;
+  -webkit-border-radius: 10px 10px 10px 10px;
+  border: 0px solid #000000;
+}
+
+.decline {
+  width: 78%;
+  height: 40px;
+  margin-top: 10px;
+  margin-left: 30px;
+  background-color: #EE7373;
+  color: #ffffff;
+  font-weight: bolder;
+  font-size: 11.5pt;
+  outline: none;
+  border-radius: 6px;
+  border-radius: 10px 10px 10px 10px;
+  -moz-border-radius: 10px 10px 10px 10px;
+  -webkit-border-radius: 10px 10px 10px 10px;
+  border: 0px solid #000000;
+}
