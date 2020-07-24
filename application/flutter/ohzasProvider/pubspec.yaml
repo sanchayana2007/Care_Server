@@ -1,6 +1,6 @@
-name: ohzas
+name: ohzasProvider
 description: A new Flutter application.
-version: 1.000.004+5
+version: 1.000.000+1
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -23,6 +23,10 @@ dependencies:
   url_launcher: ^5.4.10
   share: 0.6.4+3
   firebase_messaging: 6.0.16
+  loading: ^1.0.2
+  flutter_inappwebview: ^4.0.0+4
+  percent_indicator: ^2.1.5
+  sprintf: ^4.0.2
 
 dev_dependencies:
   flutter_test:

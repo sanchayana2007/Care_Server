@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:ohzas/handler/build_config.dart';
-import 'package:ohzas/handler/network_handler.dart';
-import 'package:ohzas/handler/shared_pref_handler.dart';
-import 'package:ohzas/util/log_util.dart';
-import 'package:ohzas/util/toast_util.dart';
+import 'package:ohzasProvider/handler/build_config.dart';
+import 'package:ohzasProvider/handler/network_handler.dart';
+import 'package:ohzasProvider/handler/shared_pref_handler.dart';
+import 'package:ohzasProvider/util/log_util.dart';
+import 'package:ohzasProvider/util/toast_util.dart';
 
 class HttpRequestHandler {
   String xApiKey = BuildConfig.xApiKey;
@@ -407,12 +407,16 @@ class HttpRequestHandler {
     }
   }
 
-  Future<Map<String, dynamic>> getCheckForUpdate(String packegeName) async {
-    http.Response response = await http.get(
-      Uri.encodeFull(
-          BuildConfig.serverUrl + '/web/api/check/update?id=' + packegeName),
-      headers: headers,
-    );
+  Future<Map<String, dynamic>> getServiceAccountOvw(String id) async {
+    http.Response response = await http
+        .get(
+          Uri.encodeFull(
+            BuildConfig.serverUrl +
+                '/web/api/account/overview?id=' + id,
+          ),
+          headers: headers,
+        )
+        .timeout(Duration(seconds: 10));
     try {
       Map<String, dynamic> respJson = jsonDecode(response.body);
       return respJson;

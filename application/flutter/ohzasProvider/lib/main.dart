@@ -1,18 +1,13 @@
 import 'dart:async';
-import 'package:flutter/services.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ohzas/app-state/default/app_home_page.dart';
-import 'package:ohzas/authorization/signIn.dart';
-import 'package:ohzas/handler/build_config.dart';
-import 'package:ohzas/handler/shared_pref_handler.dart';
-import 'package:ohzas/util/log_util.dart';
-import 'package:ohzas/handler/network_handler.dart';
-import 'package:ohzas/handler/http_request_handler.dart';
-import 'package:package_info/package_info.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:get_version/get_version.dart';
+import 'package:ohzasProvider/app-state/default/app_home_page.dart';
+import 'package:ohzasProvider/authorization/signIn.dart';
+import 'package:ohzasProvider/handler/build_config.dart';
+import 'package:ohzasProvider/handler/shared_pref_handler.dart';
+import 'package:ohzasProvider/util/log_util.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,8 +37,6 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreen extends State<SplashScreen> {
   bool exit = true;
   BuildContext _context;
-  HttpRequestHandler httpRequestHandler;
-
   intTimer() async {
     Timer.periodic(
       Duration(seconds: 3),
@@ -84,41 +77,10 @@ class _SplashScreen extends State<SplashScreen> {
     return BuildConfig.xAuthorization;
   }
 
-  checkForUpdate() async {
-    int projectCode = -1;
-    try {
-      var _projectCode = await GetVersion.projectCode;
-      projectCode = int.parse(_projectCode);
-    } catch (e) {
-      projectCode = -1;
-    }
-    if (await NetworkHandler.isOnlineWithToast(_context)) {
-      var resp =
-          await httpRequestHandler.getCheckForUpdate(BuildConfig.mainApiId);
-      try {
-        if (resp['status'] && resp['result'][0] > projectCode) {
-          Log.i('Checking For Update');
-          updateWindow();
-          return;
-        }
-      } catch (e) {
-        Log.e(e);
-      }
-      intTimer();
-    } else {
-      exitApp();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_context == null) {
-      _context = context;
-      httpRequestHandler = new HttpRequestHandler(context);
-      checkForUpdate();
-    }
-
-    //intTimer();
+    _context = context;
+    intTimer();
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -190,50 +152,5 @@ class _SplashScreen extends State<SplashScreen> {
         ],
       ),
     );
-  }
-
-  exitApp() {
-    if (BuildConfig.isAndroid()) {
-      SystemNavigator.pop();
-    }
-  }
-
-  Future<bool> updateWindow() async {
-    return (await showDialog(
-          context: _context,
-          builder: (context) => new AlertDialog(
-            title: new Text("A new update is now available."),
-            actions: <Widget>[
-              new FlatButton(
-                onPressed: () {
-                  // initTimer();
-                  exitApp();
-                },
-                child: new Text('Not Now'),
-              ),
-              new FlatButton(
-                onPressed: () {
-                  _launchURL();
-                  exitApp();
-                },
-                child: new Text('Update'),
-              ),
-            ],
-          ),
-        )) ??
-        false;
-  }
-
-  _launchURL() async {
-    String appUrl = 'https://www.ohzas.com/';
-    if (BuildConfig.isAndroid()) {
-      appUrl =
-          'https://play.google.com/store/apps/details?id=com.xlayer.med.ohzas';
-    }
-    if (await canLaunch(appUrl)) {
-      await launch(appUrl);
-    } else {
-      throw 'Could not launch $appUrl';
-    }
   }
 }
