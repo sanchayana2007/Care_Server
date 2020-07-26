@@ -13,6 +13,9 @@ import 'package:ohzas/handler/http_request_handler.dart';
 import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get_version/get_version.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
