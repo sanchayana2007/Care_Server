@@ -411,7 +411,7 @@ class HttpRequestHandler {
     http.Response response = await http.get(
       Uri.encodeFull(
           BuildConfig.serverUrl + '/web/api/check/update?id=' + packegeName),
-      headers: headers,
+      headers: authHeaders,
     );
     try {
       Map<String, dynamic> respJson = jsonDecode(response.body);
