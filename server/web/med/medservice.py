@@ -184,6 +184,18 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 if code != 4100:
                                     raise Exception
 
+                            materialyes = self.request.arguments.get('materialyes')
+                            if materialyes == None:
+                                materialyes = False
+
+                            code,message = Validate.i(
+                                        materialyes,
+                                        'Material Option',
+                                        dataType = bool
+                                )
+                            if code != 4100:
+                                raise Exception
+
                             accDetails = yield self.account.find(
                                             {
                                                 '_id':self.accountId,
@@ -230,6 +242,8 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             else:
                                 cancelFeeAmt = 0
 
+
+
                             bookingId = yield self.serviceBook.insert(
                                         {
                                             'disabled':False,
@@ -243,7 +257,8 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             'requestedTime':timeNow(),
                                             'profileId':self.profileId,
                                             'entityId':self.entityId,
-                                            'comment':comment
+                                            'comment':comment,
+                                            'materialyes':materialyes,
                                         }
                                     )
 
@@ -293,8 +308,8 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                     status = True
                                 sms = 'Hi! A Request to appointement for {} at {} has been \
                                         placed through the OHZAS app. The request is placed by \
-                                        {} and the contact number is {}'\
-                                        .format(serName,newDate,fullName,phoneNumber,)
+                                        {} and the contact number is {}. Comment placed: {}'\
+                                        .format(serName,newDate,fullName,phoneNumber,comment)
                                 adminNum = str(CONFIG['medAdmin_contact'][0]['num1'])
                                 payloadJson = {
                                                 "sender":"SOCKET",
