@@ -28,8 +28,6 @@ class ServiceBookPage extends StatefulWidget {
   }
 }
 
-
-
 class _ServiceBookPage extends State<ServiceBookPage> {
   SharedPrefHandler sharedPrefHandler;
   HttpRequestHandler httpRequestHandler;
@@ -44,7 +42,7 @@ class _ServiceBookPage extends State<ServiceBookPage> {
   //       Log.i("Me");
   //       if (resp1['status']) {
   //         Log.i("Okay");
-  //       } 
+  //       }
   //       else {
   //         cancelFee = '0';
   //       }
@@ -53,10 +51,6 @@ class _ServiceBookPage extends State<ServiceBookPage> {
   //       Toaster.e(_context, message: 'Invalid Server Response.');
   //     }
   // }
-
-  
-
-  
 
   TextEditingController serviceName = new TextEditingController();
   TextEditingController serviceCharge = new TextEditingController();
@@ -74,14 +68,14 @@ class _ServiceBookPage extends State<ServiceBookPage> {
   BuildContext _context;
   String TAG = "Servce Book Page";
 
-  
-
   onSubmitBooking() async {
     if (dateAndTime.text.isEmpty) {
-      Toaster.e(_context, message: 'Please Enter date and Time / कृपया दिनांक और समय दर्ज करें');
+      Toaster.e(_context,
+          message:
+              'Please Enter date and Time / कृपया दिनांक और समय दर्ज करें');
       return;
     }
-    goBack();
+    //goBack();
     String mainTimeString = '';
     List<String> timeInString = dateAndTime.text.split(' ');
     mainTimeString = timeInString[0];
@@ -108,7 +102,8 @@ class _ServiceBookPage extends State<ServiceBookPage> {
       Log.i(resp);
       if (resp['status']) {
         Toaster.s(_context, message: resp['message']);
-        Navigator.of(_context).pop(true);
+        //Navigator.of(_context).pop(true);
+        goBack();
       } else {
         Toaster.e(_context, message: resp['message']);
       }
@@ -254,7 +249,8 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                               value: newValue,
                               hint: Text("Please select the number of session"),
                               onChanged: (String changedValue) {
-                                srvTotal = widget.service['serTATotal'].toString();
+                                srvTotal =
+                                    widget.service['serTATotal'].toString();
                                 double subTot = 0;
                                 newValue = changedValue;
                                 try {
@@ -332,7 +328,8 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                           SizedBox(
                             height: 20,
                           ),
-                          Text('Total Charge(per session) / कुल शुल्क(प्रति सत्र)'),
+                          Text(
+                              'Total Charge(per session) / कुल शुल्क(प्रति सत्र)'),
                           Container(
                             width: MediaQuery.of(context).size.width,
                             padding:
@@ -353,6 +350,7 @@ class _ServiceBookPage extends State<ServiceBookPage> {
                             height: 20,
                           ),
                           TextField(
+                            controller: comment,
                             decoration: InputDecoration(
                               hintStyle:
                                   TextStyle(color: Colors.grey, fontSize: 12.0),
@@ -578,13 +576,12 @@ class _ServiceBookPage extends State<ServiceBookPage> {
     );
   }
 
- 
-
   Future<bool> confirmPop() async {
     return (await showDialog(
           context: context,
           builder: (context) => new AlertDialog(
-            title: new Text('Are you sure? \n\nCancellation after 30 minutes chargeable and will be added to your next invoice'),
+            title: new Text(
+                'Are you sure? \n\nCancellation after 30 minutes chargeable and will be added to your next invoice'),
             content: new Text(''),
             actions: <Widget>[
               new FlatButton(
