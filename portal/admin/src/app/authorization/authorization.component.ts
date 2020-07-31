@@ -23,6 +23,12 @@ export class AuthorizationComponent implements OnInit {
       'icon': 'dashboard',
       'link': 'dashboard'
     },
+    // {
+    //   'name': 'Notification',
+    //   'link': 'table/notifications',
+    //   'icon': 'notification_important',
+    //   'open': true
+    // },
     {
       'name': 'Admins',
       'link': 'table/resource/admin',
@@ -42,18 +48,31 @@ export class AuthorizationComponent implements OnInit {
       'open': true
     },
     {
-      'name': 'Service List',
-      'link': 'table/service-list',
-      'icon': 'medical_services',
-      'open': true
+      'name': 'Services',
+      'link': false,
+      'icon': 'add_box',
+      'open': false,
+      'sub': [
+        {
+          'name': 'Service List',
+          'link': 'table/service-list',
+          'icon': 'medical_services',
+          'open': true
+        },
+        {
+          'name': 'Service Providers',
+          'link': 'table/service-provider',
+          'icon': 'how_to_reg',
+          'open': true
+        },
+        {
+          'name': 'Products',
+          'link': 'table/prodects',
+          'icon': 'add_to_queue',
+          'open': true
+        },
+      ]
     },
-    {
-      'name': 'Service Providers',
-      'link': 'table/service-provider',
-      'icon': 'medical_services',
-      'open': true
-    },
-    
   ];
 
   @Input() isVisible = true;

@@ -7,7 +7,7 @@ import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/l
 import { ServiceListService } from './service-list.service';
 import { ServiceListDialogComponent } from './service-list-dialog/service-list-dialog.component';
 import { ServiceImageUploadDialogComponent } from './service-image-upload-dialog/service-image-upload-dialog.component';
-
+import {ProductListInfoDialogComponent} from './product-list-info-dialog/product-list-info-dialog.component';
 @Component({
   selector: 'app-service-list',
   templateUrl: './service-list.component.html',
@@ -188,6 +188,17 @@ export class ServiceListComponent implements OnInit {
     this.openDialog(data);
   }
 
+  onInfo(element) {
+    if (element.products.length === 0) {
+      this.openErrorSnackBar('No Product data ');
+      return;
+    }
+    const data = {
+      dialog_data: element.products,
+    };
+    this.openProductDialog(data);
+  }
+
   onDelete(_id) {
     if (window.confirm('Are you sure you want to delete?')) {
       this.service.deleteServiceList(_id).subscribe(success => {
@@ -221,6 +232,23 @@ export class ServiceListComponent implements OnInit {
       }
     });
   }
+  openProductDialog(data): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.panelClass = ['dialog-class'];
+    dialogConfig.height = 'auto';
+    dialogConfig.width = '600px';
+    dialogConfig.data = data;
+    const dialogRef = this.dialog.open(ProductListInfoDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      if (ServiceListService.dialogResult) {
+        this.getServiceList();
+      } else {
+        // closed
+      }
+    });
+  }
 
   openServiceImageUploadDialog(data): void {
     const dialogConfig = new MatDialogConfig();
@@ -231,13 +259,7 @@ export class ServiceListComponent implements OnInit {
     dialogConfig.width = '600px';
     dialogConfig.data = data;
     const dialogRef = this.dialog.open(ServiceImageUploadDialogComponent, dialogConfig);
-    dialogRef.afterClosed().subscribe(result => {
-      if (ServiceListService.dialogResult) {
-        // this.getServiceList();
-      } else {
-        // closed
-      }
-    });
+
   }
 
   openDefaultSnackBar(message: string) {

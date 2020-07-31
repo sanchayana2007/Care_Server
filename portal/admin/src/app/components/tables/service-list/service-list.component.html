@@ -3,7 +3,7 @@
     <div fxLayout="row wrap" style="margin: 0px; margin-bottom: 20px;" fxLayoutAlign="space-between center">
       <div fxLayoutGap="10px" fxLayoutAlign="center center">
         <button mat-icon-button style="background: #00838f; border-radius: 10px;" matTooltip="Service List Table">
-          <mat-icon style="color: #ffffff">assignment</mat-icon>
+          <mat-icon style="color: #ffffff">medical_services</mat-icon>
         </button>
         <p style="font-weight: 400; font-size: 16pt;">
           Service List Table
@@ -48,6 +48,11 @@
                 </button>
                 <button mat-icon-button color="primary" (click)="onEdit(element)" matTooltip="Edit">
                   <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+              <div>
+                <button mat-icon-button color="primary" (click)="onInfo(element)" matTooltip="Product List">
+                  <mat-icon>medical_services</mat-icon>
                 </button>
                 <button mat-icon-button color="warn" (click)="onDelete(element._id)" matTooltip="Delete">
                   <mat-icon>delete</mat-icon>

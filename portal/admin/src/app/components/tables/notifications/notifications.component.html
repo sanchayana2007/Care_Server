@@ -1,0 +1,57 @@
+<perfect-scrollbar style="height: 99%;">
+<mat-card>
+    <div style="padding: 30px">
+            <div fxLayout="row wrap" fxLayoutAlign="space-evenly center">
+        <mat-form-field fxFlex="90" fxFlex.lt-sm="100" fxFlex.sm="100" appearance="outline">
+            <mat-label>Type Here </mat-label>
+            <input type="text" matInput [(ngModel)]="data" required>
+        </mat-form-field>
+            </div>
+        <div fxLayout="row wrap" fxLayoutAlign="space-evenly center">
+        <mat-card fxFlex="50" fxFlex.sm="100" fxFlex.lt-sm="100" id="uploadDiv" fxLayoutAlign="center center"
+            fxLayout="column">
+            <mat-card-header>
+                <div mat-card-avatar class="example-header-image"></div>
+                <mat-card-title>{{imageList[0].slNo}} {{imageList[0].imgName}}</mat-card-title>
+            </mat-card-header>
+            <img [src]="imageList[0].fileUrl">
+            <input id="upload0" [fxShow]="false" type="file" accept=".png, .jpg, jpeg"
+                (change)="documentUpload($event, 0)">
+            <button [fxShow]="submitButton" mat-raised-button color="primary" style="margin: 10px;
+              font-weight: bolder" (click)="uploadTrigger0()">
+                Upload <mat-icon>cloud_upload</mat-icon>
+            </button>
+        </mat-card>
+        <div fxShow.sm style="height: 100px;">
+        </div>
+        <!-- <mat-card fxFlex="45" fxFlex.sm="100" fxFlex.lt-sm="100" id="uploadDiv" fxLayoutAlign="center center"
+            fxLayout="column">
+            <mat-card-header>
+                <div mat-card-avatar class="example-header-image"></div>
+                <mat-card-title>{{imageList[1].slNo}} {{imageList[1].imgName}}</mat-card-title>
+            </mat-card-header>
+            <img [src]="imageList[1].fileUrl">
+            <input id="upload1" [fxShow]="false" type="file" accept=".png, .jpg, jpeg"
+                (change)="documentUpload($event, 1)">
+            <button [fxShow]="submitButton" mat-raised-button color="primary" style="margin: 10px; font-weight: bolder"
+                (click)="uploadTrigger1()">
+                Upload <mat-icon>cloud_upload</mat-icon>
+            </button>
+        </mat-card> -->
+    </div>
+    <div fxLayoutAlign="space-evenly center" style="margin-top:50px; margin-bottom: 50px;">
+        <button [fxShow]="submitButton" mat-raised-button color="primary" style=" color:#fff;" (click)="onImageSubmit()"
+            matTooltip="Submit">
+            Submit <mat-icon>assignment</mat-icon>
+        </button>
+    </div>
+
+    <div style="margin-bottom:15px;margin-top:15px;" [fxShow]="loadImage">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+    <div style="margin-top: 10px;" fxLayoutGap="10px" fxLayout="row" fxLayoutAlign="center center">
+    </div>
+    </div>
+</mat-card>
+</perfect-scrollbar>
+<router-outlet></router-outlet>

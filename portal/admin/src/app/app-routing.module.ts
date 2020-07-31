@@ -8,6 +8,8 @@ import { ServiceListComponent } from './components/tables/service-list/service-l
 import { AppointmentsComponent } from './components/tables/appointments/appointments.component';
 import {ServiceProviderComponent} from './components/tables/service-provider/service-provider.component';
 import {UsersComponent} from './components/tables/users/users.component';
+import {NotificationsComponent} from './components/tables/notifications/notifications.component';
+import {ProdectsComponent} from './components/tables/prodects/prodects.component';
 const appRoutes: Routes = [
   {
     path: 'admin',
@@ -40,6 +42,14 @@ const appRoutes: Routes = [
       {
         path: 'table/service-provider',
         component: ServiceProviderComponent
+      },
+      {
+        path: 'table/notifications',
+        component: NotificationsComponent
+      },
+      {
+        path: 'table/prodects',
+        component: ProdectsComponent
       },
     ]
   },
