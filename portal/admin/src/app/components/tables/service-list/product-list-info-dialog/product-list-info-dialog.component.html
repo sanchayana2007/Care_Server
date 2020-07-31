@@ -18,10 +18,10 @@
   </div>
 
   <div class="example-container mat-elevation-z8">
-    <div style="margin-bottom:5px;" [fxShow]="loadServiceList">
+    <div style="margin-bottom:5px;">
       <!-- <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
     </div>
-    <mat-table #table [dataSource]="dataSource" [class.isMobile]="isMobile" [fxShow]="serviceListTable">
+    <mat-table #table [dataSource]="dataSource" [class.isMobile]="isMobile">
       <ng-container matColumnDef="product_name">
         <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> Product Name </mat-header-cell>
         <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
