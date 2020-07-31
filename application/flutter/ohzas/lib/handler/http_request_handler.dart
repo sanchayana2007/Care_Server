@@ -29,9 +29,13 @@ class HttpRequestHandler {
 
   getHeaders() async {
     this.headers = {
-      'Authorization': 'Bearer ' + await sharedPreferencesHandler.getString(sharedPreferencesHandler.xAuthorizationKey),
-      'x-Origin-Key': await sharedPreferencesHandler.getString(sharedPreferencesHandler.xOriginKey),
-      'x-Api-Key': await sharedPreferencesHandler.getString(sharedPreferencesHandler.xApiKey),
+      'Authorization': 'Bearer ' +
+          await sharedPreferencesHandler
+              .getString(sharedPreferencesHandler.xAuthorizationKey),
+      'x-Origin-Key': await sharedPreferencesHandler
+          .getString(sharedPreferencesHandler.xOriginKey),
+      'x-Api-Key': await sharedPreferencesHandler
+          .getString(sharedPreferencesHandler.xApiKey),
       'Content-Type': 'application/json',
     };
   }
@@ -102,8 +106,8 @@ class HttpRequestHandler {
 
   Future<Map<String, dynamic>> getServiceAccount() async {
     http.Response response = await http.get(
-      Uri.encodeFull(BuildConfig.serverUrl +
-          '/web/api/test/booking/serviceaccount',
+      Uri.encodeFull(
+        BuildConfig.serverUrl + '/web/api/test/booking/serviceaccount',
       ),
       headers: headers,
     );
@@ -117,8 +121,8 @@ class HttpRequestHandler {
 
   Future<Map<String, dynamic>> getTrstServiceAccount() async {
     http.Response response = await http.get(
-      Uri.encodeFull(BuildConfig.serverUrl +
-          '/web/api/test/tourist/verify',
+      Uri.encodeFull(
+        BuildConfig.serverUrl + '/web/api/test/tourist/verify',
       ),
       headers: headers,
     );
@@ -130,7 +134,8 @@ class HttpRequestHandler {
     }
   }
 
-  Future<Map<String, dynamic>> postTrstServiceAccDetails(Object jsonBody) async {
+  Future<Map<String, dynamic>> postTrstServiceAccDetails(
+      Object jsonBody) async {
     if (!await NetworkHandler.isOnlineWithToast(context)) {
       return null;
     }
@@ -146,7 +151,8 @@ class HttpRequestHandler {
     }
   }
 
-  Future<Map<String, dynamic>> putTrstSubServiceAccDetails(Object jsonBody) async {
+  Future<Map<String, dynamic>> putTrstSubServiceAccDetails(
+      Object jsonBody) async {
     http.Response response = await http.put(
         Uri.encodeFull(BuildConfig.serverUrl + '/web/api/tourist/member'),
         headers: headers,
@@ -161,8 +167,7 @@ class HttpRequestHandler {
 
   Future<Map<String, dynamic>> getServiceList() async {
     http.Response response = await http.get(
-      Uri.encodeFull(BuildConfig.serverUrl +
-          '/web/api/med/servicelist'),
+      Uri.encodeFull(BuildConfig.serverUrl + '/web/api/med/servicelist'),
       headers: headers,
     );
     try {
@@ -178,8 +183,7 @@ class HttpRequestHandler {
       await getHeaders();
     }
     http.Response response = await http.get(
-      Uri.encodeFull(BuildConfig.serverUrl +
-          '/web/api/med/book'),
+      Uri.encodeFull(BuildConfig.serverUrl + '/web/api/med/book'),
       headers: headers,
     );
     try {
@@ -192,8 +196,8 @@ class HttpRequestHandler {
 
   Future<Map<String, dynamic>> getTrstMembers() async {
     http.Response response = await http.get(
-      Uri.encodeFull(BuildConfig.serverUrl +
-          '/web/api/tourist/member',
+      Uri.encodeFull(
+        BuildConfig.serverUrl + '/web/api/tourist/member',
       ),
       headers: headers,
     );
@@ -205,10 +209,11 @@ class HttpRequestHandler {
     }
   }
 
-  Future<Map<String, dynamic>> getSubTrstMembersFromPhoneNum(String phoneNum) async {
+  Future<Map<String, dynamic>> getSubTrstMembersFromPhoneNum(
+      String phoneNum) async {
     http.Response response = await http.get(
-      Uri.encodeFull(BuildConfig.serverUrl +
-          '/web/api/accom/tourist?pNum=' + phoneNum,
+      Uri.encodeFull(
+        BuildConfig.serverUrl + '/web/api/accom/tourist?pNum=' + phoneNum,
       ),
       headers: headers,
     );
@@ -241,7 +246,8 @@ class HttpRequestHandler {
       return null;
     }
     http.Response response = await http.put(
-        Uri.encodeFull(BuildConfig.serverUrl + '/web/api/test/booking/update/details'),
+        Uri.encodeFull(
+            BuildConfig.serverUrl + '/web/api/test/booking/update/details'),
         headers: headers,
         body: jsonEncode(jsonBody));
     try {
@@ -319,8 +325,9 @@ class HttpRequestHandler {
 
   Future<Map<String, dynamic>> deleteTourist(String memberId) async {
     http.Response response = await http.delete(
-        Uri.encodeFull(BuildConfig.serverUrl + '/web/api/tourist/member?id=' + memberId),
-        headers: headers,
+      Uri.encodeFull(
+          BuildConfig.serverUrl + '/web/api/tourist/member?id=' + memberId),
+      headers: headers,
 //        body: jsonEncode(jsonBody),
     );
     try {
@@ -336,7 +343,8 @@ class HttpRequestHandler {
       return null;
     }
     http.Response response = await http.post(
-        Uri.encodeFull(BuildConfig.serverUrl + '/web/api/test/booking/confirm/sms'),
+        Uri.encodeFull(
+            BuildConfig.serverUrl + '/web/api/test/booking/confirm/sms'),
         headers: headers,
         body: jsonEncode(jsonBody));
     try {
@@ -352,8 +360,8 @@ class HttpRequestHandler {
       return null;
     }
     http.Response response = await http.post(
-        Uri.encodeFull(BuildConfig.serverUrl +
-            '/web/api/test/booking/serviceaccount',
+        Uri.encodeFull(
+          BuildConfig.serverUrl + '/web/api/test/booking/serviceaccount',
         ),
         headers: headers,
         body: jsonEncode(jsonBody));
@@ -367,8 +375,8 @@ class HttpRequestHandler {
 
   Future<Map<String, dynamic>> putServiceAccount(Object jsonBody) async {
     http.Response response = await http.put(
-        Uri.encodeFull(BuildConfig.serverUrl +
-            '/web/api/test/booking/serviceaccount',
+        Uri.encodeFull(
+          BuildConfig.serverUrl + '/web/api/test/booking/serviceaccount',
         ),
         headers: headers,
         body: jsonEncode(jsonBody));
@@ -380,13 +388,14 @@ class HttpRequestHandler {
     }
   }
 
-  Future<Map<String, dynamic>> postServiceAccountDetails(Object jsonBody) async {
+  Future<Map<String, dynamic>> postServiceAccountDetails(
+      Object jsonBody) async {
     if (!await NetworkHandler.isOnlineWithToast(context)) {
       return null;
     }
     http.Response response = await http.post(
-        Uri.encodeFull(BuildConfig.serverUrl +
-            '/web/api/test/service/update',
+        Uri.encodeFull(
+          BuildConfig.serverUrl + '/web/api/test/service/update',
         ),
         headers: headers,
         body: jsonEncode(jsonBody));
@@ -398,4 +407,17 @@ class HttpRequestHandler {
     }
   }
 
+  Future<Map<String, dynamic>> getCheckForUpdate(String packegeName) async {
+    http.Response response = await http.get(
+      Uri.encodeFull(
+          BuildConfig.serverUrl + '/web/api/check/update?id=' + packegeName),
+      headers: authHeaders,
+    );
+    try {
+      Map<String, dynamic> respJson = jsonDecode(response.body);
+      return respJson;
+    } catch (e) {
+      return null;
+    }
+  }
 }

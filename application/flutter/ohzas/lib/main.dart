@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,6 +8,14 @@ import 'package:ohzas/authorization/signIn.dart';
 import 'package:ohzas/handler/build_config.dart';
 import 'package:ohzas/handler/shared_pref_handler.dart';
 import 'package:ohzas/util/log_util.dart';
+import 'package:ohzas/handler/network_handler.dart';
+import 'package:ohzas/handler/http_request_handler.dart';
+import 'package:package_info/package_info.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:get_version/get_version.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +36,6 @@ Future<void> main() async {
 }
 
 class SplashScreen extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return _SplashScreen();
@@ -36,9 +43,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreen extends State<SplashScreen> {
-
   bool exit = true;
   BuildContext _context;
+  HttpRequestHandler httpRequestHandler;
+
   intTimer() async {
     Timer.periodic(
       Duration(seconds: 3),
@@ -56,7 +64,7 @@ class _SplashScreen extends State<SplashScreen> {
 
   onExit() async {
     String apiId = await getSignedInData();
-    if (apiId == null || apiId.isEmpty ) {
+    if (apiId == null || apiId.isEmpty) {
       Navigator.of(_context).pushReplacement(
         MaterialPageRoute(builder: (context) => SignInPage()),
       );
@@ -71,15 +79,49 @@ class _SplashScreen extends State<SplashScreen> {
     SharedPrefHandler sharedPrefHandler = new SharedPrefHandler();
     // TODO: xOrigin Key is Hard Coded.
     BuildConfig.xOriginKey = BuildConfig.xOriginKey;
-    BuildConfig.xApiKey = await sharedPrefHandler.getString(sharedPrefHandler.xApiKey);
-    BuildConfig.xAuthorization = await sharedPrefHandler.getString(sharedPrefHandler.xAuthorizationKey);
+    BuildConfig.xApiKey =
+        await sharedPrefHandler.getString(sharedPrefHandler.xApiKey);
+    BuildConfig.xAuthorization =
+        await sharedPrefHandler.getString(sharedPrefHandler.xAuthorizationKey);
     Log.i(BuildConfig.xAuthorization);
     return BuildConfig.xAuthorization;
   }
-@override
+
+  checkForUpdate() async {
+    int projectCode = -1;
+    try {
+      var _projectCode = await GetVersion.projectCode;
+      projectCode = int.parse(_projectCode);
+    } catch (e) {
+      projectCode = -1;
+    }
+    if (await NetworkHandler.isOnlineWithToast(_context)) {
+      var resp =
+          await httpRequestHandler.getCheckForUpdate(BuildConfig.mainApiId);
+      try {
+        if (resp['status'] && resp['result'][0] > projectCode) {
+          Log.i('Checking For Update');
+          updateWindow();
+          return;
+        }
+      } catch (e) {
+        Log.e(e);
+      }
+      intTimer();
+    } else {
+      exitApp();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    _context = context;
-    intTimer();
+    if (_context == null) {
+      _context = context;
+      httpRequestHandler = new HttpRequestHandler(context);
+      checkForUpdate();
+    }
+
+    //intTimer();
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -119,9 +161,7 @@ class _SplashScreen extends State<SplashScreen> {
           Container(
             width: MediaQuery.of(context).size.width,
             alignment: Alignment.bottomCenter,
-            margin: EdgeInsets.only(
-              bottom: 30
-            ),
+            margin: EdgeInsets.only(bottom: 30),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -129,10 +169,9 @@ class _SplashScreen extends State<SplashScreen> {
                 Text(
                   'Powered By',
                   style: TextStyle(
-                    fontFamily: "Poppins-Regular",
-                    fontSize: 14,
-                    color: Colors.blueGrey
-                  ),
+                      fontFamily: "Poppins-Regular",
+                      fontSize: 14,
+                      color: Colors.blueGrey),
                 ),
                 SizedBox(
                   width: 10,
@@ -154,5 +193,50 @@ class _SplashScreen extends State<SplashScreen> {
         ],
       ),
     );
+  }
+
+  exitApp() {
+    if (BuildConfig.isAndroid()) {
+      SystemNavigator.pop();
+    }
+  }
+
+  Future<bool> updateWindow() async {
+    return (await showDialog(
+          context: _context,
+          builder: (context) => new AlertDialog(
+            title: new Text("A new update is now available."),
+            actions: <Widget>[
+              new FlatButton(
+                onPressed: () {
+                  // initTimer();
+                  exitApp();
+                },
+                child: new Text('Not Now'),
+              ),
+              new FlatButton(
+                onPressed: () {
+                  _launchURL();
+                  exitApp();
+                },
+                child: new Text('Update'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
+  }
+
+  _launchURL() async {
+    String appUrl = 'https://www.ohzas.com/';
+    if (BuildConfig.isAndroid()) {
+      appUrl =
+          'https://play.google.com/store/apps/details?id=com.xlayer.med.ohzas';
+    }
+    if (await canLaunch(appUrl)) {
+      await launch(appUrl);
+    } else {
+      throw 'Could not launch $appUrl';
+    }
   }
 }
