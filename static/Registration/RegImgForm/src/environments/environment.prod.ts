@@ -5,7 +5,7 @@ export const environment = {
     apiKey: 'AIzaSyBdHjvhOdmS2Et0vfU2PkuZnkuVkRUPcUE'
   },
   proxyApiUrl: 'https://medix.xlayer.in',
-  // proxyApiUrl: 'https://app.meghalayatourism.in',
+  // proxyApiUrl: 'https://ohzas.xlayer.in',
   proxySocketUrl: 'wss://medix.xlayer.in',
   application_id: 'medix.app.admin.in'
 };

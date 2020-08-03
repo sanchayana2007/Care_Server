@@ -14,6 +14,7 @@ export class AppComponent implements OnInit {
   fileName: any;
   serviceType = 0;
   data: any;
+  image: any;
   nextButton = false;
   loadImage = false;
   defaultImage = environment.proxyApiUrl + '/uploads/img_place_holder.png';
@@ -64,10 +65,10 @@ export class AppComponent implements OnInit {
 
   getTourTransport(): void {
     this.service.getTourTransport(this.serviceType).subscribe(success => {
-      const image = success.result;
-      this.imageList[0].fileUrl = image[0].document[0].link;
-      this.imageList[1].fileUrl = image[0].declaration[0].link;
-      this.data.address = image[0].address;
+      this.image = success.result;
+      this.imageList[0].fileUrl = this.image[0].document[0].link;
+      this.imageList[1].fileUrl = this.image[0].declaration[0].link;
+      this.data.address = this.image[0].address;
     }
     );
   }
@@ -95,13 +96,39 @@ export class AppComponent implements OnInit {
   }
 
   onImageSubmit(): void {
-    if (this.imageList[0].fileSelected === false && this.imageList[1].fileSelected === false){
-      if (this.imageList[0].length !==  0 && this.imageList[1].length !== 0){
-        setTimeout(() => {
-          location.replace(environment.proxyApiUrl);
-        }, 300);
+    if (this.imageList[0].fileSelected === false && this.imageList[1].fileSelected === false && this.data.address.length !== 0){
+      if (this.imageList[0].length !==  0 && this.imageList[1].length !== 0 && this.data.address.length !== 0){
+        this.imageList[1].fileUrl = this.image[0].declaration[0].link;
+        this.service.secondtImageSubmit(this.imageList[1].idProof, this.data.address).subscribe(success2 => {
+          if (success2.status) {
+            this.openSuccessSnackBar(success2.message);
+            setTimeout(() => {
+              location.replace(environment.proxyApiUrl);
+            }, 300);
+          } else {
+            this.openErrorSnackBar(success2.message);
+          }
+        });
         return;
 
+      }
+      this.openErrorSnackBar('To Upload your Image pelase select Image');
+      return;
+    }
+    if (this.imageList[0].fileSelected === false && this.imageList[1].fileSelected === false && this.data.address === null){
+      if (this.imageList[0].length !==  0 && this.imageList[1].length !== 0 && this.data.address.length !== 0){
+        this.imageList[1].fileUrl = this.image[0].declaration[0].link;
+        this.service.secondtImageSubmit(this.imageList[1].idProof, this.data.address).subscribe(success2 => {
+          if (success2.status) {
+            this.openSuccessSnackBar(success2.message);
+            setTimeout(() => {
+              location.replace(environment.proxyApiUrl);
+            }, 300);
+          } else {
+            this.openErrorSnackBar(success2.message);
+          }
+        });
+        return;
       }
       this.openErrorSnackBar('To Upload your Image pelase select Image');
       return;
