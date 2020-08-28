@@ -1,8 +1,8 @@
 img {
-  min-height: 240px;
-  max-height: 240px;
-  max-width: 380px;
-  min-width: 300px;
+  min-height: 200px;
+  max-height: 200px;
+  max-width: 200px;
+  min-width: 200px;
   padding: 10px;
   margin-top: 10px;
   border-radius: 20px;
@@ -34,10 +34,10 @@ h2 {
 }
 @media only screen and (max-width: 480px) {
   img {
-    min-height: 240px;
-    max-height: 240px;
-    max-width: 290px;
-    min-width: 290px;
+    min-height: 200px;
+    max-height: 200px;
+    max-width: 200px;
+    min-width: 200px;
     padding: 10px;
     border-radius: 20px;
   }
@@ -45,10 +45,7 @@ h2 {
     height: 100%;
     width: 100%;
   }
-  .serif {
-    font-family: "Times New Roman", Times, serif;
-  }
-
+  
   .button:hover {
     background-color: gray;
   }
