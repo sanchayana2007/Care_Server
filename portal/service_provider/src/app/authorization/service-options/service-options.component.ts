@@ -84,46 +84,46 @@ export class ServiceOptionsComponent implements OnInit {
   }
 
 
-  onServiceOptions(value: number): void {
-    try {
-      if (this.data !== undefined && this.data !== null &&
-        this.data.length !== 0) {
-          sessionStorage.setItem('id', this.data[value]._id);
-        if (value === 0 ) {
-          this.router.navigate(['account/details-page']);
-        } else if (value === 0 ) {
-          this.router.navigate(['account/details-page']);
-          // this.openAreYouSureDialog(this.data);
-        } else if (value === 1 ) {
-          this.router.navigate(['account/details-page']);
-        } else if (value === 1 ) {
-          // this.openAreYouSureDialog(this.data);
-          this.router.navigate(['account/details-page']);
-        } else if (value === 2 ) {
-          this.router.navigate(['account/details-page']);
-        } else if (value === 2) {
-          // this.openAreYouSureDialog(this.data);
-          this.router.navigate(['account/details-page']);
-        } else if (value === 3) {
-          this.router.navigate(['account/details-page']);
-        } else if (value === 3 ) {
-          // this.openAreYouSureDialog(this.data);
-          this.router.navigate(['account/details-page']);
-        } else if (value === 4) {
-          this.router.navigate(['account/details-page']);
-        } else if (value === 4 ) {
-          // this.openAreYouSureDialog(this.data);
-          this.router.navigate(['account/details-page']);
-        }
-      } else {
-        // tslint:disable-next-line:no-console
-        console.log('NO SERVICE TYPE');
-      }
-    } catch (e) {
-      // tslint:disable-next-line:no-console
-      console.log('DATA LOAD ERROR');
-    }
-  }
+  // onServiceOptions(value: number): void {
+  //   try {
+  //     if (this.data !== undefined && this.data !== null &&
+  //       this.data.length !== 0) {
+  //         sessionStorage.setItem('id', this.data[value]._id);
+  //       if (value === 0 ) {
+  //         this.router.navigate(['account/details-page']);
+  //       } else if (value === 0 ) {
+  //         this.router.navigate(['account/details-page']);
+  //         // this.openAreYouSureDialog(this.data);
+  //       } else if (value === 1 ) {
+  //         this.router.navigate(['account/details-page']);
+  //       } else if (value === 1 ) {
+  //         // this.openAreYouSureDialog(this.data);
+  //         this.router.navigate(['account/details-page']);
+  //       } else if (value === 2 ) {
+  //         this.router.navigate(['account/details-page']);
+  //       } else if (value === 2) {
+  //         // this.openAreYouSureDialog(this.data);
+  //         this.router.navigate(['account/details-page']);
+  //       } else if (value === 3) {
+  //         this.router.navigate(['account/details-page']);
+  //       } else if (value === 3 ) {
+  //         // this.openAreYouSureDialog(this.data);
+  //         this.router.navigate(['account/details-page']);
+  //       } else if (value === 4) {
+  //         this.router.navigate(['account/details-page']);
+  //       } else if (value === 4 ) {
+  //         // this.openAreYouSureDialog(this.data);
+  //         this.router.navigate(['account/details-page']);
+  //       }
+  //     } else {
+  //       // tslint:disable-next-line:no-console
+  //       console.log('NO SERVICE TYPE');
+  //     }
+  //   } catch (e) {
+  //     // tslint:disable-next-line:no-console
+  //     console.log('DATA LOAD ERROR');
+  //   }
+  // }
   openErrorSnackBar(message: string) {
     const config = new MatSnackBarConfig();
     config.verticalPosition = 'bottom';

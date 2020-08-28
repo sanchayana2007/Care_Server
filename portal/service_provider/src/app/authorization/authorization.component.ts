@@ -24,19 +24,19 @@ export class AuthorizationComponent implements OnInit {
       'link': '/service-types',
     },
 
-    // {
-    //   'name': 'Service Provider',
-    //   'link': false,
-    //   'icon': 'medical_services',
-    //   'open': false,
-    //   'sub': [
-    //     {
-    //       'name': 'Service Registration',
-    //       'icon': 'supervisor_account',
-    //       'link': '/account/details-page',
-    //     },
-    //   ]
-    // },
+    {
+      'name': 'Service Provider',
+      'link': false,
+      'icon': 'medical_services',
+      'open': false,
+      'sub': [
+        {
+          'name': 'Service Registration',
+          'icon': 'supervisor_account',
+          'link': '/account/details-page',
+        },
+      ]
+    },
   ];
 
   @Input() isVisible = true;
