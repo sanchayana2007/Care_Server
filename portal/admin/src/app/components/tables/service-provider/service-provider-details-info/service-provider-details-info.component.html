@@ -1,11 +1,11 @@
 <perfect-scrollbar>
   <mat-card>
     <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
-        <p>
-      <button mat-icon-button style="background: #00838f; border-radius: 10px;" matTooltip="Admins Table">
-        <mat-icon style="color: #ffffff">medical_services</mat-icon>
-      </button>
-      
+      <p>
+        <button mat-icon-button style="background: #00838f; border-radius: 10px;" matTooltip="Service Provider">
+          <mat-icon style="color: #ffffff">medical_services</mat-icon>
+        </button>
+
         {{title}}
       </p>
       <div fxLayoutGap="5px">
@@ -15,31 +15,49 @@
       </div>
     </mat-card-title>
     <mat-divider></mat-divider>
-    <div style="margin-top: 50px;">
+    <!-- <div style="margin-top: 50px;">
       <p class="p_type"> Address </p>
       <div fxLayoutAlign="center center">
         <span>{{address}}</span>
       </div>
-    </div>
+    </div> -->
     <mat-card-content>
-      <div style="height: 340px; overflow: auto; margin-bottom: 10px;">
-        <div fxLayout="row" fxLayoutAlign="space-around center" fxLayoutGap="30px">
-          <div>
-            <p class="p_type"> Document </p>
-            <div fxLayoutAlign="center center">
-              <img [src]="data.image_url">
-            </div>
+      <div style="height: 300px; overflow: auto; margin-bottom: 10px;">
+        <div fxLayout="row" fxLayoutAlign="space-around center" >
+          <mat-card fxFlex="45">
+          <p class="p_type"> Face Proof </p>
+          <div fxLayoutAlign="center center">
+            <img [src]="data.image_url">
+
           </div>
-          <div>
-            <p class="p_type"> Declaration </p>
-            <div fxLayoutAlign="center center">
-              <img [src]="data.image_url1">
-            </div>
+        </mat-card>
+        <mat-card fxFlex="45">
+          <p class="p_type"> Document </p>
+          <div  fxLayoutAlign="center center">
+            <img [src]="data.image_url1">
+
           </div>
+        </mat-card>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="space-around center" >
+        <mat-card fxFlex="45">
+          <p class="p_type"> Declaration </p>
+          <div  fxLayoutAlign="center center">
+            <img [src]="data.image_url2">
+
+          </div>
+        </mat-card>
+        <mat-card fxFlex="45">
+          <p class="p_type">Signature </p>
+          <div  fxLayoutAlign="center center">
+            <img [src]="data.image_url3">
+
+          </div>
+        </mat-card>
         </div>
       </div>
     </mat-card-content>
-    <div style="overflow: auto; margin-bottom: 10px;">
+    <!-- <div style="overflow: auto; margin-bottom: 10px;">
       <div fxLayout="row" fxLayoutAlign="space-around center">
         <div fxLayout="column" fxFlex="50" fxFlex.lt-sm="100" fxFlex.sm="100">
           <button [fxHide]="buttonHide" class="accept" mat-raised-button (click)='onAccept()'>
@@ -51,7 +69,7 @@
             Decline
           </button>
         </div>
-      </div>
-    </div>
+      </div> 
+    </div>-->
   </mat-card>
 </perfect-scrollbar>

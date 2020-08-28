@@ -26,19 +26,19 @@ export class ServiceProviderService {
 
   getServices(): Observable<any> {
     return this.http.get<any>(environment.proxyApiUrl +
-    '/web/api/service/provider', {
+    '/web/api/service/provider/v2', {
       headers: this.headers
     });
   }
   getService_list(): Observable<any> {
     return this.http.get<any>(environment.proxyApiUrl +
-    '/web/api/med/servicelist', {
+    '/web/api/med/servicelist/v2', {
       headers: this.headers
     });
   }
   getServiceList(id, verified): Observable<any> {
     return this.http.get<any>(environment.proxyApiUrl +
-    '/web/api/service/provider?serviceId=' + id , {
+    '/web/api/service/provider/v2?serviceId=' + id , {
       headers: this.headers,
       params: {
       verified : verified
@@ -47,11 +47,16 @@ export class ServiceProviderService {
   }
   addServiceList(body): Observable<any> {
     return this.http.put<any>(environment.proxyApiUrl +
-    '/web/api/service/provider', body,  {
+    '/web/api/provider/servicelist', body,  {
       headers: this.headers
     });
   }
-
+  getServiceDetails(id): Observable<any> {
+    return this.http.get<any>(environment.proxyApiUrl +
+    '/web/api/provider/servicelist?serId=' + id, {
+      headers: this.headers
+    });
+  }
 
 }
 

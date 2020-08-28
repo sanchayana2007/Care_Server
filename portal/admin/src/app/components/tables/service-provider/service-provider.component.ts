@@ -7,6 +7,7 @@ import { ToolbarHelpers } from 'src/app/element-core/toolbar/toolbar.helpers';
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout';
 import {ServiceProviderDetailsInfoComponent} from './service-provider-details-info/service-provider-details-info.component';
 import { dataLoader } from '@amcharts/amcharts4/core';
+import {ServiceProviderServiceInfoDialongComponent} from './service-provider-service-info-dialong/service-provider-service-info-dialong.component';
 
 @Component({
   selector: 'app-admin',
@@ -17,7 +18,7 @@ import { dataLoader } from '@amcharts/amcharts4/core';
 export class ServiceProviderComponent implements OnInit {
 
   displayedColumns: string[] = [
-    'full_name', 'contact_number', 'email', 'actions'
+    'full_name', 'contact_number', 'address','district', 'qualification', 'actions'
   ];
   dataSource: MatTableDataSource<any>;
   searchOpen = false;
@@ -40,7 +41,7 @@ export class ServiceProviderComponent implements OnInit {
     breakpointObserver.observe(['(max-width: 0px)']).subscribe(result => {
       this.displayedColumns = result.matches ?
         [] :
-        ['full_name', 'contact_number', 'email', 'actions'];
+        ['full_name', 'contact_number', 'address','district', 'qualification', 'actions'];
     });
     ToolbarHelpers.toolbarTitle = 'Provider';
   }
@@ -51,7 +52,6 @@ export class ServiceProviderComponent implements OnInit {
   }
 
   onChange(event) {
-    console.log(event);
     if (event.checked === false) {
       this.componentClosed = false;
       this.componentClosedTitle = 'Enabled';
@@ -93,11 +93,9 @@ export class ServiceProviderComponent implements OnInit {
   }
   onGetServiceList(): void {
     this.loadAdmin = true;
-    console.log(this.defaultSelectedService)
     this.service.getServiceList(this.defaultSelectedService, this.componentClosedValue)
     .subscribe(success => {
       try {
-        console.log(success)
         if (success.status) {
           this.loadServiceData(success.result);
         } else {
@@ -134,11 +132,23 @@ export class ServiceProviderComponent implements OnInit {
           } else {
             data[i].contact_number_text = data[i].registeredPhoneNum;
           }
-          if (data[i].serviceName === undefined || data[i].serviceName === null ||
-            data[i].serviceName === '') {
-            data[i].serviceName_text = 'N/A';
+          if (data[i].address === undefined || data[i].address === null ||
+            data[i].address === '') {
+            data[i].address_text = 'N/A';
           } else {
-            data[i].serviceName_text = data[i].serviceName;
+            data[i].address_text = data[i].address;
+          }
+          if (data[i].district === undefined || data[i].district === null ||
+            data[i].district === '') {
+            data[i].district_text = 'N/A';
+          } else {
+            data[i].district_text = data[i].district;
+          }
+          if (data[i].qualification === undefined || data[i].qualification === null ||
+            data[i].qualification === '') {
+            data[i].squalification_text = 'N/A';
+          } else {
+            data[i].qualification_text = data[i].qualification;
           }
           if (data[i].verified === undefined || data[i].verified === null ||
             data[i].verified === '') {
@@ -174,26 +184,50 @@ export class ServiceProviderComponent implements OnInit {
     this.openDefaultSnackBar('Refreshing ....');
   }
 
-  onDetails(element) {
+  onBasicDetails(element) {
     const data = {
       dialog_data: element,
     };
-    this.openDetailsDialog(data);
+    this.openBasicDetailsDialog(data);
   }
+  onServicDetails(element) {
+    const data = {
+      dialog_data: element,
+    };
+    this.openServiceDetailsDialog(data);
+  }
+
 
   onDelete(id) {
     this.openErrorSnackBar('Do not delete the Admin');
   }
 
-  openDetailsDialog(data): void {
+  openBasicDetailsDialog(data): void {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.disableClose = true;
     dialogConfig.autoFocus = true;
     dialogConfig.panelClass = ['dialog-class'];
     dialogConfig.height = 'auto';
-    dialogConfig.width = '600px';
+    dialogConfig.width = '800px';
     dialogConfig.data = data;
     const dialogRef = this.dialog.open(ServiceProviderDetailsInfoComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(result => {
+      // if (ServiceProviderService.dialogResult) {
+      //   this.getAdmins();
+      // } else {
+      //   // closed
+      // }
+    });
+  }
+  openServiceDetailsDialog(data): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.disableClose = true;
+    dialogConfig.autoFocus = true;
+    dialogConfig.panelClass = ['dialog-class'];
+    dialogConfig.height = 'auto';
+    dialogConfig.width = '800px';
+    dialogConfig.data = data;
+    const dialogRef = this.dialog.open(ServiceProviderServiceInfoDialongComponent, dialogConfig);
     dialogRef.afterClosed().subscribe(result => {
       // if (ServiceProviderService.dialogResult) {
       //   this.getAdmins();

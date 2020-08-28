@@ -2,16 +2,16 @@
   <mat-card style="min-width: auto;">
     <div fxLayout="row wrap" style="margin: 0px; margin-bottom: 20px;" fxLayoutAlign="space-between center">
       <div fxLayoutGap="10px" fxLayoutAlign="center center">
-        <button mat-icon-button style="background: #00838f; border-radius: 10px;" matTooltip="Admins Table">
+        <button mat-icon-button style="background: #00838f; border-radius: 10px;" matTooltip="Service Provider">
           <mat-icon style="color: #ffffff">medical_services</mat-icon>
         </button>
         <p style="font-weight: 400; font-size: 16pt;">
-         Service Provider
+          Service Provider
         </p>
         <!-- <mat-slide-toggle style="color: #ff000d" [checked]="componentClosed" (change)="onChange($event)">
           {{componentClosedTitle}}
         </mat-slide-toggle> -->
-          
+
       </div>
       <div fxLayoutGap="10px" fxLayoutAlign="start stretch">
         <button mat-raised-button color="primary" (click)="onRefresh()" matTooltip="Refresh">
@@ -29,15 +29,15 @@
     </div>
     <div fxLayout="row wrap" style="margin: 0px; margin-bottom: 20px;" fxLayoutAlign="space-between center">
       <div fxLayoutGap="10px" fxLayoutAlign="center">
-          <button class="report-icon" mat-raised-button color="primary"
-          style="height: 60px;" matTooltip="Bookings Report">
-              <mat-icon style="color: #ffffff; margin-right: 14px;
+        <button class="report-icon" mat-raised-button color="primary" style="height: 60px;"
+          matTooltip="Verified / Non Verified">
+          <mat-icon style="color: #ffffff; margin-right: 14px;
                 margin-left: -8px;">verified </mat-icon>
-              <mat-slide-toggle  (change)="onChange($event)">
-              </mat-slide-toggle>
-            </button>
-      
-        <mat-form-field appearance="outline" fxFlex="50">
+          <mat-slide-toggle (change)="onChange($event)">
+          </mat-slide-toggle>
+        </button>
+
+        <!-- <mat-form-field appearance="outline" fxFlex="50">
               <mat-label>Services</mat-label>
               <mat-select required [(ngModel)]="defaultSelectedService">
                 <mat-option value= " ">Select a Service</mat-option>
@@ -46,17 +46,16 @@
                   {{serviceList_data.serNameEnglish}}
                 </mat-option> 
               </mat-select>
-            </mat-form-field>
-            
-            <button fxFlex.lt-sm="100" fxFlex.sm="100"  mat-raised-button
-            style="height: 60px; width: 300px;" color="primary"
-            (click)="onGetServiceList()" matTooltip="Get Report">
-            Get Service List
-            <mat-icon style="color: #fff"> medical_services</mat-icon>
-          </button>
+            </mat-form-field> -->
+
+        <button fxFlex.lt-sm="100" fxFlex.sm="100" mat-raised-button style="height: 60px; width: auto;" color="primary"
+          (click)="onGetServiceList()" matTooltip="Submit Services">
+          Submit
+          <mat-icon style="color: #fff"> medical_services</mat-icon>
+        </button>
       </div>
     </div>
-    
+
 
     <div fxLayoutAlign="center" style="background:rgb(230, 226, 226); height: 1px;">
     </div>
@@ -73,19 +72,20 @@
             </mat-header-cell>
             <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
               <div>
-                <button [fxShow]="element.verified_text" class="accept" mat-icon-button color="primary" matTooltip="Service Verified">
-                    <mat-icon>verified_user</mat-icon>
-                  </button>
-                  <button [fxHide]="element.verified_text" class="decline" mat-icon-button color="warn"  matTooltip="Service not Verified">
-                      <mat-icon>block</mat-icon>
-                    </button>
-                    <button mat-icon-button color="primary" (click)="onDetails(element)" matTooltip="Service Details">
-                        <mat-icon>info</mat-icon>
-                      </button>
-                <!-- <button mat-icon-button color="warn" (click)="onDelete(element.id)" [fxHide]="componentClosed"
-                  matTooltip="Delete">
-                  <mat-icon>delete</mat-icon>
+                <!-- <button [fxShow]="element.verified_text" class="accept" mat-icon-button color="primary"
+                  matTooltip="Service Verified">
+                  <mat-icon>verified_user</mat-icon>
+                </button>
+                <button [fxHide]="element.verified_text" class="decline" mat-icon-button color="warn"
+                  matTooltip="Service not Verified">
+                  <mat-icon>block</mat-icon>
                 </button> -->
+                <button mat-icon-button color="primary" (click)="onBasicDetails(element)" matTooltip="Basic Details">
+                  <mat-icon>info</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="onServicDetails(element)" matTooltip="Services Details">
+                  <mat-icon>local_pharmacy</mat-icon>
+                </button>
               </div>
             </mat-cell>
           </ng-container>
@@ -103,11 +103,25 @@
               {{element.contact_number_text}}
             </mat-cell>
           </ng-container>
-          <ng-container matColumnDef="email">
-            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef> service Name </mat-header-cell>
+          <ng-container matColumnDef="address">
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef>Address </mat-header-cell>
             <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
-              <span class="mobile-label">Service Name:</span>
-              {{element.serviceName_text}}
+              <span class="mobile-label">Address:</span>
+              {{element.address_text}}
+            </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="district">
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef>District </mat-header-cell>
+            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
+              <span class="mobile-label">District:</span>
+              {{element.district_text}}
+            </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="qualification">
+            <mat-header-cell fxLayoutAlign="center center" *matHeaderCellDef>Qualification </mat-header-cell>
+            <mat-cell fxLayoutAlign="center center" *matCellDef="let element">
+              <span class="mobile-label">Qualification:</span>
+              {{element.qualification_text}}
             </mat-cell>
           </ng-container>
           <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>

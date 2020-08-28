@@ -58,7 +58,8 @@ import {UsersComponent} from './components/tables/users/users.component';
 import { NotificationsComponent } from './components/tables/notifications/notifications.component';
 import { ProdectsComponent } from './components/tables/prodects/prodects.component';
 import { ProdectsAddDialogComponent } from './components/tables/prodects/prodects-add-dialog/prodects-add-dialog.component';
-import { ProductListInfoDialogComponent } from './components/tables/service-list/product-list-info-dialog/product-list-info-dialog.component'
+import { ProductListInfoDialogComponent } from './components/tables/service-list/product-list-info-dialog/product-list-info-dialog.component';
+import { ServiceProviderServiceInfoDialongComponent } from './components/tables/service-provider/service-provider-service-info-dialong/service-provider-service-info-dialong.component'
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: false,
@@ -102,6 +103,7 @@ const routes: Routes = [
     ProdectsComponent,
     ProdectsAddDialogComponent,
     ProductListInfoDialogComponent,
+    ServiceProviderServiceInfoDialongComponent,
   ],
   entryComponents: [
     AdminDialogComponent,
@@ -112,6 +114,7 @@ const routes: Routes = [
     AppointmentsDialogComponent,
     ServiceImageUploadDialogComponent,
     ServiceProviderDetailsInfoComponent,
+    ServiceProviderServiceInfoDialongComponent,
     ProdectsAddDialogComponent,
     ProductListInfoDialogComponent
   ],

@@ -17,9 +17,6 @@ export class ServiceProviderDetailsInfoComponent implements OnInit {
   formData: any = null;
   address: any;
   buttonHide = false;
-  displayedColumns: string[] = [
-    'fullName', 'address', 'actions'
-  ];
   constructor(public thisDialogRef: MatDialogRef<ServiceProviderDetailsInfoComponent>,
     @Inject(MAT_DIALOG_DATA) private dailogData: any, private snackBar: MatSnackBar,
     private service: ServiceProviderService, breakpointObserver: BreakpointObserver) {
@@ -27,20 +24,20 @@ export class ServiceProviderDetailsInfoComponent implements OnInit {
     this.dailogData = JSON.parse(this.dailogData);
     this.data = this.dailogData.dialog_data;
     this.title = 'Service Provider Details';
-    breakpointObserver.observe(['(max-width: 0px)']).subscribe(result => {
-      this.displayedColumns = result.matches ?
-        [] :
-        ['fullName', 'address', 'actions'];
-    });
-    console.log(this.data);
+ 
     if (this.data !== null) {
-      this.address = this.data.address;
       this.buttonHide = this.data.verified;
+      if (this.data.profilePic !== '') {
+        this.data.image_url = this.data.profilePic[0].link;
+      }
       if (this.data.document !== '') {
-        this.data.image_url = this.data.document[0].link;
+        this.data.image_url1 = this.data.document[0].link;
       }
       if (this.data.declaration !== '') {
-        this.data.image_url1 = this.data.declaration[0].link;
+        this.data.image_url2 = this.data.declaration[0].link;
+      }
+      if (this.data.signature !== '') {
+        this.data.image_url3 = this.data.signature[0].link;
       }
     }
   }

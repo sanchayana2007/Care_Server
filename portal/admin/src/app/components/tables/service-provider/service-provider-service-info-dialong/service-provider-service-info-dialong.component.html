@@ -1,0 +1,50 @@
+<mat-card>
+  <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+    <p>
+      <button mat-icon-button style="background: #00838f; border-radius: 10px;" matTooltip="Service Provider">
+        <mat-icon style="color: #ffffff">medical_services</mat-icon>
+      </button>
+
+      {{title}}
+    </p>
+    <div fxLayoutGap="5px">
+      <button mat-icon-button color="warn" (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <div style="height:400px; width: auto; overflow: auto;">
+
+    <mat-card style=" margin-bottom:10px; padding:10px;" *ngFor="let data of data; let i = index">
+      <div style="padding:10px;" fxLayout="row" fxLayoutAlign="space-around center">
+        <div fxLayout="column" fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100">
+          <img [src]="data.imageurl">
+        </div>
+        <div fxLayout="column" fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100">
+          <p class="p_type"> Service Name : {{data.serviceName}} </p>
+
+        </div>
+        <div fxLayout="column" fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100">
+            <p class="p_type">Status : {{data.status}} </p>
+  
+          </div>
+      </div>
+      <div style="overflow: auto; margin-bottom: 10px;">
+        <div fxLayout="row" fxLayoutAlign="space-around center">
+          <div fxLayout="column" fxFlex="50" fxFlex.lt-sm="100" fxFlex.sm="100">
+            <button [fxHide]="buttonHide" class="accept" mat-raised-button (click)='onAccept(data.providerService)'>
+              Accept
+            </button>
+          </div>
+          <div fxLayout="column" fxFlex="50" fxFlex.lt-sm="100" fxFlex.sm="100">
+            <button [fxHide]="buttonHide" class="decline" mat-raised-button (click)='onDecline(data.providerService)'>
+              Reject
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </mat-card>
+  </div>
+</mat-card>
