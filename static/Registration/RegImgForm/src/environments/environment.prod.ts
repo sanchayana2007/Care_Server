@@ -5,6 +5,7 @@ export const environment = {
     apiKey: 'AIzaSyBdHjvhOdmS2Et0vfU2PkuZnkuVkRUPcUE'
   },
   proxyApiUrl: 'https://medix.xlayer.in',
+  dashboardUrl: 'https://medix.xlayer.in/service',
   // proxyApiUrl: 'https://ohzas.xlayer.in',
   proxySocketUrl: 'wss://medix.xlayer.in',
   application_id: 'medix.app.admin.in'

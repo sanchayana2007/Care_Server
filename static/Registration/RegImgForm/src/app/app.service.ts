@@ -28,23 +28,39 @@ export class AppService {
       'x-Api-Key': xApi
     };
   }
-  getTourTransport(serviceType: number): Observable<any> {
-    return this.http.get<any>(environment.proxyApiUrl + '/web/api/service/provider', {
+  getService_list(): Observable<any> {
+    return this.http.get<any>(environment.proxyApiUrl +
+    '/web/api/med/servicelist', {
+      headers: this.headers
+    });
+  }
+  getDistricts(): Observable<any> {
+    return this.http.get<any>(environment.proxyApiUrl +
+    '/web/api/district/info', {
+      headers: this.headers
+    });
+  }
+  getAreas(place): Observable<any> {
+    return this.http.get<any>(environment.proxyApiUrl +
+    '/web/api/place/info?district=' + place , {
+      headers: this.headers
+    });
+  }
+  getServices(serviceType: number): Observable<any> {
+    return this.http.get<any>(environment.proxyApiUrl +
+       '/web/api/service/provider/v2', {
       headers: this.headers,
       params: {
         id: this.id
       }
     });
   }
-  firstImageSubmit(body, addres): Observable<any> {
-    return this.http.post<any>(environment.proxyApiUrl +
-      '/web/api/service/provider', body, {
+  postData(queryParam, body): Observable<any> {
+    return this.http.post<any>(
+       environment.proxyApiUrl +
+      '/web/api/service/provider/v2?', body, {
         headers: this.headers,
-        params: {
-          serviceId: this.id,
-          address: addres,
-          idType: 'document'
-        }
+        params: queryParam
       });
   }
   secondtImageSubmit(body, addres): Observable<any> {

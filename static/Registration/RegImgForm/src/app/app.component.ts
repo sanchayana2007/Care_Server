@@ -3,6 +3,10 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MatSnackBarConfig, MatSnackBar } from '@angular/material/snack-bar';
 import { AppService } from './app.service';
 import { environment } from '../environments/environment';
+import * as html2canvas from 'html2canvas';
+import { default as JSPDF } from 'jspdf';
+import { HttpClientModule, HttpClient, HttpRequest, HttpResponse, HttpEventType } from '@angular/common/http';
+import { nonWhiteSpace } from 'html2canvas/dist/types/css/syntax/parser';
 
 @Component({
   selector: 'app-root',
@@ -17,11 +21,12 @@ export class AppComponent implements OnInit {
   image: any;
   nextButton = false;
   loadImage = false;
+  districts: any;
   defaultImage = environment.proxyApiUrl + '/uploads/img_place_holder.png';
   imageList: Array<any> = [
     {
       slNo: 1,
-      imgName: 'Upload Document Image ',
+      imgName: 'Upload Image ',
       idProof: null,
       fileUrl: this.defaultImage,
       fileLink: '',
@@ -29,20 +34,53 @@ export class AppComponent implements OnInit {
     },
     {
       slNo: 2,
+      imgName: 'Upload Document Image',
+      idProof: null,
+      fileUrl: this.defaultImage,
+      fileLink: '',
+      fileSelected: false
+    },
+    {
+      slNo: 3,
       imgName: 'Upload Declaration Image',
+      idProof: null,
+      fileUrl: this.defaultImage,
+      fileLink: '',
+      fileSelected: false
+    },
+    {
+      slNo: 4,
+      imgName: 'Upload Signature',
       idProof: null,
       fileUrl: this.defaultImage,
       fileLink: '',
       fileSelected: false
     }
   ];
-
-  constructor(private router: Router, private service: AppService,
-              private snackBar: MatSnackBar, private activatedRoute: ActivatedRoute
+  pincode: any;
+  serviceList = [];
+  services: any;
+  areaofoperation: any;
+  srvList = [];
+  pinCodes: any;
+  download: any;
+  count = 0;
+  count1 = 0;
+  count2 = 0;
+  documentUploads = new FormData();
+  constructor(private router: Router, private service: AppService, private http: HttpClient,
+    private snackBar: MatSnackBar, private activatedRoute: ActivatedRoute
   ) {
     this.data = {};
     this.data.address = '';
-
+    this.data.serviceList = [];
+    this.data.qualification = '';
+    this.data.areaofoperation = [];
+    this.data.district = '';
+    this.data.checkbox = '';
+    this.services = [];
+    this.areaofoperation = [];
+    this.srvList = [];
   }
   ngOnInit(): void {
     setTimeout(() => {
@@ -56,28 +94,95 @@ export class AppComponent implements OnInit {
             params['id']
           );
           this.serviceType = parseInt(params['serviceType']);
-          this.getTourTransport();
+          this.getServices();
+          this.getServicesList();
+          this.getDistrictsList();
         }
       });
     }, 300);
 
   }
+  // onDownload(): void {
+  //   this.nextButton = true;
+  //   const cntx = this;
+  //   html2canvas.default(document.getElementById('image')).then(function (canvas) {
+  //     // console.log("download",cntx)
+  //     const pdf = new JSPDF();
+  //     // const pdf = new jsPDF();
+  //     console.log(pdf);
+  //     const img = canvas.toDataURL('image/jpeg');
+  //     // console.log("img",cntx.data)
+  //     pdf.addImage(img, 0, 0, 0, 0);
+  //     pdf.save('image' + '.pdf');
+  //   });
+  //   this.nextButton = false;
+  // }
 
-  getTourTransport(): void {
-    this.service.getTourTransport(this.serviceType).subscribe(success => {
-      this.image = success.result;
-      this.imageList[0].fileUrl = this.image[0].document[0].link;
-      this.imageList[1].fileUrl = this.image[0].declaration[0].link;
-      this.data.address = this.image[0].address;
+  getServicesList(): void {
+    this.service.getService_list().subscribe(data => {
+      if (data.status) {
+        this.serviceList = data.result;
+      }
+    });
+  }
+  getDistrictsList(): void {
+    this.service.getDistricts().subscribe(data => {
+      if (data.status) {
+        this.districts = data.result;
+      }
+    });
+  }
+  onChange(districtName): void {
+    this.getAreaList(districtName);
+  }
+  getAreaList(districtName): void {
+    this.service.getAreas(districtName).subscribe(data => {
+      if (data.status) {
+        this.pincode = data.result;
+      }
+    });
+  }
+
+  onClickHandler(cb): void {
+    this.data.checkbox = cb.checked;
+  }
+  getServices(): void {
+    this.service.getServices(this.serviceType).subscribe(success => {
+      if (success.status) {
+        this.image = success.result;
+        this.download = this.image[0].document[0].link;
+        this.imageList[0].fileUrl = this.image[0].profilePic[0].link;
+        this.imageList[1].fileUrl = this.image[0].declaration[0].link;
+        this.imageList[2].fileUrl = this.image[0].document[0].link;
+        this.imageList[3].fileUrl = this.image[0].signature[0].link;
+        this.data.address = this.image[0].address;
+        this.data.district = this.image[0].district;
+        this.data.checkbox = this.image[0].terms;
+        this.data.qualification = this.image[0].qualification;
+        this.pinCodes = this.image[0].areaOfOperation;
+        const dummy = [];
+        for (let i = 0; i < this.pinCodes.length; i++) {
+          dummy.push(Number(this.pinCodes[i]));
+        }
+        for (let i = 0; i < this.image[0].serviceList.length; i++) {
+          this.services.push(this.image[0].serviceList[i].serviceId);
+          this.srvList.push(this.image[0].serviceList[i].serviceName);
+        }
+
+        this.data.areaofoperation = dummy;
+        this.data.serviceList = this.srvList;
+      }
+      this.onChange(this.data.district);
     }
     );
+
   }
-  documentUpload(event: any, index: number): void {
+  documentUploadOne(event: any): void {
     if (event.target.files && event.target.files[0]) {
       const reader = new FileReader();
       reader.readAsDataURL(event.target.files[0]);
       reader.onload = (events: any) => {
-        this.imageList[index].fileUrl = events.target.result;
+        this.imageList[0].fileUrl = events.target.result;
       };
     }
     const fileList: FileList = event.target.files;
@@ -86,91 +191,128 @@ export class AppComponent implements OnInit {
       const formData: FormData = new FormData();
       const filename = file.name;
       this.fileName = filename.substring(filename.lastIndexOf('/'));
-      formData.append('idProof', file, filename);
-      // formData.append('idProof1', file, filename);
-      this.imageList[index].idProof = formData;
-      // this.imageData.push({ 'method': 1, 'image': formData });
+      formData.append('id1Proof', file, filename);
+      this.imageList[0].id1Proof = formData;
+      this.imageList[0].file = file;
+      this.imageList[0].fileName = filename;
     } else {
-      this.imageList[index].idProof = null;
+      this.imageList[0].id1Proof = null;
     }
+  }
+
+  documentUploadTwo(event: any): void {
+    if (event.target.files && event.target.files[0]) {
+      const reader = new FileReader();
+      reader.readAsDataURL(event.target.files[0]);
+      reader.onload = (events: any) => {
+        this.imageList[1].fileUrl = events.target.result;
+      };
+    }
+    const fileList: FileList = event.target.files;
+    if (fileList.length > 0) {
+      const file: File = fileList[0];
+      const formData: FormData = new FormData();
+      const filename = file.name;
+      this.fileName = filename.substring(filename.lastIndexOf('/'));
+      formData.append('id2Proof', file, filename);
+      this.imageList[1].id2Proof = formData;
+      this.imageList[1].file = file;
+      this.imageList[1].fileName = filename;
+    } else {
+      this.imageList[1].id2Proof = null;
+    }
+  }
+
+  documentUploadThree(event: any): void {
+    if (event.target.files && event.target.files[0]) {
+      const reader = new FileReader();
+      reader.readAsDataURL(event.target.files[0]);
+      reader.onload = (events: any) => {
+        this.imageList[2].fileUrl = events.target.result;
+      };
+    }
+    const fileList: FileList = event.target.files;
+    if (fileList.length > 0) {
+      const file: File = fileList[0];
+      const formData: FormData = new FormData();
+      const filename = file.name;
+      this.fileName = filename.substring(filename.lastIndexOf('/'));
+      formData.append('', file, filename);
+      this.imageList[2].liveProof = formData;
+      this.imageList[2].file = file;
+      this.imageList[2].fileName = filename;
+    } else {
+      this.imageList[2].liveProof = null;
+    }
+  }
+  documentUploadFour(event: any): void {
+    if (event.target.files && event.target.files[0]) {
+      const reader = new FileReader();
+      reader.readAsDataURL(event.target.files[0]);
+      reader.onload = (events: any) => {
+        this.imageList[3].fileUrl = events.target.result;
+      };
+    }
+    const fileList: FileList = event.target.files;
+    if (fileList.length > 0) {
+      const file: File = fileList[0];
+      const formData: FormData = new FormData();
+      const filename = file.name;
+      this.fileName = filename.substring(filename.lastIndexOf('/'));
+      formData.append('', file, filename);
+      this.imageList[3].liveProof = formData;
+      this.imageList[3].file = file;
+      this.imageList[3].fileName = filename;
+    } else {
+      this.imageList[3].liveProof = null;
+    }
+  }
+  Onselect(data, value, event): void {
+    if (this.image) {
+      if (this.count2 === 0 && value === 1 && event.source._selected === false) {
+        this.services = [];
+        this.count2++;
+      }
+    }
+
   }
 
   onImageSubmit(): void {
-    if (this.imageList[0].fileSelected === false && this.imageList[1].fileSelected === false && this.data.address.length !== 0){
-      if (this.imageList[0].length !==  0 && this.imageList[1].length !== 0 && this.data.address.length !== 0){
-        this.imageList[1].fileUrl = this.image[0].declaration[0].link;
-        this.service.secondtImageSubmit(this.imageList[1].idProof, this.data.address).subscribe(success2 => {
-          if (success2.status) {
-            this.openSuccessSnackBar(success2.message);
-            setTimeout(() => {
-              location.replace(environment.proxyApiUrl);
-            }, 300);
-          } else {
-            this.openErrorSnackBar(success2.message);
-          }
-        });
-        return;
+    const queryParams = {
+      qualification: this.data.qualification,
+      district: this.data.district,
+      address: this.data.address,
+      terms: this.data.checkbox
+    };
+    this.documentUploads = new FormData();
+    this.documentUploads.append
+      ('profilePic', this.imageList[0].file);
+    this.documentUploads.append
+      ('document', this.imageList[1].file);
+    this.documentUploads.append
+      ('declaration', this.imageList[2].file);
+    this.documentUploads.append
+      ('signature', this.imageList[3].file);
+    this.documentUploads.append
+      ('serviceList', this.services);
+    this.documentUploads.append
+      ('areaOfOperation', this.data.areaofoperation);
 
-      }
-      this.openErrorSnackBar('To Upload your Image pelase select Image');
-      return;
-    }
-    if (this.imageList[0].fileSelected === false && this.imageList[1].fileSelected === false && this.data.address === null){
-      if (this.imageList[0].length !==  0 && this.imageList[1].length !== 0 && this.data.address.length !== 0){
-        this.imageList[1].fileUrl = this.image[0].declaration[0].link;
-        this.service.secondtImageSubmit(this.imageList[1].idProof, this.data.address).subscribe(success2 => {
-          if (success2.status) {
-            this.openSuccessSnackBar(success2.message);
-            setTimeout(() => {
-              location.replace(environment.proxyApiUrl);
-            }, 300);
-          } else {
-            this.openErrorSnackBar(success2.message);
-          }
-        });
-        return;
-      }
-      this.openErrorSnackBar('To Upload your Image pelase select Image');
-      return;
-    }
-    if (!this.imageList[0].fileSelected ){
-      this.service.secondtImageSubmit(this.imageList[1].idProof, this.data.address).subscribe(success2 => {
-        if (success2.status) {
-          this.openSuccessSnackBar(success2.message);
-          setTimeout(() => {
-            location.replace(environment.proxyApiUrl);
-          }, 300);
-        } else {
-          this.openErrorSnackBar(success2.message);
-        }
-      });
-      return;
-    }
-    this.service.firstImageSubmit(this.imageList[0].idProof, this.data.address).subscribe(success => {
-      if (success.status) {
-        if (!this.imageList[1].fileSelected ){
+    this.service.postData(queryParams, this.documentUploads
+    ).subscribe(
+      success => {
+        if (success.status) {
           this.openSuccessSnackBar(success.message);
           setTimeout(() => {
-            location.replace(environment.proxyApiUrl);
+            // location.replace(environment.dashboardUrl);
           }, 300);
-          return;
+        } else {
+          this.openErrorSnackBar(success.message);
         }
-        // this.openSuccessSnackBar(success.message);
-        this.service.secondtImageSubmit(this.imageList[1].idProof, this.data.address).subscribe(success2 => {
-          if (success2.status) {
-            this.openSuccessSnackBar(success2.message);
-            setTimeout(() => {
-              location.replace(environment.proxyApiUrl);
-            }, 300);
-          } else {
-            this.openErrorSnackBar(success2.message);
-          }
-        });
-      } else {
-        this.openErrorSnackBar(success.message);
-      }
-    });
+      });
+    return;
   }
+
   uploadTrigger0(): void {
     this.imageList[0].fileSelected = true;
     document.getElementById('upload0').click();
@@ -178,6 +320,14 @@ export class AppComponent implements OnInit {
   uploadTrigger1(): void {
     this.imageList[1].fileSelected = true;
     document.getElementById('upload1').click();
+  }
+  uploadTrigger2(): void {
+    this.imageList[2].fileSelected = true;
+    document.getElementById('upload2').click();
+  }
+  uploadTrigger3(): void {
+    this.imageList[3].fileSelected = true;
+    document.getElementById('upload3').click();
   }
 
   openDefaultSnackBar(message: string): void {
@@ -189,7 +339,7 @@ export class AppComponent implements OnInit {
     this.snackBar.open(message, 'Close', config);
   }
 
-  openSuccessSnackBar(message: string, ): void {
+  openSuccessSnackBar(message: string): void {
     const config = new MatSnackBarConfig<any>();
     config.verticalPosition = 'bottom';
     config.horizontalPosition = 'center';
@@ -198,7 +348,7 @@ export class AppComponent implements OnInit {
     this.snackBar.open(message, 'Close', config);
   }
 
-  openErrorSnackBar(message: string, ): void {
+  openErrorSnackBar(message: string): void {
     const config = new MatSnackBarConfig<any>();
     config.verticalPosition = 'bottom';
     config.horizontalPosition = 'right';
