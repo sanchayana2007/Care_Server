@@ -268,12 +268,12 @@ export class AppComponent implements OnInit {
     }
   }
   Onselect(data, value, event): void {
-    if (this.image) {
-      if (this.count2 === 0 && value === 1 && event.source._selected === false) {
-        this.services = [];
-        this.count2++;
+      if (value === 1 && event.source._selected === true) {
+        this.services.push(data._id);
+      } else if (value === 1 && event.source._selected === true) {
+        this.services.pop();
       }
-    }
+
 
   }
 
@@ -297,6 +297,7 @@ export class AppComponent implements OnInit {
       ('serviceList', this.services);
     this.documentUploads.append
       ('areaOfOperation', this.data.areaofoperation);
+      console.log(this.services);
 
     this.service.postData(queryParams, this.documentUploads
     ).subscribe(
@@ -304,7 +305,7 @@ export class AppComponent implements OnInit {
         if (success.status) {
           this.openSuccessSnackBar(success.message);
           setTimeout(() => {
-            // location.replace(environment.dashboardUrl);
+             location.replace(environment.dashboardUrl);
           }, 300);
         } else {
           this.openErrorSnackBar(success.message);
