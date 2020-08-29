@@ -26,7 +26,7 @@ export class AppComponent implements OnInit {
   imageList: Array<any> = [
     {
       slNo: 1,
-      imgName: 'Upload Image ',
+      imgName: 'Profile Picture ',
       idProof: null,
       fileUrl: this.defaultImage,
       fileLink: '',
@@ -34,7 +34,7 @@ export class AppComponent implements OnInit {
     },
     {
       slNo: 2,
-      imgName: 'Upload Document Image',
+      imgName: 'Document',
       idProof: null,
       fileUrl: this.defaultImage,
       fileLink: '',
@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
     },
     {
       slNo: 3,
-      imgName: 'Upload Declaration Image',
+      imgName: 'Declaration',
       idProof: null,
       fileUrl: this.defaultImage,
       fileLink: '',
@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
     },
     {
       slNo: 4,
-      imgName: 'Upload Signature',
+      imgName: 'Signature',
       idProof: null,
       fileUrl: this.defaultImage,
       fileLink: '',
@@ -64,9 +64,7 @@ export class AppComponent implements OnInit {
   srvList = [];
   pinCodes: any;
   download: any;
-  count = 0;
-  count1 = 0;
-  count2 = 0;
+  State: any;
   documentUploads = new FormData();
   constructor(private router: Router, private service: AppService, private http: HttpClient,
     private snackBar: MatSnackBar, private activatedRoute: ActivatedRoute
@@ -76,11 +74,13 @@ export class AppComponent implements OnInit {
     this.data.serviceList = [];
     this.data.qualification = '';
     this.data.areaofoperation = [];
+    this.data.state = '';
     this.data.district = '';
     this.data.checkbox = '';
     this.services = [];
     this.areaofoperation = [];
     this.srvList = [];
+    this.State = [];
   }
   ngOnInit(): void {
     setTimeout(() => {
@@ -96,7 +96,7 @@ export class AppComponent implements OnInit {
           this.serviceType = parseInt(params['serviceType']);
           this.getServices();
           this.getServicesList();
-          this.getDistrictsList();
+          this.getStateList();
         }
       });
     }, 300);
@@ -125,8 +125,22 @@ export class AppComponent implements OnInit {
       }
     });
   }
-  getDistrictsList(): void {
-    this.service.getDistricts().subscribe(data => {
+  getStateList(): void {
+    this.service.getState().subscribe(data => {
+      if (data.status) {
+        this.State = data.result;
+      }
+    });
+  }
+  onDistrictsChange(districtName): void {
+    this.getAreaList(districtName);
+  }
+  onStateChange(stateName): void {
+    this.getDistrictsList(stateName);
+  }
+
+  getDistrictsList(stateName): void {
+    this.service.getDistricts(stateName).subscribe(data => {
       if (data.status) {
         this.districts = data.result;
       }
@@ -157,6 +171,7 @@ export class AppComponent implements OnInit {
         this.imageList[3].fileUrl = this.image[0].signature[0].link;
         this.data.address = this.image[0].address;
         this.data.district = this.image[0].district;
+        this.data.state = this.image[0].state;
         this.data.checkbox = this.image[0].terms;
         this.data.qualification = this.image[0].qualification;
         this.pinCodes = this.image[0].areaOfOperation;
@@ -172,7 +187,10 @@ export class AppComponent implements OnInit {
         this.data.areaofoperation = dummy;
         this.data.serviceList = this.srvList;
       }
-      this.onChange(this.data.district);
+      this.onStateChange(this.data.state);
+      setTimeout(() => {
+        this.onDistrictsChange(this.data.district);
+      }, 300);
     }
     );
 
@@ -281,6 +299,7 @@ export class AppComponent implements OnInit {
     const queryParams = {
       qualification: this.data.qualification,
       district: this.data.district,
+      state: this.data.state,
       address: this.data.address,
       terms: this.data.checkbox
     };
@@ -297,7 +316,6 @@ export class AppComponent implements OnInit {
       ('serviceList', this.services);
     this.documentUploads.append
       ('areaOfOperation', this.data.areaofoperation);
-      console.log(this.services);
 
     this.service.postData(queryParams, this.documentUploads
     ).subscribe(
@@ -305,7 +323,7 @@ export class AppComponent implements OnInit {
         if (success.status) {
           this.openSuccessSnackBar(success.message);
           setTimeout(() => {
-             location.replace(environment.dashboardUrl);
+            // location.replace(environment.dashboardUrl);
           }, 300);
         } else {
           this.openErrorSnackBar(success.message);

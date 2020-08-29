@@ -34,9 +34,15 @@ export class AppService {
       headers: this.headers
     });
   }
-  getDistricts(): Observable<any> {
+  getState(): Observable<any> {
     return this.http.get<any>(environment.proxyApiUrl +
-    '/web/api/district/info', {
+    '/web/api/state/info', {
+      headers: this.headers
+    });
+  }
+  getDistricts(district): Observable<any> {
+    return this.http.get<any>(environment.proxyApiUrl +
+    '/web/api/district/info?state=' + district, {
       headers: this.headers
     });
   }

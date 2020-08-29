@@ -34,7 +34,7 @@
     <mat-card fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" fxLayoutAlign="center center" fxLayout="column">
         <mat-card-header>
             <div mat-card-avatar class="example-header-image"></div>
-            <mat-card-title>{{imageList[0].slNo}} {{imageList[0].imgName}}</mat-card-title>
+            <mat-card-title>{{imageList[0].imgName}}</mat-card-title>
         </mat-card-header>
         <img [src]="imageList[0].fileUrl">
         <input id="upload0" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf"
@@ -42,12 +42,13 @@
         <button mat-raised-button color="primary" style="margin: 10px; font-weight: bolder" (click)="uploadTrigger0()">
             Upload <mat-icon>cloud_upload</mat-icon>
         </button>
+        Note*:- Supported Extensions are .jpg .jpeg .png 
     </mat-card>
 
     <mat-card fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" fxLayoutAlign="center center" fxLayout="column">
         <mat-card-header>
             <div mat-card-avatar class="example-header-image"></div>
-            <mat-card-title>{{imageList[1].slNo}} {{imageList[1].imgName}}</mat-card-title>
+            <mat-card-title>{{imageList[1].imgName}}</mat-card-title>
         </mat-card-header>
         <img [src]="imageList[1].fileUrl">
         <input id="upload1" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf"
@@ -55,11 +56,13 @@
         <button mat-raised-button color="primary" style="margin: 10px; font-weight: bolder" (click)="uploadTrigger1()">
             Upload <mat-icon>cloud_upload</mat-icon>
         </button>
+        Note*:- Supported Extensions are .jpg .jpeg .png 
     </mat-card>
+
     <mat-card fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" fxLayoutAlign="center center" fxLayout="column">
         <mat-card-header>
             <div mat-card-avatar class="example-header-image"></div>
-            <mat-card-title>{{imageList[2].slNo}} {{imageList[2].imgName}}</mat-card-title>
+            <mat-card-title>{{imageList[2].imgName}}</mat-card-title>
         </mat-card-header>
         <img [src]="imageList[2].fileUrl">
         <input id="upload2" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf"
@@ -80,9 +83,11 @@
                 </button>
             </a>
         </div>
+        Note*:- Supported Extensions are .jpg .jpeg .png 
     </mat-card>
 
 </div>
+
 <div style="margin-bottom:15px;margin-top:15px;" [fxShow]="loadImage">
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
 </div>
@@ -94,18 +99,27 @@
     </mat-form-field>
 </div>
 <div fxLayout="row wrap" fxLayoutAlign="space-evenly stretch">
-    <mat-form-field fxFlex="45" fxFlex.lt-sm="100" fxFlex.sm="100" appearance="outline">
+    <mat-form-field fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" appearance="outline">
+        <mat-label>State </mat-label>
+        <mat-select [(ngModel)]="data.state" required>
+            <mat-option (click)="onStateChange(data.state)" *ngFor="let sta_data of State"
+                [value]="sta_data.stateName">
+                {{sta_data.stateName}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <mat-form-field fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" appearance="outline">
         <mat-label>District </mat-label>
         <mat-select [(ngModel)]="data.district" required>
-            <mat-option (click)="onChange(data.district)" *ngFor="let dis_data of districts"
+            <mat-option (click)="onDistrictsChange(data.district)" *ngFor="let dis_data of districts"
                 [value]="dis_data.districtName">
                 {{dis_data.districtName}}
             </mat-option>
         </mat-select>
     </mat-form-field>
 
-    <mat-form-field fxFlex="45" fxFlex.lt-sm="100" fxFlex.sm="100" appearance="outline">
-        <mat-label>Service List</mat-label>
+    <mat-form-field fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" appearance="outline">
+        <mat-label>Area of Operation</mat-label>
         <mat-select required [(ngModel)]="data.areaofoperation" multiple>
             <mat-select-trigger>
                 {{data.areaofoperation ? data.areaofoperation[0] : ''}}
@@ -134,7 +148,7 @@
     <mat-card fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" fxLayoutAlign="center center" fxLayout="column">
         <mat-card-header>
             <div mat-card-avatar class="example-header-image"></div>
-            <mat-card-title>{{imageList[3].slNo}} {{imageList[3].imgName}}</mat-card-title>
+            <mat-card-title>{{imageList[3].imgName}}</mat-card-title>
         </mat-card-header>
         <img class="img" [src]="imageList[3].fileUrl">
         <input id="upload3" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf"
@@ -142,6 +156,7 @@
         <button mat-raised-button color="primary" style="margin: 10px; font-weight: bolder" (click)="uploadTrigger3()">
             Upload <mat-icon>cloud_upload</mat-icon>
         </button>
+        Note*:- Supported Extensions are .jpg .jpeg .png 
     </mat-card>
 </div>
 <div fxLayoutAlign="space-evenly center">
