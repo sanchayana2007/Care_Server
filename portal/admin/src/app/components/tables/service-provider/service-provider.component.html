@@ -27,17 +27,17 @@
         </app-search-bar>
       </div>
     </div>
-    <div fxLayout="row wrap" style="margin: 0px; margin-bottom: 20px;" fxLayoutAlign="space-between center">
+    <!-- <div fxLayout="row wrap" style="margin: 0px; margin-bottom: 20px;" fxLayoutAlign="space-between center">
       <div fxLayoutGap="10px" fxLayoutAlign="center">
         <button class="report-icon" mat-raised-button color="primary" style="height: 60px;"
           matTooltip="Verified / Non Verified">
           <mat-icon style="color: #ffffff; margin-right: 14px;
                 margin-left: -8px;">verified </mat-icon>
-          <mat-slide-toggle (change)="onChange($event)">
+          <mat-slide-toggle  (click)="onGetServiceList()" (change)="onChange($event)">
           </mat-slide-toggle>
         </button>
 
-        <!-- <mat-form-field appearance="outline" fxFlex="50">
+        <mat-form-field appearance="outline" fxFlex="50">
               <mat-label>Services</mat-label>
               <mat-select required [(ngModel)]="defaultSelectedService">
                 <mat-option value= " ">Select a Service</mat-option>
@@ -46,7 +46,7 @@
                   {{serviceList_data.serNameEnglish}}
                 </mat-option> 
               </mat-select>
-            </mat-form-field> -->
+            </mat-form-field>
 
         <button fxFlex.lt-sm="100" fxFlex.sm="100" mat-raised-button style="height: 60px; width: auto;" color="primary"
           (click)="onGetServiceList()" matTooltip="Submit Services">
@@ -54,7 +54,7 @@
           <mat-icon style="color: #fff"> medical_services</mat-icon>
         </button>
       </div>
-    </div>
+    </div> -->
 
 
     <div fxLayoutAlign="center" style="background:rgb(230, 226, 226); height: 1px;">

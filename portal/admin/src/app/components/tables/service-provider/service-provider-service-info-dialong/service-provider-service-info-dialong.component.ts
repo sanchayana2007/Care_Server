@@ -79,6 +79,7 @@ export class ServiceProviderServiceInfoDialongComponent implements OnInit {
     };
     this.service.addServiceList(body).subscribe(success => {
       if (success.status) {
+        this.getServices();
         this.openSuccessSnackBar(success.message);
        // this.onClose();
       } else {
@@ -96,8 +97,10 @@ export class ServiceProviderServiceInfoDialongComponent implements OnInit {
     };
     this.service.addServiceList(body).subscribe(success => {
       if (success.status) {
+        this.getServices();
         this.openSuccessSnackBar(success.message);
         // this.onClose();
+        
       } else {
         this.openErrorSnackBar(success.message);
       }
