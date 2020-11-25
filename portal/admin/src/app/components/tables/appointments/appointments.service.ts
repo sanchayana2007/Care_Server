@@ -62,5 +62,18 @@ export class AppointmentsService {
 
     });
   }
+  asigndoctor(id):  Observable<any> {
+    return this.http.get<any>(environment.proxyApiUrl +
+    '/web/api/provider/serviceinfo?id=' + id, {
+      headers: this.headers
+    });
+  }
+  AssignDoctor(body): Observable<any> {
+    return this.http.post<any>(environment.proxyApiUrl +
+    '/web/api/med/assign/service', body, {
+      headers: this.headers,
+
+    });
+  }
 }
 

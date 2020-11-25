@@ -57,6 +57,10 @@ import { DatePipe } from '@angular/common';
 import { ServiceOptionsComponent } from './authorization/service-options/service-options.component';
 import { DetailsPageComponent } from './components/account/details-page/details-page.component';
 import { ServiceProviderComponent } from './components/account/service-provider/service-provider.component';
+import { MyServicesComponent } from './components/account/my-services/my-services.component';
+import { MyBookingsComponent } from './components/account/my-bookings/my-bookings.component';
+import { AppointmentsPreviewComponent } from './components/account/my-bookings/appointments-preview/appointments-preview.component';
+import { AppointmentsDialogComponent } from './components/account/my-bookings/appointments-dialog/appointments-dialog.component';
 
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
@@ -99,10 +103,16 @@ const maskConfig: Partial<IConfig> = {
     ServiceOptionsComponent,
     DetailsPageComponent,
     ServiceProviderComponent,
+    MyServicesComponent,
+    MyBookingsComponent,
+    AppointmentsPreviewComponent,
+    AppointmentsDialogComponent,
   ],
   entryComponents: [
     ProfileComponent,
     HelpComponent,
+    AppointmentsDialogComponent,
+    AppointmentsPreviewComponent
   ],
   imports: [
     ElementCoreModule,

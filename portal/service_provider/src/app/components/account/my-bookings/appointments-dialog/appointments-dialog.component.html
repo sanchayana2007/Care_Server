@@ -1,0 +1,64 @@
+<mat-card>
+  <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+    <p>
+      {{title}}
+    </p>
+    <div fxLayoutGap="5px">
+      <button mat-icon-button color="primary" (click)="onSave()">
+        <mat-icon>done</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+    <div style="margin-bottom:5px;" [fxShow]="loadAppointment">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field >
+        <input type="text" matInput placeholder=" Requested Date/Time" [(ngModel)]="selectedMomentOne"
+          [disabled]="disabledStatus" [owlDateTimeTrigger]="dtPicker1" [owlDateTime]="dtPicker1">
+        <owl-date-time #dtPicker1></owl-date-time>
+      </mat-form-field>
+      <mat-form-field>
+        <input type="text" matInput placeholder="Booking Date/Time" [(ngModel)]="selectedMomentTwo"
+          [disabled]="disabledBookTime" [owlDateTimeTrigger]="dtPicker2" [owlDateTime]="dtPicker2">
+        <owl-date-time #dtPicker2></owl-date-time>
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field>
+        <input matInput [disabled]="disabledStatus" type="text"
+        placeholder="Coustomer Name" [(ngModel)]="data.fullName_text" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput type="number" min="0" [disabled]="disabledStatus"
+        placeholder="Contact Number" [(ngModel)]="data.contact_number_text" required>
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field>
+        <input matInput type="text" [disabled]="disabledStatus"
+        placeholder="Service Name" color= "#800000" [(ngModel)]="data.serviceNameEnglish_text" required>
+      </mat-form-field>
+    
+      <mat-form-field [fxShow]="stageFormField">
+        <input matInput type="text" [disabled]="disabledStatus" placeholder="Stage"
+          [(ngModel)]="data.stage_text" required>
+      </mat-form-field>
+      <mat-form-field [fxHide]="stageFormField">
+        <mat-select [disabled]="disabledStage" placeholder="Stage" [(ngModel)]="data.stage_text" required>
+          <mat-option *ngFor="let stageType of stageData" [(value)]="stageType.value">
+            {{stageType.type}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div fxLayoutAlign="start center" style="margin-left: 2.2%;">
+      Note: * - mandatory.
+    </div>
+  </mat-card-content>
+</mat-card>

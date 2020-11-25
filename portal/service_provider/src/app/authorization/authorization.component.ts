@@ -35,6 +35,16 @@ export class AuthorizationComponent implements OnInit {
           'icon': 'supervisor_account',
           'link': '/account/details-page',
         },
+        {
+          'name': 'My Service',
+          'icon': 'supervisor_account',
+          'link': '/account/my-services',
+        },
+        {
+          'name': 'My Bookings',
+          'icon': 'supervisor_account',
+          'link': '/account/my-bookings',
+        },
       ]
     },
   ];

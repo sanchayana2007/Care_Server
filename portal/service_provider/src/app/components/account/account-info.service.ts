@@ -107,6 +107,50 @@ export class AccountInfoService {
       headers: this.headers
     });
   }
+  getMyservices(): Observable<any> {
+    return this.http.get<any>(environment.proxyApiUrl +
+    '/web/api/provider/serviceinfo', {
+      headers: this.headers,
+    });
+  }
+  getAppointments(): Observable<any> {
+    return this.http.get<any>(environment.proxyApiUrl +
+    '/web/api/med/book', {
+      headers: this.headers
+    });
+  }
+
+  addAppointments(body): Observable<any> {
+    return this.http.post<any>(environment.proxyApiUrl +
+    '/web/api/med/update', body, {
+      headers: this.headers
+    });
+  }
+
+  editAppointments(body): Observable<any> {
+    return this.http.put<any>(environment.proxyApiUrl +
+    '/web/api/med/book', body, {
+      headers: this.headers
+    });
+  }
+
+  deleteAppointments(id): Observable<any> {
+    return this.http.delete<any>(environment.proxyApiUrl +
+    '/web/api/med/book?id=' + id, {
+      headers: this.headers,
+    });
+  }
+  sessionupdate(body): Observable<any> {
+    const myObj = {
+      bookingId: body
+    };
+    const myObjStr = JSON.stringify(myObj);
+    return this.http.post<any>(environment.proxyApiUrl +
+    '/web/api/med/book', myObjStr, {
+      headers: this.headers,
+
+    });
+  }
 }
 
 

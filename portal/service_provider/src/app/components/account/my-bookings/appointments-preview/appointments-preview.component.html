@@ -1,0 +1,102 @@
+<div class="back" fxLayout="row" fxLayoutAlign="center center">
+  <div style="height: 90%; width: 90%; border-radius: 5px;">
+    <mat-card style="height: 90%; padding: 0px;">
+      <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+        <p style="font-size: 16pt;">
+          Appoinment Invoice Details
+        </p>
+        <div fxLayoutGap="8px">
+          <button mat-icon-button style="color: green" title="Download Invoice" (click)="onDownload()">
+            <mat-icon>cloud_download</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="onClose()" title="Close">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content class="matCardContent" style="padding-left: 5%;">
+        <div id="orderSummaryContent">
+          <div style="height: 100%; margin: 50px; background: white;" fxLayout="column" fxLayoutAlign="start stretch">
+          <!--Head-->
+            <div style="margin-top: 40px" fxLayoutAlign="center center">
+              <u style="font-size: 22pt; font-weight: bold; margin: 0px">
+                Appointment Summary
+              </u>
+            </div>
+            <div class="contentBody" fxFlex="100" fxLayout="column" fxLayoutAlign="start stretch">
+              <div style="padding: 10px; height: 100%; width: 100%;" fxLayout="column" fxLayoutAlign="start stretch">
+                <!--Part 1-->
+                <div style="width: 100%; border-bottom: 0.5px solid black;">
+                  <!--Company Details-->
+                  <div fxLayout="row" fxLayoutAlign="space-between center">
+                    <div style="margin-top: 15px; width: 40%;" fxLayoutAlign="start center">
+                      <p style="font-size: 13pt; font-weight: bold;">
+                        <a style="font-size: 18pt; color:#000; font-weight:900;">
+                          <u>Address</u>
+                          <br/>
+                          {{data.address}}
+                        </a> <br/>
+                      </p>
+                    </div>
+                  <div style="width: 20%;" fxLayoutAlign="center center">
+                    <img style="width: 120px;" [src]="data.logo" alt="your image" />
+                  </div>
+                    <div style="margin-top: 15px; width: 40%;" fxLayoutAlign="end center">
+                      <p style="font-size: 13pt; font-weight: bold;">
+                        <a style="font-size: 18pt; color:#000; font-weight:900;">
+                          <u>Customer Details</u>
+                        </a> <br/>
+                        Name : {{data.fullName_text}}<br />
+                        Phone Number : {{data.contact_number_text}} <br />
+                        Booking Date/Time : {{data.bookingDateTime_text}}<br/>
+                        
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              <mat-card-content>
+                <table>
+                  <thead>
+                    <th>Full Name</th>
+                    <th>Contact Number</th>
+                    <th>Email Id</th>
+                    <th>Requested Date/Time</th>
+                    <th>Booking Date/Time</th>
+                    <th>Service Name</th>
+                    <th>Service Total Charge</th>
+                    <th>Stage</th>
+                    <th>Session</th>
+                  </thead>
+                  <tbody>
+                    <tr style="border: 1px solid;" >
+                          
+                      <td>{{data.fullName_text}}</td>
+                      <td>{{data.contact_number_text}}</td>
+                      <td>{{data.email_text}}</td>
+                      <td>{{data.bookingDateTime_text}}</td>
+                      <td>{{data.requestedDateTime_text}}</td>
+                      <td>{{data.serviceNameEnglish_text}}</td>
+                      <td>{{data.serviceTotal}}</td>
+                      <td>{{data.stage_text}}</td>
+                      <td>{{data.session}}</td>
+                            
+                           
+                    </tr>
+                  </tbody>
+                </table>
+              </mat-card-content>
+            </div>
+            <div style="border-block-start: 1px solid;">
+              <p style="text-align:center; font-weight: 800; ">
+                  
+                Powered by ETRANCE NETWORKS
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  </div>  
+</div>            

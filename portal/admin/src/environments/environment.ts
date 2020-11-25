@@ -6,6 +6,7 @@ export const environment = {
   version: require('../../package.json').version,
   versionCode: require('../../package.json').versionCode,
   proxyApiUrl: 'https://medix.xlayer.in',
+  // proxyApiUrl: 'ohzas.xlayer.in',
   proxySocketUrl: 'wss://medix.xlayer.in',
   firebase: {},
   google: {

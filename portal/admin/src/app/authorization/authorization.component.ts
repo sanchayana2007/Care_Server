@@ -48,6 +48,12 @@ export class AuthorizationComponent implements OnInit {
       'open': true
     },
     {
+      'name': 'Sms',
+      'link': 'table/sms',
+      'icon': 'sms',
+      'open': true
+    },
+    {
       'name': 'Services',
       'link': false,
       'icon': 'add_box',

@@ -15,8 +15,7 @@
                             {{data.serviceList.length === 2 ? 'other' : 'others'}})
                         </span>
                     </mat-select-trigger>
-                    <mat-option (onSelectionChange)="Onselect(serviceList, 1, $event)"
-                        *ngFor="let serviceList of serviceList" [value]="serviceList.serNameEnglish">
+                    <mat-option (onSelectionChange)="Onselect(serviceList, 1, $event)" *ngFor="let serviceList of serviceList" [value]="serviceList.serNameEnglish">
                         {{serviceList.serNameEnglish}}
                     </mat-option>
                 </mat-select>
@@ -37,12 +36,10 @@
             <mat-card-title>{{imageList[0].imgName}}</mat-card-title>
         </mat-card-header>
         <img [src]="imageList[0].fileUrl">
-        <input id="upload0" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf"
-            (change)="documentUploadOne($event)">
+        <input id="upload0" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf" (change)="documentUploadOne($event)">
         <button mat-raised-button color="primary" style="margin: 10px; font-weight: bolder" (click)="uploadTrigger0()">
             Upload <mat-icon>cloud_upload</mat-icon>
-        </button>
-        Note*:- Supported Extensions are .jpg .jpeg .png 
+        </button> Note*:- Supported Extensions are .jpg .jpeg .png
     </mat-card>
 
     <mat-card fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" fxLayoutAlign="center center" fxLayout="column">
@@ -51,12 +48,10 @@
             <mat-card-title>{{imageList[1].imgName}}</mat-card-title>
         </mat-card-header>
         <img [src]="imageList[1].fileUrl">
-        <input id="upload1" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf"
-            (change)="documentUploadTwo($event)">
+        <input id="upload1" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf" (change)="documentUploadTwo($event)">
         <button mat-raised-button color="primary" style="margin: 10px; font-weight: bolder" (click)="uploadTrigger1()">
             Upload <mat-icon>cloud_upload</mat-icon>
-        </button>
-        Note*:- Supported Extensions are .jpg .jpeg .png 
+        </button> Note*:- Supported Extensions are .jpg .jpeg .png
     </mat-card>
 
     <mat-card fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" fxLayoutAlign="center center" fxLayout="column">
@@ -65,25 +60,23 @@
             <mat-card-title>{{imageList[2].imgName}}</mat-card-title>
         </mat-card-header>
         <img [src]="imageList[2].fileUrl">
-        <input id="upload2" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf"
-            (change)="documentUploadThree($event)">
+        <input id="upload2" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf" (change)="documentUploadThree($event)">
         <div fxLayoutAlign="start start">
-            <button mat-raised-button color="primary" style="margin: 10px; font-weight: bolder"
-                (click)="uploadTrigger2()">
+            <button mat-raised-button color="primary" style="margin: 10px; font-weight: bolder" (click)="uploadTrigger2()">
                 Upload <mat-icon>cloud_upload</mat-icon>
             </button>
             <!-- <button mat-raised-button style="background-color: green; margin-left: 5px" title="Download"
                 (click)="onDownload()">
                 
             </button>  -->
-            <a class="button" target="_blank" href="https://medix.xlayer.in/uploads/dummy.pdf" download="document.pdf">
+            <a class="button" target="_blank" href="http://medix.xlayer.in/uploads/serdecl.pdf" download="document.pdf">
 
                 <button mat-raised-button color="primary" style="margin:10px" title="Download">
                     Download <mat-icon>cloud_download</mat-icon>
                 </button>
             </a>
         </div>
-        Note*:- Supported Extensions are .jpg .jpeg .png 
+        Note*:- Supported Extensions are .jpg .jpeg .png
     </mat-card>
 
 </div>
@@ -102,8 +95,7 @@
     <mat-form-field fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" appearance="outline">
         <mat-label>State </mat-label>
         <mat-select [(ngModel)]="data.state" required>
-            <mat-option (click)="onStateChange(data.state)" *ngFor="let sta_data of State"
-                [value]="sta_data.stateName">
+            <mat-option (click)="onStateChange(data.state)" *ngFor="let sta_data of State" [value]="sta_data.stateName">
                 {{sta_data.stateName}}
             </mat-option>
         </mat-select>
@@ -111,8 +103,7 @@
     <mat-form-field fxFlex="30" fxFlex.lt-sm="100" fxFlex.sm="100" appearance="outline">
         <mat-label>District </mat-label>
         <mat-select [(ngModel)]="data.district" required>
-            <mat-option (click)="onDistrictsChange(data.district)" *ngFor="let dis_data of districts"
-                [value]="dis_data.districtName">
+            <mat-option (click)="onDistrictsChange(data.district)" *ngFor="let dis_data of districts" [value]="dis_data.districtName">
                 {{dis_data.districtName}}
             </mat-option>
         </mat-select>
@@ -128,16 +119,14 @@
                     {{data.areaofoperation.length === 2 ? 'More' : 'More'}})
                 </span>
             </mat-select-trigger>
-            <mat-option (onSelectionChange)="Onselect(data, 2, $event)" *ngFor="let data of pincode"
-                [value]="data.pincode">
+            <mat-option (onSelectionChange)="Onselect(data, 2, $event)" *ngFor="let data of pincode" [value]="data.pincode">
                 {{data.placeName}} {{data.pincode}}
             </mat-option>
         </mat-select>
     </mat-form-field>
 </div>
 <div fxLayout="column" style="padding: 30px" fxLayoutAlign="start start">
-    <mat-checkbox [(ngModel)]="data.checkbox" (change)="onClickHandler($event)"> I have read and agree to the Terms &
-        conditions
+    <mat-checkbox [(ngModel)]="data.checkbox" (change)="onClickHandler($event)"> I have read and agree to the Terms & conditions
     </mat-checkbox>
 </div>
 
@@ -151,12 +140,10 @@
             <mat-card-title>{{imageList[3].imgName}}</mat-card-title>
         </mat-card-header>
         <img class="img" [src]="imageList[3].fileUrl">
-        <input id="upload3" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf"
-            (change)="documentUploadFour($event)">
+        <input id="upload3" [fxShow]="false" type="file" accept=".png, .jpg, jpeg, .pdf" (change)="documentUploadFour($event)">
         <button mat-raised-button color="primary" style="margin: 10px; font-weight: bolder" (click)="uploadTrigger3()">
             Upload <mat-icon>cloud_upload</mat-icon>
-        </button>
-        Note*:- Supported Extensions are .jpg .jpeg .png 
+        </button> Note*:- Supported Extensions are .jpg .jpeg .png
     </mat-card>
 </div>
 <div fxLayoutAlign="space-evenly center">

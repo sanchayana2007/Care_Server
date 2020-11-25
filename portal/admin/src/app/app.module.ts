@@ -59,7 +59,9 @@ import { NotificationsComponent } from './components/tables/notifications/notifi
 import { ProdectsComponent } from './components/tables/prodects/prodects.component';
 import { ProdectsAddDialogComponent } from './components/tables/prodects/prodects-add-dialog/prodects-add-dialog.component';
 import { ProductListInfoDialogComponent } from './components/tables/service-list/product-list-info-dialog/product-list-info-dialog.component';
-import { ServiceProviderServiceInfoDialongComponent } from './components/tables/service-provider/service-provider-service-info-dialong/service-provider-service-info-dialong.component'
+import { ServiceProviderServiceInfoDialongComponent } from './components/tables/service-provider/service-provider-service-info-dialong/service-provider-service-info-dialong.component';
+import { AssingdoctordialogComponent } from './components/tables/appointments/assingdoctordialog/assingdoctordialog.component';
+import { SmsComponent } from './components/tables/sms/sms.component'
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: false,
@@ -104,6 +106,8 @@ const routes: Routes = [
     ProdectsAddDialogComponent,
     ProductListInfoDialogComponent,
     ServiceProviderServiceInfoDialongComponent,
+    AssingdoctordialogComponent,
+    SmsComponent,
   ],
   entryComponents: [
     AdminDialogComponent,
@@ -116,7 +120,8 @@ const routes: Routes = [
     ServiceProviderDetailsInfoComponent,
     ServiceProviderServiceInfoDialongComponent,
     ProdectsAddDialogComponent,
-    ProductListInfoDialogComponent
+    ProductListInfoDialogComponent,
+    AssingdoctordialogComponent
   ],
   imports: [
     ElementCoreModule,

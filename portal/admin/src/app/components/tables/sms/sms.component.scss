@@ -1,0 +1,79 @@
+mat-card {
+    padding-top: 5px;
+  }
+  
+  .example-container {
+    display: flex;
+    flex-direction: column;
+    // max-height: 500px;
+    min-width: 300px;
+    box-shadow: none;
+  }
+  
+  .mat-table {
+    // overflow: auto;
+    max-height: 500px;
+    background-color: none;
+    box-shadow: none;
+  }
+  
+  mat-row:hover {
+    background-color: rgb(245, 245, 245);
+  }
+  
+  .mobile-label {
+    display: none;
+  }
+  
+  @media (max-width: 700px) {
+    .mobile-label {
+      width: 80px;
+      display: inline-block;
+      font-weight: bold;
+      text-align: left;
+    }
+  
+    .matIcon {
+      display: none;
+    }
+  
+    .mat-header-row {
+      display: none;
+    }
+  
+    .mat-row {
+      flex-direction: column;
+      align-items: start;
+      padding-top: 8px;
+      padding-right: 24px;
+      padding-bottom: 8px;
+      min-height: 30px;
+    }
+  
+    mat-cell:first-of-type,
+    mat-footer-cell:first-of-type,
+    mat-header-cell:first-of-type {
+      padding-left: 5px;
+    }
+  }
+  
+  .mat-paginator[_ngcontent-c40] {
+    display: block;
+  }
+  
+  button:hover {
+    background-color: rgb(209, 209, 209);
+  }
+  
+  .mat-raised-button {
+    border-radius: 6px;
+  }
+  
+  mat-cell,
+  mat-footer-cell,
+  mat-header-cell {
+    padding-right: 5px;
+    padding-left: 5px;
+    text-align: center;
+  }
+  

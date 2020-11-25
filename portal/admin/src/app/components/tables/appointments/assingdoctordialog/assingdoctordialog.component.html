@@ -1,0 +1,31 @@
+<mat-card>
+  <mat-card-title fxLayout="row" fxLayoutAlign="space-between center">
+    <p>
+      Assign Doctor
+    </p>
+    <div fxLayoutGap="5px">
+      <button mat-icon-button color="warn" (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field>
+        <mat-select placeholder="Docters List" [(ngModel)]="serviceProviderId" required>
+          <mat-option *ngFor="let stageType of data" [(value)]="stageType.serviceProviderId">
+            {{stageType.serviceProviderDetails}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button style="height:50px; width: 200px" mat-raised-button color="primary" (click)="onSave()">
+        Assign Doctor <mat-icon>done</mat-icon>
+      </button>
+    </div>
+    <div fxLayoutAlign="start center" style="margin-left: 2.2%;">
+      Note: * - mandatory.
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -85,7 +85,7 @@ export class AppointmentsPreviewComponent implements OnInit {
             data[i].stage_text = data[i].stage;
           }
           if (data[i].session === undefined || data[i].session === null ||
-            data[i].session === '') {3
+            data[i].session === '') {
             data[i].session = 'N/A';
           } else {
             data[i].session = data[i].session;

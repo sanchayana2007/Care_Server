@@ -1,0 +1,68 @@
+<perfect-scrollbar>
+  <mat-card style="min-width: auto;">
+    <div fxLayout="row wrap" style="margin: 0px; margin-bottom: 20px;" fxLayoutAlign="space-between center">
+      <div fxLayoutGap="10px" fxLayoutAlign="center center">
+        <button mat-icon-button style="background: #00838f; border-radius: 10px;" matTooltip="Sms">
+          <mat-icon style="color: #ffffff">sms</mat-icon>
+        </button>
+        <p style="font-weight: 400; font-size: 16pt;">
+          Sms
+        </p>
+      </div>
+    </div>
+    <!-- <perfect-scrollbar> -->
+    <div style="margin-bottom:5px;" [fxShow]="loadSms">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+
+      <a style="font-size: 16; color:red">
+        SMS can Only be Sent between 9:00Am to 9:00Pm.
+      </a>
+      <a style="font-size: 16; color:rgb(81, 204, 226)">
+        Remaning SMS Credits : {{smsCredit}}
+      </a>
+      <br>
+      <br>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field [fxShow]="hideprovide" style="width: 100%" appearance="outline">
+        <mat-label>Service Provider*</mat-label>
+        <mat-select [(ngModel)]="data.selectedProvider" (selectionChange)="onProviderChange($event)">
+          <mat-option *ngFor="let provider of providerData" [(value)]="provider.value">
+            {{provider.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div fxLayout="column" fxLayoutAlign="space-between" style="padding:10">
+    <a style="font-size: 16;">
+      Note* := Can send SMS manually by clicking on Checkbox. Phone Numbers can be separated by comma.
+    </a>
+    <br>
+      <mat-checkbox (change)="onChange($event)">Manual</mat-checkbox>
+
+    </div>
+    <div fxLayout="row" fxLayoutAlign="space-between">
+      <mat-form-field [fxHide]="hideprovide" style="width: 40%" appearance="outline">
+        <mat-label style="background-color: white;">Phone numbers*</mat-label>
+        <textarea style="height: 100px; min-height: 100px; max-height: 100px;" aria-multiline="true" matInput
+          maxlength="600" [(ngModel)]="data.contact_text">
+        </textarea>
+      </mat-form-field>
+      <mat-form-field style="width: 55%" appearance="outline">
+        <mat-label>Message*</mat-label>
+        <textarea style="height: 100px; min-height: 100px; max-height: 100px;" aria-multiline="true" matInput
+          maxlength="600" [(ngModel)]="data.message_text">
+        </textarea>
+      </mat-form-field>
+    </div>
+    <div fxLayoutAlign="center center">
+      <button mat-raised-button color="primary" (click)="onSubmit()" matTooltip="Submit">
+        <mat-icon class="matIcon">assignment</mat-icon>
+        Submit
+      </button>
+    </div>
+    <!-- </perfect-scrollbar> -->
+  </mat-card>
+</perfect-scrollbar>

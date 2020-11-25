@@ -10,6 +10,7 @@ import {ServiceProviderComponent} from './components/tables/service-provider/ser
 import {UsersComponent} from './components/tables/users/users.component';
 import {NotificationsComponent} from './components/tables/notifications/notifications.component';
 import {ProdectsComponent} from './components/tables/prodects/prodects.component';
+import { SmsComponent} from './components/tables/sms/sms.component';
 const appRoutes: Routes = [
   {
     path: 'admin',
@@ -50,6 +51,10 @@ const appRoutes: Routes = [
       {
         path: 'table/prodects',
         component: ProdectsComponent
+      },
+      {
+        path: 'table/sms',
+        component: SmsComponent
       },
     ]
   },
