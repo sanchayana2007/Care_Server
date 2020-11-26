@@ -26,7 +26,7 @@ import random
 import requests
 
 @xenSecureV1
-class MedServiceProviderHandler(cyclone.web.RequestHandler,
+class MedServiceAssignServiceHandler(cyclone.web.RequestHandler,
         MongoMixin, RedisMixin):
 
     SUPPORTED_METHODS = ('POST', 'PUT', 'GET', 'DELETE')
@@ -97,6 +97,12 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
     serviceProvider = MongoMixin.medicineDb[
                     CONFIG['database'][2]['table'][3]['name']
                 ]
+    pincode = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][5]['name']
+                ]
+    serviceProviderServices = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][6]['name']
+                ]
 
 
 
@@ -111,6 +117,13 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
         message = ''
 
         try:
+            try:
+                # CONVERTS BODY INTO JSON
+                self.request.arguments = json.loads(self.request.body)
+            except Exception as e:
+                code = 4100
+                message = 'Expected Request Type JSON.'
+                raise Exception
 
             # TODO: this need to be moved in a global class, from here
 	    profile = yield self.profile.find(
@@ -140,245 +153,72 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                         )
                 if len(app):
                     self.apiId = app[0]['apiId']
-		    if self.apiId in [ 502021]:
-			if self.apiId == 502021: # TODO: till here
+		    if self.apiId in [ 502022]:
+			if self.apiId == 502022: # TODO: till here
                             try:
-                                idType = self.get_arguments('idType')[0]
+                                bookingId = ObjectId(self.request.arguments.get('id'))
                             except:
-                                code = 4655
-                                status = False
-                                message = "Argument missing - idType"
+                                code = 4888
+                                message = "Invalid Booking Id - ['id']"
                                 raise Exception
-                            if idType not in ['document','declaration']:
-                                code = 4560
-                                status = False
-                                message = 'Invalid ID Type'
-                                raise Exception
-
                             try:
-                                serviceId = ObjectId(self.request.arguments['serviceId'][0])
+                                serviceProviderId = ObjectId(self.request.arguments.get('serviceProviderId'))
                             except:
-                                code = 4565
-                                status = False
-                                message = "Invalid Argument - [ ServiceId ]"
-                                raise Exception
-                            try:
-                                address = str(self.get_arguments('address')[0])
-                                code, message = Validate.i(
-                                        address,
-                                        'address',
-                                    )
-                                if code != 4100:
-                                    raise Exception
-                            except Exception as e:
-                                code = 4210
-                                message = 'Invalid Argument - [ Address ].'
+                                code = 4888
+                                message = "Invalid Service Provider Id - ['serviceProviderId']"
                                 raise Exception
 
-                            try:
-                                idProof = self.request.files['idProof'][0]
-                            except:
-                                idProof = None
-
-                            filepath = []
-
-
-                            if idProof == None:
-                                serviceFind = yield self.serviceList.find(
-                                            {
-                                                '_id':serviceId,
-                                                'disabled':False
-                                            }
-                                        )
-                                if not len(serviceFind):
-                                    code = 4775
-                                    status = False
-                                    message = "Invalid Service"
-                                    raise Exception
-
-                                serFind = yield self.serviceProvider.find(
-                                            {
-                                                'profileId':self.profileId,
-                                                'serviceId':serviceId,
-                                                'disabled':False
-                                            }
-                                        )
-
-                                if len(serFind) :
-                                    serId = serFind[0]['_id']
-                                    accConfId = yield self.serviceProvider.update(
-                                            {
-                                                'entityId':self.entityId,
-                                                'profileId':self.profileId,
-                                                'serviceId':serviceId
-                                            },
-                                            {
-                                            '$set':{
-                                                        'address':address,
-                                                    }
-                                            }
-                                        )
-                                    if accConfId['n']:
-                                        code = 2000
-                                        status = True
-                                        message = "Service information has been submitted"
-                                    else:
-                                        code = 4885
-                                        status = False
-                                        message = "Service information could not be submitted"
-                                        raise Exception
-
-                                else:
-                                    serId = yield self.serviceProvider.insert(
-                                        {
+                            bookFind = yield self.serviceBook.find(
+                                    {
                                             'entityId':self.entityId,
-                                            'profileId':self.profileId,
-                                            'serviceId':serviceId,
-                                            'disabled': False,
-                                            'verified':False,
-                                            'submitRequest':[0,1],
-                                            'address':address,
-                                        }
-                                    )
-
-                                    code = 2000
-                                    status = True
-                                    message = "Service information has been submitted"
-                            else:
-                                idProofType = idProof['content_type']
-                                idProofType = yield mimetypes.guess_extension(
-                                            idProofType,
-                                            strict=True
+                                            '_id':bookingId,
+                                            'disabled':False
+                                    }
                                 )
+                            if not len(bookFind):
+                                code = 7328
+                                status = False
+                                message = "Invalid Booking"
+                                raise Exception
 
+                            if bookFind[0]['stage'].upper() not in ['NEW','ACCEPTED']:
+                                code = 8329
+                                status = False
+                                message = "Service Provider cannot be assigned now"
+                                raise Exception
 
-                                aTime = timeNow()
-                                idTime = aTime
-                                if str(idProofType) in [ '.png','.jpeg', '.jpg', '.jpe']:
-                                    fName = idTime
-                                    fRaw = idProof['body']
-                                    fp = self.fu.tmpPath
-                                    if not os.path.exists(fp):
-                                        Log.i('DRV-Profile', 'Creating Directories')
-                                        os.system('mkdir -p ' + fp)
-                                    fpm = fp + '/' + str(fName) + idProofType
-                                    fh = open(fpm, 'w')
-                                    fh.write(fRaw)
-                                    fh.close()
-
-                                    mainFile = ''
-                                    # Converting to PNG
-                                    if str(idProofType) not in ['.png']:
-                                        idProofType = '.png'
-                                        fpx = fp + '/' + str(fName) + idProofType
-                                        filepath.append(fpx)
-                                        im = Image.open(fpm)
-                                        im.save(fpx, 'PNG')
-                                        os.system('rm ' + fpm)
-                                        os.system('chmod 755 -R ' + fp + '*')
-                                        mainFile = fpx
-                                    else:
-                                        filepath.append(fpm)
-                                        os.system('chmod 755 -R ' + fpm + '*')
-                                        mainFile = fpm
-                                else:
-                                    message = 'Invalid File Type for Document'
-                                    code = 4011
-                                    raise Exception
-
-                                serviceFind = yield self.serviceList.find(
-                                            {
-                                                '_id':serviceId,
-                                                'disabled':False
-                                            }
-                                        )
-                                if not len(serviceFind):
-                                    code = 4775
-                                    status = False
-                                    message = "Invalid Service"
-                                    raise Exception
-
-                                serFind = yield self.serviceProvider.find(
-                                            {
-                                                'profileId':self.profileId,
-                                                'serviceId':serviceId,
-                                                'disabled':False
-                                            }
-                                        )
-
-                                if len(serFind) :
-                                    serId = serFind[0]['_id']
-                                    accConfId = yield self.serviceProvider.update(
-                                            {
-                                                'entityId':self.entityId,
-                                                'profileId':self.profileId,
-                                                'serviceId':serviceId
-                                            },
-                                            {
-                                            '$set':{
-                                                        'address':address,
-                                                        idType:[
-                                                                        {
-                                                                            'time':idTime,
-                                                                            'mimeType':idProofType
-                                                                        }
-                                                                    ],
-                                                    }
-                                            }
-                                        )
-                                    if accConfId['n']:
-                                        code = 2000
-                                        status = True
-                                        message = "Service Information has been submitted"
-                                    else:
-                                        code = 4885
-                                        status = False
-                                        message = "Service Information could not be submitted."
-
-
-                                else:
-                                    serId = yield self.serviceProvider.insert(
+                            serProInfo = yield self.serviceProviderServices.find(
                                         {
-                                            'entityId':self.entityId,
-                                            'profileId':self.profileId,
-                                            'serviceId':serviceId,
-                                            'disabled': False,
-                                            'verified':False,
-                                            'submitRequest':[0,1],
-                                            'address':address,
-                                            idType:[
-                                                            {
-                                                                'time':idTime,
-                                                                'mimeType':idProofType
-                                                            }
-                                                        ],
+                                            'status':True,
+                                            "serviceProviderId" : serviceProviderId
                                         }
                                     )
+                            if not len(serProInfo):
+                                code = 7829
+                                status = False
+                                message = "Service Provider Not Active for this servive"
+                                raise Exception
 
-                                    code = 2000
-                                    status = True
-                                    message = "Service Information is submitted."
-
-                                # Moving Temp dir to booking dir
-                                uPath = self.fu.uploads + '/' + str(self.entityId)
-                                if not os.path.exists(uPath):
-                                    os.system('mkdir -p ' + uPath)
-                                    os.system('chmod 755 -R ' + uPath)
-
-                                uPath = uPath + '/service_provider/'
-                                if not os.path.exists(uPath):
-                                    os.system('mkdir -p ' + uPath)
-                                    os.system('chmod 755 -R ' + uPath)
-
-                                uPath = uPath + str(serId) + '/'
-                                if not os.path.exists(uPath):
-                                    os.system('mkdir -p ' + uPath)
-                                    os.system('chmod 755 -R ' + uPath)
-
-                                for i in filepath:
-                                    os.system('mv ' + i + ' ' + uPath)
-                                    Log.d(uPath)
-
+                            bookingUpdate = yield self.serviceBook.update(
+                                                {
+                                                    '_id':bookingId,
+                                                    'disabled':False,
+                                                    'entityId':self.entityId
+                                                },
+                                                {
+                                                '$set':{
+                                                            'serviceProviderId':serviceProviderId
+                                                        }
+                                                }
+                                            )
+                            if bookingUpdate['n']:
+                                code = 2000
+                                status = True
+                                message = "Service Provider has been assigned"
+                            else:
+                                code = 2000
+                                status = False
+                                message = "Service Provider could not be assigned"
                         else:
                             code = 4003
                             self.set_status(401)
@@ -702,18 +542,6 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
         result = []
         message = ''
 
-        '''
-        try:
-            profileId = ObjectId(self.request.arguments['id'][0])
-        except:
-            profileId = None
-        '''
-
-
-        try:
-            method = int(self.request.arguments['method'][0])
-        except:
-            method = None
 
         try:
             # TODO: this need to be moved in a global class
@@ -744,203 +572,104 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                         )
                 if len(app):
                     self.apiId = app[0]['apiId']
-                    if app[0]['apiId'] in [ 502021, 502022]: # TODO: till here
-
+                    if app[0]['apiId'] in [ 502021, 502022, 502020]: # TODO: till here
+                        print(self.apiId)
                         # For Service Provider GET
                         if self.apiId == 502021:
-                            try:
-                                serId = ObjectId(self.request.arguments['id'][0])
-                            except:
-                                serId = None
-                            if serId:
-                                serProf = yield self.serviceProvider.find(
-                                            {
-                                                'serviceId':serId,
-                                                'profileId':self.profileId
-                                            }
-                                        )
-                                print serProf
-                            else:
-                                serProf = yield self.serviceProvider.find(
-                                            {
-                                                'profileId':self.profileId
-                                            }
-                                        )
-                            if len(serProf):
-                                for res in serProf:
-                                    v = {
-                                            '_id':str(res['_id']),
-                                            'address':res['address'],
-                                            'document':res['document'],
-                                            'declaration':res['declaration'],
-                                            'verified':res['verified']
+                            serProInfo = yield self.serviceProviderServices.find(
+                                        {
+                                            'status':True,
+                                            'profileId':self.profileId
                                         }
-                                    if len(res['document']):
-                                        for docx in res['document']:
-                                            docx['link'] = self.fu.serverUrl + '/uploads/' \
-                                                        + str(self.entityId) + '/service_provider/' \
-                                                        + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
-                                    if len(res['declaration']):
-                                        for docx in res['declaration']:
-                                            docx['link'] = self.fu.serverUrl + '/uploads/' \
-                                                        + str(self.entityId) + '/service_provider/' \
-                                                        + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
-                                    result.append(v)
+                                    )
+                            if len(serProInfo):
+                                for res in serProInfo:
+                                    serInfo = yield self.serviceList.find(
+                                        {
+                                            '_id':res['serviceId'],
+                                        }
+                                    )
+                                    if len(serInfo):
+                                        v = {
+                                                'id':str(res['_id']),
+                                                'serviceName':serInfo[0]['serNameEnglish'],
+                                                'status':res['status'],
+                                                'totalBookings':0
+                                            }
+                                        result.append(v)
+                                code = 2000
+                                status = True
+                                message = "Service Provider Information"
                             else:
-                                code = 4655
+                                code = 8942
                                 status = False
                                 message = "No Data Found"
                         elif self.apiId == 502022:
                             try:
-                                verified = int(self.request.arguments['verified'][0])
+                                serviceId = ObjectId(self.request.arguments['id'][0])
                             except:
-                                verified = None
-
-
-                            if verified != None:
-                                if  verified not in [0,1]:
-                                    code = 4355
-                                    status = False
-                                    message = "Invalid Verification Status"
-                                    raise Exception
-                                if int(verified) == 0:
-                                    verified = False
-                                else:
-                                    verified = True
-
-
-                            try:
-                                serviceId = ObjectId(self.request.arguments['serviceId'][0])
-                            except:
-                                serviceId = None
-                            # For Admin GET
-                            try:
-                                serProId = ObjectId(self.request.arguments['serviceProviderId'][0])
-                            except:
-                                serProId = None
-                            if serviceId == None:
-                                if verified == None:
-                                    serProf = yield self.serviceProvider.find(
-                                                {
-                                                    'disabled': False,
-                                                },
-                                                {
-                                                    '_id': 1,
-                                                    'profileId':1,
-                                                    'disabled':1,
-                                                    'serviceId':1,
-                                                    'verified':1,
-                                                    'address':1,
-                                                    'document':1,
-                                                    'declaration':1
-                                                }
-                                            )
-                                else:
-                                    serProf = yield self.serviceProvider.find(
-                                                {
-                                                    'disabled': False,
-                                                    'verified': verified
-                                                },
-                                                {
-                                                    '_id': 1,
-                                                    'profileId':1,
-                                                    'disabled':1,
-                                                    'serviceId':1,
-                                                    'verified':1,
-                                                    'address':1,
-                                                    'document':1,
-                                                    'declaration':1
-                                                }
-                                            )
-
-                            else:
-                                if verified == None:
-                                    serProf = yield self.serviceProvider.find(
-                                            {
-                                                'serviceId':serviceId,
-                                                'disabled': False,
-                                            },
-                                            {
-                                                '_id': 1,
-                                                'profileId':1,
-                                                'disabled':1,
-                                                'serviceId':1,
-                                                'verified':1,
-                                                'address':1,
-                                                'document':1,
-                                                'declaration':1
-                                            }
-                                        )
-                                else:
-                                    serProf = yield self.serviceProvider.find(
-                                            {
-                                                'serviceId':serviceId,
-                                                'disabled': False,
-                                                'verified':verified
-                                            },
-                                            {
-                                                '_id': 1,
-                                                'profileId':1,
-                                                'disabled':1,
-                                                'serviceId':1,
-                                                'verified':1,
-                                                'address':1,
-                                                'document':1,
-                                                'declaration':1
-                                            }
-                                        )
-
-                            for res in serProf:
-                                service = yield self.serviceList.find(
-                                            {
-                                                '_id':res['serviceId']
-                                            }
-                                        )
-                                serviceName = service[0]['serNameEnglish']
-                                proFind = yield self.profile.find(
-                                            {
-                                                '_id':res['profileId']
-                                            }
-                                        )
-                                if len(proFind):
-                                    accFind = yield self.account.find(
-                                            {
-                                                '_id':proFind[0]['accountId']
-                                            }
-                                        )
-                                    if len(accFind):
-                                        regNum = accFind[0]['contact'][0]['value'] - 910000000000
-                                        v = {
-                                                'registeredPhoneNum':regNum,
-                                                'fullName' : accFind[0]['firstName'] + ' ' + accFind[0]['lastName'],
-                                                'serviceId':str(res['serviceId']),
-                                                'serviceName':serviceName,
-                                                'disabled':res['disabled'],
-                                                'verified':res['verified'],
-                                                'serviceProfileId':str(res['profileId']),
-                                                'address':res['address'],
-                                                'document':res['document'],
-                                                'declaration':res['declaration'],
-                                                'id':str(res['_id'])
-                                            }
-                                        if len(res['document']):
-                                            for docx in res['document']:
-                                                docx['link'] = self.fu.serverUrl + '/uploads/' \
-                                                    + str(self.entityId) + '/service_provider/' \
-                                                    + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
-                                        if len(res['declaration']):
-                                            for docx in res['declaration']:
-                                                docx['link'] = self.fu.serverUrl + '/uploads/' \
-                                                    + str(self.entityId) + '/service_provider/' \
-                                                    + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
-                                result.append(v)
-			    if len(result):
-                                code = 2000
-			        status = True
-                            else:
-                                code = 4121
+                                code = 8492
                                 status = False
-                                message = "No data Found"
+                                message = "Invalid or Missing Argument - ['id']"
+                                raise Exception
+
+                            serInfo = yield self.serviceList.find(
+                                        {
+                                            '_id':serviceId
+                                        }
+                                    )
+                            if not len(serInfo):
+                                code = 2829
+                                status = False
+                                message = "Service Not Found"
+                                raise Exception
+
+                            serProInfo = yield self.serviceProviderServices.find(
+                                        {
+                                            'status':True,
+                                            'serviceId':serviceId
+                                        }
+                                    )
+                            if len(serProInfo):
+                                for res in serProInfo:
+                                    serProviderFind = yield self.serviceProvider.find(
+                                                    {
+                                                        'profileId':res['profileId'],
+                                                        'entityId':self.entityId,
+                                                    }
+                                                )
+                                    if not len(serProviderFind):
+                                        code = 7838
+                                        status = False
+                                        message = "Service Provider Does not exist"
+                                        raise Exception
+                                    proFind = yield self.profile.find(
+                                                {
+                                                    '_id':res['profileId'],
+                                                    'entityId':self.entityId
+                                                }
+                                            )
+                                    if len(proFind):
+                                        accFind = yield self.account.find(
+                                                {
+                                                    '_id':proFind[0]['accountId']
+                                                }
+                                            )
+                                        if len(accFind):
+                                            v = {
+                                                    'serviceProviderId':str(res['serviceProviderId']),
+                                                    'serviceProviderDetails':accFind[0]['firstName'] + ' ' + accFind[0]['lastName']\
+                                                            + ', ' + serProviderFind[0]['address']
+                                                }
+                                            result.append(v)
+                            else:
+                                code = 4004
+                                status = True
+                                message = "No Data Found"
+                        elif self.apiId == 502020:
+                            code = 4004
+                            status = False
+                            message = "API not implemented"
                         else:
                             code = 4003
                             self.set_status(401)
@@ -1065,27 +794,31 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                             if code != 4100:
                                 raise Exception
                             #TODO::Need to send notication based on status
-                            accConfId = self.request.arguments.get('id')
-                            accConfVerify = yield self.serviceProvider.update(
+                            try:
+                                providerService = ObjectId(self.request.arguments.get('providerService'))
+                            except:
+                                code = 5682
+                                status = False
+                                message = "Invalid Id"
+                                raise Exception
+
+                            providerServiceVerify = yield self.serviceProviderServices.update(
                                             {
-                                                '_id':ObjectId(accConfId)
+                                                '_id':providerService
                                             },
                                             {
                                             '$set': {
-                                                        'verified': statusValue,
-                                                    },
-                                            '$inc': {
-                                                        'submitRequest.0':1
-                                                    },
+                                                        'status': statusValue,
+                                                    }
                                             }
                                         )
-                            if accConfVerify['n']:
+                            if providerServiceVerify['n']:
                                 code = 2000
                                 status = True
                                 if statusValue:
-                                    message = "Service Account has been approved"
+                                    message = "Service has been approved for the provider"
                                 else:
-                                    message = "Service Account has been declined."
+                                    message = "Service has been declined for the provider"
                             else:
                                 code = 2003
                                 status = False

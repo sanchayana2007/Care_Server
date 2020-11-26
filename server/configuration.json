@@ -169,6 +169,22 @@
                 {
                     "name":"serviceProvider",
                     "code":3
+                },
+                {
+                    "name":"serviceProduct",
+                    "code":4
+                },
+                {
+                    "name":"pincode",
+                    "code":5
+                },
+                {
+                    "name":"serviceProviderServices",
+                    "code":6
+                },
+                {
+                    "name":"allIndiaPincode",
+                    "code":7
                 }
             ]
         },
@@ -203,6 +219,11 @@
             "name": "MSG91",
             "code": 1,
             "key": "190375A8pqgqS55cb1f0d8"
+        }
+    ],
+    "medAdmin_contact":[
+        {
+            "num1":"8765178701"
         }
     ],
     "maps": [

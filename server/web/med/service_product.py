@@ -24,7 +24,7 @@ from lib import *
 from PIL import Image
 
 @xenSecureV1
-class MedServiceListHandler(cyclone.web.RequestHandler,
+class MedServiceProductHandler(cyclone.web.RequestHandler,
         MongoMixin, RedisMixin):
 
     SUPPORTED_METHODS = ('GET','POST','PUT','DELETE')
@@ -103,9 +103,9 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
         result = []
         message = ''
         try:
-            serviceId = self.request.arguments['id'][0]
+            productId = self.request.arguments['id'][0]
         except:
-            serviceId = None
+            productId = None
         try:
             # TODO: this need to be moved in a global class
             profile = yield self.profile.find(
@@ -137,8 +137,8 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                     self.apiId = app[0]['apiId']
                     Log.i(self.apiId)
                     if app[0]['apiId'] in [ 502020, 502022, 502021]: # TODO: till here
-                        if serviceId == None:
-                            res = yield self.serviceList.find(
+                        if productId == None:
+                            res = yield self.serviceProduct.find(
                                         {
                                             'entityId':self.entityId,
                                             'disabled':False
@@ -146,71 +146,32 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                                     )
                         else:
                             try:
-                                serviceId = ObjectId(serviceId)
+                                productId = ObjectId(productId)
                             except:
                                 code = 4050
                                 status = False
-                                message = "Invalid Service Id"
-                            res = yield self.serviceList.find(
+                                message = "Invalid Product Id"
+                            res = yield self.serviceProduct.find(
                                         {
                                             'entityId':self.entityId,
-                                            '_id':serviceId,
+                                            '_id':productId,
                                             'disabled':False
                                         }
                                     )
-                        cancelFeeQ = yield self.cancelFee.find(
-                                    {
-                                        'profileId':self.profileId
-                                    }
-                                )
-                        if len(cancelFeeQ):
-                            cancelFeeAmt = cancelFeeQ[0]['cancellationFee']
-                        else:
-                            cancelFeeAmt = 0
                         if len(res):
-                            for serInfo in res:
+                            for proInfo in res:
                                 v = {
-                                        '_id':str(serInfo['_id']),
-                                        'serNameEnglish':serInfo['serNameEnglish'],
-                                        'serNameHindi':serInfo['serNameHindi'],
-                                        'serCharges':serInfo['serCharges'],
-                                        'serTA':serInfo['serTA'],
-                                        'serDA':serInfo['serDA'],
-                                        'serTATotal':serInfo['serTATotal'],
-                                        'serDATotal':serInfo['serDATotal'],
-                                        'media':serInfo['media'],
-                                        'cancelFee':cancelFeeAmt
+                                        'id':str(proInfo['_id']),
+                                        'serviceId':str(proInfo['serviceId']),
+                                        'serviceName':proInfo['serviceName'],
+                                        'productName':proInfo['productName'],
+                                        'productPrice':proInfo['productPrice'],
                                     }
-                                if len(v['media']):
-                                    for docx in v['media']:
-                                        docx['link'] = self.fu.serverUrl + '/uploads/' \
-                                                + str(self.entityId)\
-                                                + '/service_media/' + str(serInfo['_id'])\
-                                                + '/' + str(docx['time']) + docx['mimeType']
-                                else:
-                                    img = {
-                                            'link':"https://medix.xlayer.in/uploads/default/serviceList.png"
-                                        }
-                                    v['media'].append(img)
-                                v['products'] = []
-                                proFind = yield self.serviceProduct.find(
-                                                {
-                                                    'serviceId': serInfo['_id'],
-                                                    'disabled':False
-                                                }
-                                            )
-                                if len(proFind):
-                                    for product in proFind:
-                                        proInfo = {
-                                                    'productName': product['productName'],
-                                                    'productPrice': str(product['productPrice'])
-                                                  }
-                                        v['products'].append(proInfo)
                                 result.append(v)
                             result.reverse()
                             code = 2000
                             status = True
-                            message = 'List of services'
+                            message = 'List of products'
                         else:
                             code = 4080
                             status = False
@@ -317,10 +278,15 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                     self.apiId = app[0]['apiId']
                     if self.apiId in [ 502020, 502022]:
                         if self.apiId == 502022:
-                            serNameEnglish = self.request.arguments.get('serNameEnglish')
+                            serviceId = self.request.arguments.get('serviceId')
+                            if serviceId == None:
+                                code = 4830
+                                status = False
+                                message = "Service name is missing"
+                                raise Exception
                             code, message = Validate.i(
-                                    serNameEnglish,
-                                    'serNameEnglish',
+                                    serviceId,
+                                    'serviceId',
                                     dataType=unicode,
                                     notEmpty=True,
                                     maxLength=40
@@ -328,69 +294,72 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                             if code != 4100:
                                 raise Exception
 
-                            serNameHindi = self.request.arguments.get('serNameHindi')
-                            if serNameHindi == None:
+                            try:
+                                serviceId = ObjectId(serviceId)
+                            except:
+                                code = 4555
+                                status = False
+                                message = "Invalid Service Id"
+                                raise Exception
+
+                            serFind = yield self.serviceList.find(
+                                        {
+                                            '_id':serviceId,
+                                            'disabled':False
+                                        }
+                                    )
+                            if not len(serFind):
+                                code = 4560
+                                status = False
+                                message = "Service is not valid"
+                                raise Exception
+
+                            serviceName = serFind[0]['serNameEnglish']
+
+                            productName = self.request.arguments.get('productName')
+                            if productName == None or productName == '':
                                 code = 4830
                                 status = False
-                                message = "Service Name in Hindi missing."
+                                message = "Product name is missing"
                                 raise Exception
-                            if not len(serNameHindi):
-                                code = 4840
+                            code, message = Validate.i(
+                                    productName,
+                                    'Product Name',
+                                    dataType=unicode,
+                                    notEmpty=True,
+                                    maxLength=40
+                                )
+                            if code != 4100:
+                                raise Exception
+
+                            productPrice = self.request.arguments.get('productPrice')
+                            if productPrice == None or productPrice == '':
+                                code = 4830
                                 status = False
-                                message = "Service Name in Hindi missing."
+                                message = "Product price is missing"
                                 raise Exception
-
-                            serCharges = self.request.arguments.get('serCharges')
-                            code, message = Validate.i(
-                                    serCharges,
-                                    'serCharges',
-                                    dataType=int,
-                                    notEmpty=True,
-                                )
+                            code,message = Validate.i(
+                                            productPrice,
+                                            'Product Price',
+                                            dataType = int,
+                                            minNumber= 0,
+                                            maxNumber= 100000,
+                                        )
                             if code != 4100:
                                 raise Exception
 
-                            serTA = self.request.arguments.get('serTA')
-                            code, message = Validate.i(
-                                    serTA,
-                                    'service TA',
-                                    dataType=int,
-                                    notEmpty=True,
-                                )
-                            if code != 4100:
-                                raise Exception
 
-                            serDA = self.request.arguments.get('serDA')
-                            if serDA != None:
-                                code, message = Validate.i(
-                                        serDA,
-                                        'service DA',
-                                        dataType=int,
-                                        notEmpty=True,
-                                    )
-                                if code != 4100:
-                                    raise Exception
-                            else:
-                                serDA = 0
-
-                            serTATotal = serCharges + serTA
-                            serDATotal = serCharges + serDA
-
-                            serData = {
+                            proData = {
                                         'disabled': False,
-                                        'serNameEnglish':serNameEnglish,
-                                        'serNameHindi':serNameHindi,
-                                        'serCharges':serCharges,
-                                        'serTA':serTA,
-                                        'serTATotal':serTATotal,
-                                        'serDA':serDA,
-                                        'serDATotal':serDATotal,
-                                        'media':[],
-                                        'entityId':self.entityId
+                                        'entityId':self.entityId,
+                                        'serviceId':serviceId,
+                                        'serviceName':serviceName,
+                                        'productName':productName,
+                                        'productPrice':productPrice
                                       }
-                            serviceId = yield self.serviceList.insert(serData)
+                            productId = yield self.serviceProduct.insert(proData)
                             code = 2000
-                            message = "Service has been added"
+                            message = "Product has been added"
                             status = True
                         else:
                             code = 4003
@@ -498,25 +467,30 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                     if self.apiId in [ 502020, 502022]:
                         if self.apiId == 502022:
                             try:
-                                serviceId = ObjectId(self.request.arguments.get('serviceId'))
+                                productId = ObjectId(self.request.arguments.get('productId'))
                             except:
                                 code = 4050
-                                message = "Invalid service Id"
+                                message = "Invalid Product Id"
                                 raise Exception
-                            print serviceId
-                            serBook = yield self.serviceList.find(
+                            proFind = yield self.serviceProduct.find(
                                         {
-                                            '_id':serviceId
+                                            '_id':productId
                                         }
                                     )
-                            if not len(serBook):
+                            if not len(proFind):
                                 code = 4060
-                                message = "Invalid Service"
+                                status = False
+                                message = "Invalid Product"
                                 raise Exception
-                            serNameEnglish = self.request.arguments.get('serNameEnglish')
+                            serviceId = self.request.arguments.get('serviceId')
+                            if serviceId == None:
+                                code = 4830
+                                status = False
+                                message = "Service name is missing"
+                                raise Exception
                             code, message = Validate.i(
-                                    serNameEnglish,
-                                    'serNameEnglish',
+                                    serviceId,
+                                    'serviceId',
                                     dataType=unicode,
                                     notEmpty=True,
                                     maxLength=40
@@ -524,76 +498,77 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                             if code != 4100:
                                 raise Exception
 
-                            serNameHindi = self.request.arguments.get('serNameHindi')
-                            if serNameHindi == None:
+                            try:
+                                serviceId = ObjectId(serviceId)
+                            except:
+                                code = 4555
+                                status = False
+                                message = "Invalid Service Id"
+                                raise Exception
+
+                            serFind = yield self.serviceList.find(
+                                        {
+                                            '_id':serviceId,
+                                        }
+                                    )
+                            if not len(serFind):
+                                code = 4560
+                                status = False
+                                message = "Service is not valid"
+                                raise Exception
+
+                            serviceName = serFind[0]['serNameEnglish']
+
+                            productName = self.request.arguments.get('productName')
+                            if productName == None or productName == '':
                                 code = 4830
                                 status = False
-                                message = "Service Name in Hindi missing."
+                                message = "Product name is missing"
                                 raise Exception
-                            if not len(serNameHindi):
-                                code = 4840
+                            code, message = Validate.i(
+                                    productName,
+                                    'Product Name',
+                                    dataType=unicode,
+                                    notEmpty=True,
+                                    maxLength=40
+                                )
+                            if code != 4100:
+                                raise Exception
+
+                            productPrice = self.request.arguments.get('productPrice')
+                            if productPrice == None or productPrice == '':
+                                code = 4830
                                 status = False
-                                message = "Service Name in Hindi missing."
+                                message = "Product price is missing"
                                 raise Exception
-
-                            serCharges = self.request.arguments.get('serCharges')
                             code, message = Validate.i(
-                                    serCharges,
-                                    'serCharges',
+                                    productPrice,
+                                    'Product Price',
                                     dataType=int,
                                     notEmpty=True,
                                 )
                             if code != 4100:
                                 raise Exception
-
-                            serTA = self.request.arguments.get('serTA')
-                            code, message = Validate.i(
-                                    serTA,
-                                    'service TA',
-                                    dataType=int,
-                                    notEmpty=True,
-                                )
-                            if code != 4100:
-                                raise Exception
-
-                            serDA = self.request.arguments.get('serDA')
-                            if serDA != None:
-                                code, message = Validate.i(
-                                        serDA,
-                                        'service DA',
-                                        dataType=int,
-                                        notEmpty=True,
-                                    )
-                                if code != 4100:
-                                    raise Exception
-                            else:
-                                serDA = 0
-
-                            serTATotal = serCharges + serTA
-                            serDATotal = serCharges + serDA
-                            serUpdate = yield self.serviceList.update(
+                            proUpdate = yield self.serviceProduct.update(
                                                 {
-                                                    '_id':serviceId,
+                                                    '_id':productId,
                                                 },
                                                 {
                                                 '$set':{
-                                                            'serNameEnglish':serNameEnglish,
-                                                            'serNameHindi':serNameHindi,
-                                                            'serCharges':serCharges,
-                                                            'serTA':serTA,
-                                                            'serTATotal':serTATotal,
-                                                            'serDA':serDA,
-                                                            'serDATotal':serDATotal,
+                                                            'serviceId':serviceId,
+                                                            'serviceName':serviceName,
+                                                            'productName':productName,
+                                                            'productPrice':productPrice
                                                         }
                                                 }
                                             )
-                            if serUpdate['n']:
+                            if proUpdate['n']:
                                 code = 2000
-                                message = "Service information updated"
+                                message = "Product information updated"
                                 status = True
                             else:
                                 code = 4060
-                                message = "Invalid Service"
+                                message = "Invalid Product"
                                 status = False
                         else:
                             code = 4003
@@ -607,7 +582,6 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                     code = 4003
                     self.set_status(401)
                     message = 'You are not Authorized.'
-
             else:
                 code = 4003
                 self.set_status(401)
@@ -665,10 +639,10 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
         try:
             try:
                 # CONVERTS BODY INTO JSON
-                serviceId = ObjectId(self.request.arguments['id'][0])
+                productId = ObjectId(self.request.arguments['id'][0])
             except Exception as e:
                 code = 4100
-                message = 'Invalid ID'
+                message = 'Invalid Product ID'
                 raise Exception
             # TODO: this need to be moved in a global class, from here
             profile = yield self.profile.find(
@@ -689,9 +663,9 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                         )
                 if len(app):
                     if app[0]['apiId'] == 502022:# TODO: till here
-                        serDel = yield self.serviceList.update(
+                        serDel = yield self.serviceProduct.update(
                                     {
-                                        '_id':serviceId
+                                        '_id':productId
                                     },
                                     {
                                     '$set':{
@@ -702,7 +676,7 @@ class MedServiceListHandler(cyclone.web.RequestHandler,
                         if serDel['n']:
                             code = 2000
                             status = True
-                            message = "Service has been removed from active list"
+                            message = "Product has been removed from active list"
                         else:
                             code = 4210
                             status = False

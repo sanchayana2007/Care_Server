@@ -34,12 +34,24 @@ from medservicelist import MedServiceListHandler
 from medservicemedia import MedServiceMediaHandler
 from medservicesession import MedServiceSessionHandler
 from account_overview import MedServiceAccountOverviewHandler
+from provider_service_list import MedServiceProviderServiceHandler
+from service_info_provider import MedServiceServiceInfoProviderHandler
+from assign_medservice import MedServiceAssignServiceHandler
+
+from send_sms import MedServiceSendSMSHandler
+
+from state_info import MedServiceStateInfoHandler
+from district_info import MedServiceDistrictInfoHandler
+from place_info import MedServicePlaceInfoHandler
 
 from restoremedservice import MedServiceBookRestoreHandler
 from restoremedservicelist import MedRestoreServiceListHandler
 
 from userinfo import MedServiceInfoHandler
 from service_provider import MedServiceProviderHandler
+from service_provider_v2 import MedServiceProviderV2Handler
+
+from service_product import MedServiceProductHandler
 
 from files import *
 from sign_in import SignInHandler

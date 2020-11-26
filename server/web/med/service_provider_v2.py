@@ -26,7 +26,7 @@ import random
 import requests
 
 @xenSecureV1
-class MedServiceProviderHandler(cyclone.web.RequestHandler,
+class MedServiceProviderV2Handler(cyclone.web.RequestHandler,
         MongoMixin, RedisMixin):
 
     SUPPORTED_METHODS = ('POST', 'PUT', 'GET', 'DELETE')
@@ -97,6 +97,12 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
     serviceProvider = MongoMixin.medicineDb[
                     CONFIG['database'][2]['table'][3]['name']
                 ]
+    pincode = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][5]['name']
+                ]
+    serviceProviderServices = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][6]['name']
+                ]
 
 
 
@@ -142,26 +148,100 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                     self.apiId = app[0]['apiId']
 		    if self.apiId in [ 502021]:
 			if self.apiId == 502021: # TODO: till here
+                            serProFind = yield self.serviceProvider.find(
+                                            {
+                                                'entityId':self.entityId,
+                                                'profileId':self.profileId
+                                            }
+                                        )
+                            if len(serProFind):
+                                profilePicTime = serProFind[0]['profilePic'][0]['time']
+                                documentTime = serProFind[0]['document'][0]['time']
+                                declarationTime = serProFind[0]['declaration'][0]['time']
+                                signatureTime = serProFind[0]['signature'][0]['time']
+                                profilePicType = documentType = declarationType = signatureType = ".png"
+                                serId = serProFind[0]['_id']
+                            Log.i("serviceList in registration")
+                            Log.i(self.request.arguments.get('serviceList'))
                             try:
-                                idType = self.get_arguments('idType')[0]
-                            except:
-                                code = 4655
-                                status = False
-                                message = "Argument missing - idType"
-                                raise Exception
-                            if idType not in ['document','declaration']:
-                                code = 4560
-                                status = False
-                                message = 'Invalid ID Type'
-                                raise Exception
-
-                            try:
-                                serviceId = ObjectId(self.request.arguments['serviceId'][0])
+                                serviceList = self.request.arguments.get('serviceList')
                             except:
                                 code = 4565
                                 status = False
-                                message = "Invalid Argument - [ ServiceId ]"
+                                message = "Missing Argument - [ serviceList ]"
                                 raise Exception
+                            serviceList = serviceList[0].replace("['","")
+                            serviceList = serviceList.replace("']","")
+                            serviceList = list(serviceList.split (","))
+                            serviceList = list(dict.fromkeys(serviceList))
+                            if type(serviceList) != list:
+                                code = 7229
+                                status = False
+                                message = "Invalid Service List"
+                                raise Exception
+                            for i in serviceList:
+                                serFind = yield self.serviceList.find(
+                                                {
+                                                    '_id':ObjectId(i),
+                                                    'disabled':False
+                                                }
+                                            )
+                                if not len(serFind):
+                                    serFind = yield self.serviceList.find(
+                                                {
+                                                    '_id':ObjectId(i)
+                                                }
+                                            )
+                                    if len(serFind):
+                                        serviceName = serFind[0]['serNameEnglish']
+                                    else:
+                                        serviceName = ""
+                                    code = 7280
+                                    status = False
+                                    message = "Invalid Service selected -" + serviceName
+                                    raise Exception
+                            try:
+                                qualification = str(self.get_arguments('qualification')[0])
+                                code, message = Validate.i(
+                                        qualification,
+                                        'qualification',
+                                    )
+                                if code != 4100:
+                                    raise Exception
+                            except Exception as e:
+                                code = 4210
+                                message = 'Missing Argument - [ Qualification ].'
+                                raise Exception
+                            try:
+                                profilePic = self.request.files['profilePic'][0]
+                            except:
+                                if not len(serProFind):
+                                    code = 4558
+                                    status = False
+                                    message = "Profile picture is missing"
+                                    raise Exception
+                                else:
+                                    profilePic = None
+                            try:
+                                document = self.request.files['document'][0]
+                            except:
+                                if not len(serProFind):
+                                    code = 4558
+                                    status = False
+                                    message = "Document is missing"
+                                    raise Exception
+                                else:
+                                    document = None
+                            try:
+                                declaration = self.request.files['declaration'][0]
+                            except:
+                                if not len(serProFind):
+                                    code = 4558
+                                    status = False
+                                    message = "Declaration is missing"
+                                    raise Exception
+                                else:
+                                    declaration = None
                             try:
                                 address = str(self.get_arguments('address')[0])
                                 code, message = Validate.i(
@@ -172,105 +252,138 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                     raise Exception
                             except Exception as e:
                                 code = 4210
-                                message = 'Invalid Argument - [ Address ].'
+                                message = 'Missing Argument - [ Address ].'
+                                raise Exception
+                            try:
+                                state = str(self.get_arguments('state')[0])
+                                code, message = Validate.i(
+                                        state,
+                                        'state',
+                                    )
+                                if code != 4100:
+                                    raise Exception
+                            except Exception as e:
+                                code = 4210
+                                message = 'Missing Argument - [ state ].'
+                                raise Exception
+                            try:
+                                district = str(self.get_arguments('district')[0])
+                                code, message = Validate.i(
+                                        district,
+                                        'district',
+                                    )
+                                if code != 4100:
+                                    raise Exception
+                            except Exception as e:
+                                code = 4210
+                                message = 'Missing Argument - [ district ].'
                                 raise Exception
 
                             try:
-                                idProof = self.request.files['idProof'][0]
+                                areaOfOperation = self.request.arguments.get('areaOfOperation')
+                                code, message = Validate.i(
+                                        areaOfOperation,
+                                        'areaOfOperation',
+                                    )
+                                if code != 4100:
+                                    raise Exception
+                            except Exception as e:
+                                code = 4210
+                                message = 'Missing Argument - [ areaOfOperation ].'
+                                raise Exception
+                            areaOfOperation = areaOfOperation[0].replace("['","")
+                            areaOfOperation = areaOfOperation.replace("']","")
+                            areaOfOperation = list(areaOfOperation.split (","))
+                            terms = False
+                            try:
+                                terms = bool(self.get_arguments('terms')[0])
                             except:
-                                idProof = None
+                                code = 2196
+                                status = False
+                                message = "Missing Argument - [terms]"
+                                raise Exception
+                            if terms != True:
+                                code = 5000
+                                status = False
+                                message = "Terms and Conditions must be accepted."
+                                raise Exception
+
+                            try:
+                                signature = self.request.files['signature'][0]
+                            except:
+                                if not len(serProFind):
+                                    code = 4558
+                                    status = False
+                                    message = "Signature is missing"
+                                    raise Exception
+                                else:
+                                    signature = None
 
                             filepath = []
-
-
-                            if idProof == None:
-                                serviceFind = yield self.serviceList.find(
-                                            {
-                                                '_id':serviceId,
-                                                'disabled':False
-                                            }
-                                        )
-                                if not len(serviceFind):
-                                    code = 4775
-                                    status = False
-                                    message = "Invalid Service"
-                                    raise Exception
-
-                                serFind = yield self.serviceProvider.find(
-                                            {
-                                                'profileId':self.profileId,
-                                                'serviceId':serviceId,
-                                                'disabled':False
-                                            }
-                                        )
-
-                                if len(serFind) :
-                                    serId = serFind[0]['_id']
-                                    accConfId = yield self.serviceProvider.update(
-                                            {
-                                                'entityId':self.entityId,
-                                                'profileId':self.profileId,
-                                                'serviceId':serviceId
-                                            },
-                                            {
-                                            '$set':{
-                                                        'address':address,
-                                                    }
-                                            }
-                                        )
-                                    if accConfId['n']:
-                                        code = 2000
-                                        status = True
-                                        message = "Service information has been submitted"
-                                    else:
-                                        code = 4885
-                                        status = False
-                                        message = "Service information could not be submitted"
-                                        raise Exception
-
-                                else:
-                                    serId = yield self.serviceProvider.insert(
-                                        {
-                                            'entityId':self.entityId,
-                                            'profileId':self.profileId,
-                                            'serviceId':serviceId,
-                                            'disabled': False,
-                                            'verified':False,
-                                            'submitRequest':[0,1],
-                                            'address':address,
-                                        }
-                                    )
-
-                                    code = 2000
-                                    status = True
-                                    message = "Service information has been submitted"
-                            else:
-                                idProofType = idProof['content_type']
-                                idProofType = yield mimetypes.guess_extension(
-                                            idProofType,
+                            aTime = timeNow()
+                            if profilePic:
+                                profilePicType = profilePic['content_type']
+                                profilePicType = yield mimetypes.guess_extension(
+                                            profilePicType,
                                             strict=True
                                 )
-
-
-                                aTime = timeNow()
-                                idTime = aTime
-                                if str(idProofType) in [ '.png','.jpeg', '.jpg', '.jpe']:
-                                    fName = idTime
-                                    fRaw = idProof['body']
+                                profilePicTime = aTime
+                                if str(profilePicType) in [ '.png','.jpeg', '.jpg', '.jpe']:
+                                    fName = profilePicTime
+                                    fRaw = profilePic['body']
                                     fp = self.fu.tmpPath
                                     if not os.path.exists(fp):
                                         Log.i('DRV-Profile', 'Creating Directories')
                                         os.system('mkdir -p ' + fp)
-                                    fpm = fp + '/' + str(fName) + idProofType
+                                    fpm = fp + '/' + str(fName) + profilePicType
                                     fh = open(fpm, 'w')
                                     fh.write(fRaw)
                                     fh.close()
 
                                     mainFile = ''
                                     # Converting to PNG
-                                    if str(idProofType) not in ['.png']:
-                                        idProofType = '.png'
-                                        fpx = fp + '/' + str(fName) + idProofType
+                                    if str(profilePicType) not in ['.png']:
+                                        profilePicType = '.png'
+                                        fpx = fp + '/' + str(fName) + profilePicType
+                                        filepath.append(fpx)
+                                        im = Image.open(fpm)
+                                        im.save(fpx, 'PNG')
+                                        os.system('rm ' + fpm)
+                                        os.system('chmod 755 -R ' + fp + '*')
+                                        mainFile = fpx
+                                    else:
+                                        filepath.append(fpm)
+                                        os.system('chmod 755 -R ' + fpm + '*')
+                                        mainFile = fpm
+                                else:
+                                    message = 'Invalid File Type for Profile Picture'
+                                    code = 4011
+                                    raise Exception
+                            if document:
+                                documentType = document['content_type']
+                                documentType = yield mimetypes.guess_extension(
+                                            documentType,
+                                            strict=True
+                                )
+                                aTime = aTime + 1
+                                documentTime = aTime
+                                if str(documentType) in [ '.png','.jpeg', '.jpg', '.jpe']:
+                                    fName = documentTime
+                                    fRaw = document['body']
+                                    fp = self.fu.tmpPath
+                                    if not os.path.exists(fp):
+                                        Log.i('DRV-Profile', 'Creating Directories')
+                                        os.system('mkdir -p ' + fp)
+                                    fpm = fp + '/' + str(fName) + documentType
+                                    fh = open(fpm, 'w')
+                                    fh.write(fRaw)
+                                    fh.close()
+
+                                    mainFile = ''
+                                    # Converting to PNG
+                                    if str(documentType) not in ['.png']:
+                                        documentType = '.png'
+                                        fpx = fp + '/' + str(fName) + documentType
                                         filepath.append(fpx)
                                         im = Image.open(fpm)
                                         im.save(fpx, 'PNG')
@@ -285,100 +398,253 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                     message = 'Invalid File Type for Document'
                                     code = 4011
                                     raise Exception
+                            if declaration:
+                                declarationType = declaration['content_type']
+                                declarationType = yield mimetypes.guess_extension(
+                                            declarationType,
+                                            strict=True
+                                )
+                                aTime = aTime + 1
+                                declarationTime = aTime
+                                if str(declarationType) in [ '.png','.jpeg', '.jpg', '.jpe']:
+                                    fName = declarationTime
+                                    fRaw = declaration['body']
+                                    fp = self.fu.tmpPath
+                                    if not os.path.exists(fp):
+                                        Log.i('DRV-Profile', 'Creating Directories')
+                                        os.system('mkdir -p ' + fp)
+                                    fpm = fp + '/' + str(fName) + declarationType
+                                    fh = open(fpm, 'w')
+                                    fh.write(fRaw)
+                                    fh.close()
 
-                                serviceFind = yield self.serviceList.find(
-                                            {
-                                                '_id':serviceId,
-                                                'disabled':False
-                                            }
-                                        )
-                                if not len(serviceFind):
-                                    code = 4775
-                                    status = False
-                                    message = "Invalid Service"
+                                    mainFile = ''
+                                    # Converting to PNG
+                                    if str(declarationType) not in ['.png']:
+                                        declarationType = '.png'
+                                        fpx = fp + '/' + str(fName) + declarationType
+                                        filepath.append(fpx)
+                                        im = Image.open(fpm)
+                                        im.save(fpx, 'PNG')
+                                        os.system('rm ' + fpm)
+                                        os.system('chmod 755 -R ' + fp + '*')
+                                        mainFile = fpx
+                                    else:
+                                        filepath.append(fpm)
+                                        os.system('chmod 755 -R ' + fpm + '*')
+                                        mainFile = fpm
+                                else:
+                                    message = 'Invalid File Type for Declaration'
+                                    code = 4011
+                                    raise Exception
+                            if signature:
+                                signatureType = signature['content_type']
+                                signatureType = yield mimetypes.guess_extension(
+                                            signatureType,
+                                            strict=True
+                                )
+                                aTime = aTime + 1
+                                signatureTime = aTime
+                                if str(signatureType) in [ '.png','.jpeg', '.jpg', '.jpe']:
+                                    fName = signatureTime
+                                    fRaw = signature['body']
+                                    fp = self.fu.tmpPath
+                                    if not os.path.exists(fp):
+                                        Log.i('DRV-Profile', 'Creating Directories')
+                                        os.system('mkdir -p ' + fp)
+                                    fpm = fp + '/' + str(fName) + signatureType
+                                    fh = open(fpm, 'w')
+                                    fh.write(fRaw)
+                                    fh.close()
+
+                                    mainFile = ''
+                                    # Converting to PNG
+                                    if str(signatureType) not in ['.png']:
+                                        signatureType = '.png'
+                                        fpx = fp + '/' + str(fName) + signatureType
+                                        filepath.append(fpx)
+                                        im = Image.open(fpm)
+                                        im.save(fpx, 'PNG')
+                                        os.system('rm ' + fpm)
+                                        os.system('chmod 755 -R ' + fp + '*')
+                                        mainFile = fpx
+                                    else:
+                                        filepath.append(fpm)
+                                        os.system('chmod 755 -R ' + fpm + '*')
+                                        mainFile = fpm
+                                else:
+                                    message = 'Invalid File Type for Signature'
+                                    code = 4011
                                     raise Exception
 
-                                serFind = yield self.serviceProvider.find(
-                                            {
-                                                'profileId':self.profileId,
-                                                'serviceId':serviceId,
-                                                'disabled':False
-                                            }
-                                        )
-
-                                if len(serFind) :
-                                    serId = serFind[0]['_id']
-                                    accConfId = yield self.serviceProvider.update(
-                                            {
-                                                'entityId':self.entityId,
-                                                'profileId':self.profileId,
-                                                'serviceId':serviceId
-                                            },
-                                            {
-                                            '$set':{
-                                                        'address':address,
-                                                        idType:[
-                                                                        {
-                                                                            'time':idTime,
-                                                                            'mimeType':idProofType
-                                                                        }
-                                                                    ],
-                                                    }
-                                            }
-                                        )
-                                    if accConfId['n']:
-                                        code = 2000
-                                        status = True
-                                        message = "Service Information has been submitted"
-                                    else:
-                                        code = 4885
-                                        status = False
-                                        message = "Service Information could not be submitted."
-
-
-                                else:
-                                    serId = yield self.serviceProvider.insert(
+                            if not len(serProFind):
+                                serId = yield self.serviceProvider.insert(
                                         {
                                             'entityId':self.entityId,
                                             'profileId':self.profileId,
-                                            'serviceId':serviceId,
+                                            'serviceList':serviceList,
                                             'disabled': False,
                                             'verified':False,
                                             'submitRequest':[0,1],
                                             'address':address,
-                                            idType:[
+                                            'qualification':qualification,
+                                            'state':state,
+                                            'district':district,
+                                            'areaOfOperation':areaOfOperation,
+                                            'terms':terms,
+                                            'profilePic':[
                                                             {
-                                                                'time':idTime,
-                                                                'mimeType':idProofType
+                                                                'time':profilePicTime,
+                                                                'mimeType':profilePicType
+                                                            }
+                                                        ],
+                                            'document':[
+                                                            {
+                                                                'time':documentTime,
+                                                                'mimeType':documentType
+                                                            }
+                                                        ],
+                                            'declaration':[
+                                                            {
+                                                                'time':declarationTime,
+                                                                'mimeType':declarationType
+                                                            }
+                                                        ],
+                                            'signature':[
+                                                            {
+                                                                'time':signatureTime,
+                                                                'mimeType':signatureType
                                                             }
                                                         ],
                                         }
                                     )
+                                if serId:
+                                    for i in serviceList:
+                                        serListProvider = yield self.serviceProviderServices.insert(
+                                                    {
+                                                        'profileId':self.profileId,
+                                                        'entityId':self.entityId,
+                                                        'serviceProviderId':serId,
+                                                        'serviceId':ObjectId(i),
+                                                        'status':None
+                                                    }
+                                                )
+                                    uPath = self.fu.uploads + '/' + str(self.entityId)
+                                    if not os.path.exists(uPath):
+                                        os.system('mkdir -p ' + uPath)
+                                        os.system('chmod 755 -R ' + uPath)
 
+                                    uPath = uPath + '/service_provider/'
+                                    if not os.path.exists(uPath):
+                                        os.system('mkdir -p ' + uPath)
+                                        os.system('chmod 755 -R ' + uPath)
+
+                                    uPath = uPath + str(serId) + '/'
+                                    if not os.path.exists(uPath):
+                                        os.system('mkdir -p ' + uPath)
+                                        os.system('chmod 755 -R ' + uPath)
+
+                                    for i in filepath:
+                                        os.system('mv ' + i + ' ' + uPath)
+                                        Log.d(uPath)
                                     code = 2000
                                     status = True
                                     message = "Service Information is submitted."
+                            else:
+                                serUpdate = yield self.serviceProvider.update(
+                                                {
+                                                    'profileId':self.profileId,
+                                                    'entityId':self.entityId
+                                                },
+                                                {
+                                                '$set':{
+                                                            'address':address,
+                                                            'serviceList':serviceList,
+                                                            'qualification':qualification,
+                                                            'state':state,
+                                                            'district':district,
+                                                            'areaOfOperation':areaOfOperation,
+                                                            'terms':terms,
+                                                            'profilePic':[
+                                                                {
+                                                                    'time':profilePicTime,
+                                                                    'mimeType':profilePicType
+                                                                }
+                                                            ],
+                                                            'document':[
+                                                                {
+                                                                    'time':documentTime,
+                                                                    'mimeType':documentType
+                                                                }
+                                                            ],
+                                                            'declaration':[
+                                                                {
+                                                                    'time':declarationTime,
+                                                                    'mimeType':declarationType
+                                                                }
+                                                            ],
+                                                            'signature':[
+                                                                {
+                                                                    'time':signatureTime,
+                                                                    'mimeType':signatureType
+                                                                }
+                                                            ],
+                                                    }
+                                                }
+                                        )
+                                if serUpdate['n']:
+                                    serListFind = yield self.serviceProviderServices.find(
+                                                        {
+                                                            'profileId':self.profileId
+                                                        }
+                                                )
+                                    serCount = []
+                                    for res in serListFind:
+                                        serCount.append(str(res['_id']))
+                                        if str(res['_id']) not in serviceList:
+                                            serRemove = yield self.serviceProviderServices.remove(
+                                                        {
+                                                            '_id':res['_id']
+                                                        }
+                                                    )
+                                    for i in serviceList:
+                                        if i not in serCount:
+                                            serListProvider = yield self.serviceProviderServices.insert(
+                                                    {
+                                                        'profileId':self.profileId,
+                                                        'entityId':self.entityId,
+                                                        'serviceProviderId':serId,
+                                                        'serviceId':ObjectId(i),
+                                                        'status':None
+                                                    }
+                                                )
+                                    if len(filepath):
+                                        uPath = self.fu.uploads + '/' + str(self.entityId)
+                                        if not os.path.exists(uPath):
+                                            os.system('mkdir -p ' + uPath)
+                                            os.system('chmod 755 -R ' + uPath)
 
-                                # Moving Temp dir to booking dir
-                                uPath = self.fu.uploads + '/' + str(self.entityId)
-                                if not os.path.exists(uPath):
-                                    os.system('mkdir -p ' + uPath)
-                                    os.system('chmod 755 -R ' + uPath)
+                                        uPath = uPath + '/service_provider/'
+                                        if not os.path.exists(uPath):
+                                            os.system('mkdir -p ' + uPath)
+                                            os.system('chmod 755 -R ' + uPath)
 
-                                uPath = uPath + '/service_provider/'
-                                if not os.path.exists(uPath):
-                                    os.system('mkdir -p ' + uPath)
-                                    os.system('chmod 755 -R ' + uPath)
+                                        uPath = uPath + str(serId) + '/'
+                                        if not os.path.exists(uPath):
+                                            os.system('mkdir -p ' + uPath)
+                                            os.system('chmod 755 -R ' + uPath)
 
-                                uPath = uPath + str(serId) + '/'
-                                if not os.path.exists(uPath):
-                                    os.system('mkdir -p ' + uPath)
-                                    os.system('chmod 755 -R ' + uPath)
-
-                                for i in filepath:
-                                    os.system('mv ' + i + ' ' + uPath)
-                                    Log.d(uPath)
-
+                                        for i in filepath:
+                                            os.system('mv ' + i + ' ' + uPath)
+                                            Log.d(uPath)
+                                    code = 2000
+                                    status = True
+                                    message = "Service Information has been submitted"
+                                else:
+                                    code = 7382
+                                    status = False
+                                    message = "Service Information could not be submitted"
+                                    raise Exception
                         else:
                             code = 4003
                             self.set_status(401)
@@ -702,18 +968,6 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
         result = []
         message = ''
 
-        '''
-        try:
-            profileId = ObjectId(self.request.arguments['id'][0])
-        except:
-            profileId = None
-        '''
-
-
-        try:
-            method = int(self.request.arguments['method'][0])
-        except:
-            method = None
 
         try:
             # TODO: this need to be moved in a global class
@@ -748,20 +1002,7 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
 
                         # For Service Provider GET
                         if self.apiId == 502021:
-                            try:
-                                serId = ObjectId(self.request.arguments['id'][0])
-                            except:
-                                serId = None
-                            if serId:
-                                serProf = yield self.serviceProvider.find(
-                                            {
-                                                'serviceId':serId,
-                                                'profileId':self.profileId
-                                            }
-                                        )
-                                print serProf
-                            else:
-                                serProf = yield self.serviceProvider.find(
+                            serProf = yield self.serviceProvider.find(
                                             {
                                                 'profileId':self.profileId
                                             }
@@ -771,10 +1012,49 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                     v = {
                                             '_id':str(res['_id']),
                                             'address':res['address'],
+                                            'district':res['district'],
+                                            'terms':res['terms'],
+                                            'qualification':res['qualification'],
                                             'document':res['document'],
                                             'declaration':res['declaration'],
-                                            'verified':res['verified']
+                                            'profilePic':res['profilePic'],
+                                            'signature':res['signature'],
+                                            'verified':res['verified'],
+                                            'state':res['state'],
+                                            'areaOfOperation':res['areaOfOperation']
                                         }
+                                    if len(res['serviceList']):
+                                        serviceListA = []
+                                        for i in res['serviceList']:
+                                            serviceFind = yield self.serviceList.find(
+                                                            {
+                                                                '_id':ObjectId(i),
+                                                            }
+                                                        )
+                                            if len(serviceFind):
+                                                b = {
+                                                        'serviceId':i,
+                                                        'serviceName':serviceFind[0]['serNameEnglish']
+                                                    }
+                                                serviceListA.append(b)
+                                        v['serviceList'] = serviceListA
+                                    '''
+                                    if len(res['serviceList']):
+                                        areaOfOperation = []
+                                        for i in res['areaOfOperation']:
+                                            pincodeFind = yield self.pincode.find(
+                                                            {
+                                                                'pincode':int(i),
+                                                            }
+                                                        )
+                                            if len(pincodeFind):
+                                                c = {
+                                                        'pincode':i,
+                                                        'placeName':pincodeFind[0]['placeName']
+                                                    }
+                                                areaOfOperation.append(c)
+                                        v['areaOfOperation'] = areaOfOperation
+                                    '''
                                     if len(res['document']):
                                         for docx in res['document']:
                                             docx['link'] = self.fu.serverUrl + '/uploads/' \
@@ -785,7 +1065,20 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                             docx['link'] = self.fu.serverUrl + '/uploads/' \
                                                         + str(self.entityId) + '/service_provider/' \
                                                         + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
+                                    if len(res['profilePic']):
+                                        for docx in res['profilePic']:
+                                            docx['link'] = self.fu.serverUrl + '/uploads/' \
+                                                        + str(self.entityId) + '/service_provider/' \
+                                                        + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
+                                    if len(res['signature']):
+                                        for docx in res['signature']:
+                                            docx['link'] = self.fu.serverUrl + '/uploads/' \
+                                                        + str(self.entityId) + '/service_provider/' \
+                                                        + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
                                     result.append(v)
+                                    code = 2000
+                                    status = True
+                                    message = "Service Provider Information"
                             else:
                                 code = 4655
                                 status = False
@@ -826,13 +1119,16 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                                 },
                                                 {
                                                     '_id': 1,
-                                                    'profileId':1,
-                                                    'disabled':1,
-                                                    'serviceId':1,
-                                                    'verified':1,
                                                     'address':1,
+                                                    'district':1,
+                                                    'profileId':1,
+                                                    'qualification':1,
+                                                    'disabled':1,
+                                                    'verified':1,
                                                     'document':1,
-                                                    'declaration':1
+                                                    'profilePic':1,
+                                                    'declaration':1,
+                                                    'signature':1
                                                 }
                                             )
                                 else:
@@ -843,13 +1139,17 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                                 },
                                                 {
                                                     '_id': 1,
+                                                    'address':1,
+                                                    'district':1,
+                                                    'qualification':1,
                                                     'profileId':1,
                                                     'disabled':1,
                                                     'serviceId':1,
                                                     'verified':1,
-                                                    'address':1,
                                                     'document':1,
-                                                    'declaration':1
+                                                    'declaration':1,
+                                                    'profilePic':1,
+                                                    'signature':1,
                                                 }
                                             )
 
@@ -862,13 +1162,17 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                             },
                                             {
                                                 '_id': 1,
+                                                'address':1,
+                                                'district':1,
+                                                'qualification':1,
                                                 'profileId':1,
                                                 'disabled':1,
                                                 'serviceId':1,
                                                 'verified':1,
-                                                'address':1,
                                                 'document':1,
-                                                'declaration':1
+                                                'declaration':1,
+                                                'profilePic':1,
+                                                'signature':1,
                                             }
                                         )
                                 else:
@@ -880,23 +1184,21 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                             },
                                             {
                                                 '_id': 1,
+                                                'address':1,
+                                                'district':1,
+                                                'qualification':1,
                                                 'profileId':1,
                                                 'disabled':1,
                                                 'serviceId':1,
                                                 'verified':1,
-                                                'address':1,
                                                 'document':1,
-                                                'declaration':1
+                                                'declaration':1,
+                                                'profilePic':1,
+                                                'signature':1,
                                             }
                                         )
 
                             for res in serProf:
-                                service = yield self.serviceList.find(
-                                            {
-                                                '_id':res['serviceId']
-                                            }
-                                        )
-                                serviceName = service[0]['serNameEnglish']
                                 proFind = yield self.profile.find(
                                             {
                                                 '_id':res['profileId']
@@ -912,15 +1214,17 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                         regNum = accFind[0]['contact'][0]['value'] - 910000000000
                                         v = {
                                                 'registeredPhoneNum':regNum,
+                                                'address':res['address'],
+                                                'district':res['district'],
+                                                'qualification':res['qualification'],
                                                 'fullName' : accFind[0]['firstName'] + ' ' + accFind[0]['lastName'],
-                                                'serviceId':str(res['serviceId']),
-                                                'serviceName':serviceName,
                                                 'disabled':res['disabled'],
                                                 'verified':res['verified'],
                                                 'serviceProfileId':str(res['profileId']),
-                                                'address':res['address'],
                                                 'document':res['document'],
                                                 'declaration':res['declaration'],
+                                                'signature':res['signature'],
+                                                'profilePic':res['profilePic'],
                                                 'id':str(res['_id'])
                                             }
                                         if len(res['document']):
@@ -930,6 +1234,16 @@ class MedServiceProviderHandler(cyclone.web.RequestHandler,
                                                     + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
                                         if len(res['declaration']):
                                             for docx in res['declaration']:
+                                                docx['link'] = self.fu.serverUrl + '/uploads/' \
+                                                    + str(self.entityId) + '/service_provider/' \
+                                                    + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
+                                        if len(res['signature']):
+                                            for docx in res['signature']:
+                                                docx['link'] = self.fu.serverUrl + '/uploads/' \
+                                                    + str(self.entityId) + '/service_provider/' \
+                                                    + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
+                                        if len(res['profilePic']):
+                                            for docx in res['profilePic']:
                                                 docx['link'] = self.fu.serverUrl + '/uploads/' \
                                                     + str(self.entityId) + '/service_provider/' \
                                                     + str(res['_id']) + '/' + str(docx['time']) + docx['mimeType']
