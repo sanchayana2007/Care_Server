@@ -169,6 +169,22 @@
                 {
                     "name":"serviceProvider",
                     "code":3
+                },
+                {
+                    "name":"serviceProduct",
+                    "code":4
+                },
+                {
+                    "name":"pincode",
+                    "code":5
+                },
+                {
+                    "name":"serviceProviderServices",
+                    "code":6
+                },
+                {
+                    "name":"allIndiaPincode",
+                    "code":7
                 }
             ]
         },
