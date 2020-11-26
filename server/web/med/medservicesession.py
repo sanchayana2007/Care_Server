@@ -141,8 +141,8 @@ class MedServiceSessionHandler(cyclone.web.RequestHandler,
                 if len(app):
                     self.apiId = app[0]['apiId']
                     Log.i(self.apiId)
-                    if self.apiId in [ 502020, 502022]:
-                        if self.apiId == 502022:
+                    if self.apiId in [ 502020, 502022, 502021]:
+                        if self.apiId == 502022 or self.apiId == 502021:
 
                             serBook = yield self.serviceBook.find(
                                         {

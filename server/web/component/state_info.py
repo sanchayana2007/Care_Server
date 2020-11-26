@@ -22,12 +22,15 @@
 from __future__ import division
 from lib import *
 from PIL import Image
+import requests
+import http.client
+import datetime
 
 @xenSecureV1
-class MedServiceAccountOverviewHandler(cyclone.web.RequestHandler,
-        MongoMixin):
+class MedServiceStateInfoHandler(cyclone.web.RequestHandler,
+        MongoMixin, RedisMixin):
 
-    SUPPORTED_METHODS = ('GET')
+    SUPPORTED_METHODS = ('GET','POST','PUT','DELETE')
 
     account = MongoMixin.userDb[
                     CONFIG['database'][0]['table'][0]['name']
@@ -44,15 +47,57 @@ class MedServiceAccountOverviewHandler(cyclone.web.RequestHandler,
     entity = MongoMixin.userDb[
                     CONFIG['database'][0]['table'][5]['name']
                 ]
-    serviceProvider = MongoMixin.medicineDb[
-                    CONFIG['database'][2]['table'][3]['name']
+
+    serviceAccount = MongoMixin.serviceDb[
+                    CONFIG['database'][1]['table'][0]['name']
+                ]
+
+    bookingCategory = MongoMixin.serviceDb[
+                    CONFIG['database'][1]['table'][1]['name']
+                ]
+
+    vehicle = MongoMixin.serviceDb[
+                    CONFIG['database'][1]['table'][4]['name']
+                ]
+
+    vehicleType = MongoMixin.serviceDb[
+                    CONFIG['database'][1]['table'][2]['name']
+                ]
+
+    booking = MongoMixin.serviceDb[
+                    CONFIG['database'][1]['table'][10]['name']
+                ]
+
+    coupon = MongoMixin.serviceDb[
+                    CONFIG['database'][1]['table'][11]['name']
+                ]
+    testBooking = MongoMixin.serviceDb[
+                    CONFIG['database'][1]['table'][12]['name']
+                ]
+    touristKyc = MongoMixin.serviceDb[
+                    CONFIG['database'][1]['table'][16]['name']
+                ]
+    subTourist = MongoMixin.serviceDb[
+                    CONFIG['database'][1]['table'][17]['name']
+                ]
+    imgWrite = MongoMixin.serviceDb[
+                    CONFIG['database'][1]['table'][18]['name']
+                ]
+    serviceBook = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][0]['name']
                 ]
     serviceList = MongoMixin.medicineDb[
                     CONFIG['database'][2]['table'][1]['name']
                 ]
-
+    cancelFee = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][2]['name']
+                ]
+    allIndiaPincode = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][7]['name']
+                ]
 
     fu = FileUtil()
+
 
     @defer.inlineCallbacks
     def get(self):
@@ -61,14 +106,6 @@ class MedServiceAccountOverviewHandler(cyclone.web.RequestHandler,
         code = 4000
         result = []
         message = ''
-        '''
-        try:
-            serId = ObjectId(self.get_arguments('id')[0])
-        except:
-            code = 4995
-            status = False
-            message = "Invalid Service Id"
-        '''
         try:
             # TODO: this need to be moved in a global class
             profile = yield self.profile.find(
@@ -96,37 +133,20 @@ class MedServiceAccountOverviewHandler(cyclone.web.RequestHandler,
                             },
                             limit=1
                         )
-
                 if len(app):
                     self.apiId = app[0]['apiId']
-                    Log.i(self.apiId)
-                    if app[0]['apiId'] in [ 502020, 502021, 502022]: # TODO: till here
+                    if app[0]['apiId'] in [ 502020, 502021,502022]: # TODO: till here
                         if self.apiId == 502021:
-                            if True:
-                                accOverview = yield self.serviceProvider.find(
-                                        {
-                                            'profileId':self.profileId,
-                                            'entityId':self.entityId,
-                                        }
-                                    )
-                                v = {}
-                                if len(accOverview):
-                                    v['serviceProvider'] = True
-                                else:
-                                    v['serviceProvider'] = False
+                            stateList = yield self.allIndiaPincode.distinct("state")
+                            for res in stateList:
+                                v = {
+                                        'stateName':res
+                                    }
                                 result.append(v)
-                                code = 2000
-                                status = True
-                                message = "Account Overview Information"
-                            else:
-                                code = 4555
-                                status = False
-                                message = "Invalid Service"
-                                raise Exception
-                        elif self.apiId == 502022:
-                            code = 4855
-                            status = False
-                            message = "Not yet implemented"
+                            result.sort()
+                            code = 2000
+                            status = True
+                            message = "List of States"
                         else:
                             code = 4003
                             self.set_status(401)

@@ -92,6 +92,18 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
     cancelFee = MongoMixin.medicineDb[
                     CONFIG['database'][2]['table'][2]['name']
                 ]
+    serviceProduct = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][4]['name']
+                ]
+    serviceProvider = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][3]['name']
+                ]
+    pincode = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][5]['name']
+                ]
+    serviceProviderServices = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][6]['name']
+                ]
 
     fu = FileUtil()
 
@@ -139,7 +151,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                         )
                 if len(app):
                     self.apiId = app[0]['apiId']
-                    if self.apiId in [ 502020, 502022]:
+                    if self.apiId in [ 502020, 502022, 502021]:
                         if self.apiId == 502020:
                             try:
                                 serviceId = ObjectId(self.request.arguments.get('serviceId'))
@@ -172,6 +184,29 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                             if code != 4100:
                                 raise Exception
 
+                            location = self.request.arguments.get('location')
+                            if type(location) != list:
+                                code = 2000
+                                status = False
+                                message = "Internal error. Please contact Support"
+                                raise Exception
+                            code, message = Validate.i(
+                                            location,
+                                            'location',
+                                        )
+                            if code != 4100:
+                                raise Exception
+
+                            accuracy = self.request.arguments.get('accuracy')
+                            if accuracy == None:
+                                accuracy = "N/A"
+                            code, message = Validate.i(
+                                            accuracy,
+                                            'accuracy',
+                                        )
+                            if code != 4100:
+                                raise Exception
+
                             session = self.request.arguments.get('session')
                             if session == None or session == 'One-time-session':
                                 session = 1
@@ -184,6 +219,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 if code != 4100:
                                     raise Exception
 
+                            #materialyes = True
                             materialyes = self.request.arguments.get('materialyes')
                             if materialyes == None:
                                 materialyes = False
@@ -195,6 +231,19 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 )
                             if code != 4100:
                                 raise Exception
+
+                            materialcost = 0
+                            if materialyes == True:
+                                proFind = yield self.serviceProduct.find(
+                                            {
+                                                'serviceId':serviceId,
+                                                'disabled':False
+                                            }
+                                        )
+                                if len(proFind):
+                                    for res in proFind:
+                                        materialcost = materialcost + res['productPrice']
+
 
                             accDetails = yield self.account.find(
                                             {
@@ -259,6 +308,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             'entityId':self.entityId,
                                             'comment':comment,
                                             'materialyes':materialyes,
+                                            'materialcost':materialcost,
+                                            'location': [
+                                                            {
+                                                                "type" : "Point",
+                                                                "coordinates" : location
+                                                            }
+                                                        ],
+                                            'accuracy':accuracy
                                         }
                                     )
 
@@ -272,6 +329,10 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                                     'profileId':self.profileId
                                                 }
                                             )
+                                code = 2000
+                                status = True
+                                message = "Request has been submitted"
+                                '''
                                 conn = http.client.HTTPSConnection("api.msg91.com")
                                 sms = 'Greetings from Ohzas. Your appointement for {} at {} has been \
                                         placed on request'.format(serName,newDate)
@@ -338,13 +399,14 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 else:
                                     code = 4055
                                     Log.i('SMS notification could not be sent to admin to check the request')
-                                    status = False
+                                    status = True
+                                '''
                             else:
                                 code = 4040
                                 message = "Invalid Appointment"
                                 status = False
                                 raise Exception
-                        elif self.apiId == 502022:
+                        elif self.apiId == 502022 or self.apiId == 502021:
                             try:
                                 bookingId = ObjectId(self.request.arguments.get('bookingId'))
                             except:
@@ -563,8 +625,8 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                 if len(app):
                     self.apiId = app[0]['apiId']
                     Log.i(self.apiId)
-                    if self.apiId in [ 502020, 502022]:
-                        if self.apiId == 502022:
+                    if self.apiId in [ 502020, 502022, 502021]:
+                        if self.apiId == 502022 or self.apiId == 502021:
                             try:
                                 bookingId = ObjectId(self.request.arguments.get('bookingId'))
                             except:
@@ -872,7 +934,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                         )
                 if len(app):
                     self.apiId = app[0]['apiId']
-                    if app[0]['apiId'] in [ 502020, 502022]: # TODO: till here
+                    if app[0]['apiId'] in [ 502020, 502022, 502021]: # TODO: till here
                         if self.apiId == 502022:
                             if bookingId == None:
                                 res = yield self.serviceBook.find(
@@ -899,12 +961,15 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 for bookInfo in res:
                                     v = {
                                             '_id':str(bookInfo['_id']),
+                                            'serviceId':str(bookInfo['serviceId']),
                                             'accountDetails':bookInfo['accountDetails'],
                                             'booktime':bookInfo['booktime'],
                                             'stage':bookInfo['stage'],
                                             'disabled':bookInfo['disabled'],
                                             'requestedTime':bookInfo['requestedTime'],
                                             'comment':bookInfo['comment'],
+                                            'materialyes':bookInfo['materialyes'],
+                                            'materialcost':bookInfo['materialcost'],
                                             'logo':"https://medix.xlayer.in/uploads/default/logo.jpg",
                                             'address':'Ohzas,Banaras.'
                                         }
@@ -922,6 +987,36 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                             v['session'] = 'N/A'
                                     except:
                                         v['session'] = 'N/A'
+
+                                    serviceProvider = ""
+                                    try:
+                                        if len(str(bookInfo['serviceProviderId'])):
+                                            serProviderFind = yield self.serviceProvider.find(
+                                                                {
+                                                                    '_id':bookInfo['serviceProviderId']
+                                                                }
+                                                            )
+                                            if len(serProviderFind):
+                                                proFind = yield self.profile.find(
+                                                    {
+                                                        '_id':serProviderFind[0]['profileId'],
+                                                        'entityId':self.entityId
+                                                    }
+                                                )
+                                            if len(proFind):
+                                                accFind = yield self.account.find(
+                                                        {
+                                                            '_id':proFind[0]['accountId']
+                                                        }
+                                                    )
+                                            if len(accFind):
+                                                v['serviceProvider'] = accFind[0]['firstName'] + ' ' + accFind[0]['lastName']\
+                                                            + ', ' + serProviderFind[0]['address']
+                                        else:
+                                            v['serviceProvider'] = serviceProvider
+                                    except:
+                                        v['serviceProvider'] = serviceProvider
+
                                     serInfo = yield self.serviceList.find(
                                                 {
                                                     '_id':bookInfo['serviceId']
@@ -953,7 +1048,114 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                     except:
                                         cancelFeeAmt = 0
                                     serInfo[0]['serTATotal'] = serInfo[0]['serTATotal'] - (discount * serInfo[0]['serTATotal'])\
-                                            + cancelFeeAmt
+                                            + cancelFeeAmt + bookInfo['materialcost']
+                                    v['cancelFee'] = cancelFeeAmt
+                                    v['serviceDetails'] = serInfo
+                                    v['serviceTotal'] = serInfo[0]['serTATotal']
+                                    result.append(v)
+                                result.reverse()
+                                code = 2000
+                                status = True
+                            else:
+                                code = 4080
+                                status = False
+                                message = "No data found"
+                        elif self.apiId == 502021:
+                            serviceProviderId = ""
+                            serProFindAcc = yield self.serviceProvider.find(
+                                                    {
+                                                        'profileId':self.profileId,
+                                                        'entityId':self.entityId
+                                                    }
+                                                )
+                            if len(serProFindAcc):
+                                serviceProviderId = serProFindAcc[0]['_id']
+                            if bookingId == None:
+                                res = yield self.serviceBook.find(
+                                        {
+                                            'serviceProviderId':serviceProviderId,
+                                            'entityId':self.entityId,
+                                            'disabled':False
+                                        }
+                                    )
+                            else:
+                                try:
+                                    bookingId = ObjectId(bookingId)
+                                except:
+                                    code = 4050
+                                    status = False
+                                    message = "Invalid Booking Id"
+                                res = yield self.serviceBook.find(
+                                        {
+                                            'serviceProviderId':serviceProviderId,
+                                            'entityId':self.entityId,
+                                            '_id':bookingId,
+                                            'disabled':False
+                                        }
+                                    )
+                            if len(res):
+                                for bookInfo in res:
+                                    v = {
+                                            '_id':str(bookInfo['_id']),
+                                            'serviceId':str(bookInfo['serviceId']),
+                                            'accountDetails':bookInfo['accountDetails'],
+                                            'booktime':bookInfo['booktime'],
+                                            'stage':bookInfo['stage'],
+                                            'disabled':bookInfo['disabled'],
+                                            'requestedTime':bookInfo['requestedTime'],
+                                            'comment':bookInfo['comment'],
+                                            'materialyes':bookInfo['materialyes'],
+                                            'materialcost':bookInfo['materialcost'],
+                                            'logo':"https://medix.xlayer.in/uploads/default/logo.jpg",
+                                            'address':'Ohzas,Banaras.'
+                                        }
+                                    try:
+                                        if len(str(bookInfo['session_remaining'])) and bookInfo['stage'] in ['new','accepted']:
+                                            v['session_remaining'] = bookInfo['session_remaining']
+                                        else:
+                                            v['session_remaining'] = 0
+                                    except:
+                                        v['session_remaining'] = 'N/A'
+                                    try:
+                                        if len(str(bookInfo['session'])):
+                                            v['session'] = bookInfo['session']
+                                        else:
+                                            v['session'] = 'N/A'
+                                    except:
+                                        v['session'] = 'N/A'
+
+                                    serInfo = yield self.serviceList.find(
+                                                {
+                                                    '_id':bookInfo['serviceId']
+                                                },
+                                                {
+                                                    '_id':0,
+                                                    'serNameHindi':1,
+                                                    'serNameEnglish':1,
+                                                    'serCharges':1,
+                                                    'serTA':1,
+                                                    'serTATotal':1,
+                                                    'serDA':1,
+                                                    'serDATotal':1
+                                                }
+                                            )
+                                    if bookInfo['session'] in [5,6,7,8,9,10]:
+                                        discount = 0.1
+                                    elif bookInfo['session'] in [11,12,13,14,15]:
+                                        discount = 0.15
+                                    elif bookInfo['session'] in [16,17,18,19,20]:
+                                        discount = 0.2
+                                    else:
+                                        discount = 0
+                                    try:
+                                        if len(str(bookInfo['cancelFee'])):
+                                            cancelFeeAmt = bookInfo['cancelFee']
+                                        else:
+                                            cancelFeeAmt = 0
+                                    except:
+                                        cancelFeeAmt = 0
+                                    serInfo[0]['serTATotal'] = serInfo[0]['serTATotal'] - (discount * serInfo[0]['serTATotal'])\
+                                            + cancelFeeAmt + bookInfo['materialcost']
                                     v['cancelFee'] = cancelFeeAmt
                                     v['serviceDetails'] = serInfo
                                     v['serviceTotal'] = serInfo[0]['serTATotal']
@@ -967,8 +1169,6 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 message = "No data found"
                         elif self.apiId == 502020:
                             if bookingId == None:
-                                print self.entityId
-                                print self.profileId
                                 res = yield self.serviceBook.find(
                                         {
                                             'entityId':self.entityId,
@@ -993,6 +1193,7 @@ class MedServiceBookHandler(cyclone.web.RequestHandler,
                                 for bookInfo in res:
                                     v = {
                                             '_id':str(bookInfo['_id']),
+                                            'serviceId':str(bookInfo['serviceId']),
                                             'booktime':bookInfo['booktime'],
                                             'stage':bookInfo['stage'],
                                             'disabled':bookInfo['disabled'],

@@ -134,8 +134,8 @@ class MedServiceUpdateHandler(cyclone.web.RequestHandler,
                         )
                 if len(app):
                     self.apiId = app[0]['apiId']
-		    if self.apiId in [ 502022, 502020 ]:
-                        if self.apiId == 502022: #TODO: till here
+		    if self.apiId in [ 502022, 502020,502021 ]:
+                        if self.apiId == 502022 or self.apiId == 502021: #TODO: till here
                             try:
                                 bookingId  = ObjectId(self.request.arguments.get('bookingId'))
                             except:
