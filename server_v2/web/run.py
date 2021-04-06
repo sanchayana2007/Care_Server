@@ -1,11 +1,8 @@
 #!/usr/bin/env
 # coding: utf-8
-
 from common import *
 
-
 class IndexHandler(tornado.web.RequestHandler):
-
     async def get(self):
 
         c = MongoMixin.userDb['test']
@@ -114,15 +111,15 @@ class App(tornado.web.Application):
         Log.i('APP', 'Running Tornado Application Port - [ {} ]'.format(WEB_SERVER_PORT))
 
 
+
 if __name__ == '__main__':
     # asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     # tornado_asyncio.AsyncIOMainLoop().install()
-
     # app = App()
     # server = httpserver.HTTPServer(app, xheaders=True)
     # server.listen(WEB_SERVER_PORT)
     # asyncio.get_event_loop().run_forever()
-
+    print("Startimmg server")
     app = App()
-    app.listen(WEB_SERVER_PORT)
+    app.listen(3333)
     tornado.ioloop.IOLoop.current().start()

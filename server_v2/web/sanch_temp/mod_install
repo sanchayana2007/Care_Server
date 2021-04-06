@@ -1,0 +1,5 @@
+:
+pip3 install boson
+pip3 install motor
+pip3 install sendotp
+sudo service mongod start
