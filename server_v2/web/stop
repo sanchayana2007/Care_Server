@@ -9,3 +9,4 @@ APPLICATION="run.py"
 echo `cat $PID_HOME/$APPLICATION.pid`
 pkill -e -F $PID_HOME/$APPLICATION.pid
 
+kill $(pgrep -f tail)

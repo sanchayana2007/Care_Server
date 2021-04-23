@@ -1,0 +1,24 @@
+#Insert the mongo shell 
+>> mongo
+
+#Create a db
+use  DocBookingService
+
+#create a Collection 
+db.createCollection("DoctorInfo")
+
+#Insert a row in the collection
+db.DoctorInfo.insert({"docname": "Ajitesh Shukla", "doclocation": "SIL", "docid": 001, "clinic": "Silchar A1", "speciality": "ENT","Reg": "45454","startTime": "4pm","endTime": "7pm","days": 135,"yearsofexp": 7})
+
+
+#find the inserted record by id 
+db.DoctorInfo.find({"docid": 1})
+
+or 
+
+#find the inserted record by name
+db.DoctorInfo.find({"docname": "Ajitesh Shukla"})
+
+
+#Delete a record 
+

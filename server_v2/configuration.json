@@ -155,22 +155,51 @@
         {
             "name": "MongoDB",
             "code": 2,
-            "key": "MedicineService",
+            "key": "DocBookingService",
             "host": "127.0.0.1",
             "port": 27017,
             "table": [
                 {
-                    "name":"serviceBook",
+                    "name":"DoctorInfo",
                     "code":0
                 },
                 {
-                    "name":"serviceList",
+                    "name":"ClinicInfo",
                     "code":1
                 },
                 {
-                    "name":"cancelFee",
+                    "name":"Doctorlocation",
                     "code":2
+                },
+                {
+                    "name":"Clinic_name",
+                    "code":3
+                },
+                {
+                    "name":"clinic_id",
+                    "code":4
+                },
+                {
+                    "name":"specialisation",
+                    "code":5
+                },
+                {
+                    "name":"degree",
+                    "code":6
+                },
+                {
+                    "name":"fees",
+                    "code":7
+                },
+                {
+                    "name":"expirence",
+                    "code":8
+                },
+                {
+                    "name":"Timming_description",
+                    "code":9
                 }
+                
             ]
         },
         {

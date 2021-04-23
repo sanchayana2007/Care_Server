@@ -1,0 +1,18 @@
+#Check all teh avaialbel ports
+
+sudo lsof -i -P -n | grep LISTEN
+
+#check all the services
+
+ sudo service nginx start
+  sudo service nginx status 
+
+
+ sudo service mongod  start
+sudo service mongod status
+mongo --host localhost:27017
+
+
+
+
+ps -ef | grep run.py 
