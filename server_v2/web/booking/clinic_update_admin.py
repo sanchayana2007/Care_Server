@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 '''
-    1.  DocterListHandler
+    1.  clinic_updater
         Type: Class
+        This is used by App admin to modify , delete and Update any clinic details
+
         Methods:
             A.GET:
                 Get all doctor  details under that entity
@@ -25,9 +27,9 @@ from ..lib.lib import *
 import requests
 import http.client
 import datetime
-from bson.objectid import ObjectId
+
 @xenSecureV1
-class DocterListHandler(tornado.web.RequestHandler):
+class Clinic_updater(tornado.web.RequestHandler):
 
     SUPPORTED_METHODS = ('GET','POST','PUT','DELETE')
 
@@ -105,442 +107,47 @@ class DocterListHandler(tornado.web.RequestHandler):
                     if self.apiId in [ 502020, 502022]:
                         #Doc Clinic App doc addition req handling
                         if self.apiId == 502020:
-                            Log.i('req', self.request.arguments)
-                            try:
-                                #Mandatory the field Validation needs to be checked by APP
-                                #docName = ObjectId(self.request.arguments.get('docname'))
-                                #docLocation = ObjectId(self.request.arguments.get('doclocation'))
-                                #Speciality = ObjectId(self.request.arguments.get('speciality'))
-                                #clinicId = ObjectId(self.request.arguments.get('clinicid')) #App populated
-                                #Days = ObjectId(self.request.arguments.get('days'))
-                                #startTime = ObjectId(self.request.arguments.get('starttime'))
-                                #endTime = ObjectId(self.request.arguments.get('endtime'))
-                                docName = self.request.arguments.get('docname')
-                                docLocation = self.request.arguments.get('doclocation')
-                                Speciality = self.request.arguments.get('speciality')
-                                try :
-                                    clinicId = ObjectId(str(self.request.arguments.get('clinicid')))
-                                    Log.i('clinicId',clinicId)
-                                except Exception as e:
+                            Log.i('Clinic Post req', self.request.arguments)
+                            clinicName = self.request.arguments.get('clinicname')
+                            clinicLocation = self.request.arguments.get('cliniclocation')
+                            clinicAddress = self.request.arguments.get('clinicaddress')
+                            clinicpocPh = self.request.arguments.get('clinicpocph')
+                            paymentId = self.request.arguments.get('paymentId')
+                            clinicpaymentAddress = self.request.arguments.get('clinicpaymentaddress')
 
-                                    Log.i('Exceptionas',e)
-                                    clinicId = str(self.request.arguments.get('clinicid'))
-                                #App populated
-                                Days = self.request.arguments.get('days')
-                                totalslotsAM = self.request.arguments.get('totalslotsam')
-                                totalslotsPM = self.request.arguments.get('totalslotspm')
-                                ampmVists= self.request.arguments.get('ampmvists')
-                                Log.i('clinicId',clinicId)
 
-                            except:
-                                code = 4888
-                                message = "Invalid Request Body "
-                                raise Exception
-                            #TODO: Have to check Validation of the fields before Insert
-                            #Check in the Doclist table if there is any doctor ,clinic, speciality
-                            #if not found then only insert
-                            docQ = self.doc_list.find(
-                                            {
-                                                'docname': docName,
-                                                'speciality':Speciality,
-                                                'clinicid': clinicId
-
-                                            },
-                                            {
-                                                'docname':1,
-                                                'speciality':1,
-                                                'clinicid':1
-                                            }
-                                        )
-                            docdetails = []
-
-                            async for i in docQ:
-                                docdetails.append(i)
-                            Log.i("docQ serach",docdetails)
-                            if  len(docdetails):
-                                code= 4055
-                                status = False
-                                message = "Doc Account Already Found"
-                                Log.i('Doc Already found  Account', docdetails)
-                                raise Exception
 
                             #Check the clinic info table and update the object id of there
-                            clinicQ = self.clinic_list.find(
-                                            {
 
-                                                "_id": clinicId
-
-                                            },
-                                                {
-                                                    '_id': 1,
-                                                    'clinicname':1
-                                                },
-                                                limit=1
-                                        )
-                            clinicdetails = []
-                            async for i in clinicQ:
-                                clinicdetails.append(i)
-
-                            if  len(clinicdetails):
-                                clinicId = clinicdetails[0]['_id']
-                                clinicName = clinicdetails[0]['clinicname']
-                            else:
-                                code= 4055
-                                status = False
-                                message = "Clinic Not  Found"
-                                Log.i('Clinic Not  Found', clinicdetails)
-                                raise Exception
-
-                            docId = self.doc_list.insert_one(
+                            clinicId = self.clinic_list.insert_one(
                                         {
-                                            'docname':docName,
-                                            'doclocation': docLocation,
-                                            'clinicname' : clinicName,
-                                            'speciality': Speciality,
-                                            'clinicid': clinicId,
-                                            'days': Days,
-                                            'totalslotsam':totalslotsAM,
-                                            'totalslotspm': totalslotsPM,
-                                            'ampmvists' : ampmVists,
+                                            'clinicname':clinicName,
+                                            'cliniclocation': clinicLocation,
+                                            'clinicaddress': clinicAddress,
+                                            'clinicpocph': clinicpocPh,
+                                            'clinicpayment': paymentId,
+                                            'clinicpaymentaddress': clinicpaymentAddress,
                                             'requestedTime':timeNow(),
-                                            'doccomment':"Entry test",
-                                            'docratings':0,
-                                            'totalpatients':0
+                                            'comment':"Entry test "
                                         }
                                     )
-                            if docId:
-                                Log.i("docid inserted",docId)
+                            if clinicId:
+                                Log.i("clinicId inserted",clinicId)
                                 code = 2000
                                 message = "Doc is has been added"
                                 status = True
 
                             else:
-                                Log.i("docid not inserted")
+                                Log.i("clinicId not inserted")
                                 code = 2000
                                 message = "Error in Doc addition"
                                 status = True
 
-                            '''
-                            try:
-                                serviceId = ObjectId(self.request.arguments.get('serviceId'))
-                            except:
-                                code = 4888
-                                message = "Invalid Service Id"
-                                raise Exception
-
-                            try:
-                                aTime = long(self.request.arguments.get('time'))
-                                code, message = Validate.i(
-                                         aTime,
-                                         'Time',
-                                        )
-                                if code != 4100:
-                                    raise Exception
-                            except Exception as e:
-                                code = 4210
-                                message = 'Invalid Argument - [ time ].'
-                                raise Exception
-
-
-                            comment = self.request.arguments.get('comment')
-                            code, message = Validate.i(
-                                            comment,
-                                            'Comment',
-                                            dataType=unicode,
-                                            maxLength=400
-                                        )
-                            if code != 4100:
-                                raise Exception
-
-                            session = self.request.arguments.get('session')
-                            if session == None or session == 'One-time-session':
-                                session = 1
-                            else:
-                                code, message = Validate.i(
-                                                session,
-                                                'session',
-                                                datatype=int,
-                                            )
-                                if code != 4100:
-                                    raise Exception
-
-                            accDetailsQ = self.account.find(
-                                            {
-                                                '_id':self.accountId,
-                                            },
-                                            {
-                                                '_id':0,
-                                                'firstName':1,
-                                                'lastName':1,
-                                                'contact':1
-                                            }
-                                        )
-                            accDetails = []
-                            async for i in accDetailsQ:
-                                accDetails.append(i)
-
-                            if not len(accDetails):
-                                code= 4055
-                                status = False
-                                message = "No Account Found"
-                                raise Exception
-
-                            fullName = str(accDetails[0]['firstName']) + ' ' + str(accDetails[0]['lastName'])
-                            phoneNumber = accDetails[0]['contact'][0]['value']
-                            # TODO: Country code hard coded
-                            phoneNumber = str(phoneNumber - 910000000000)
-                            Log.i('Customer Phone Number', phoneNumber)
-
-
-                            serListQ = self.serviceList.find(
-                                        {
-                                            '_id':serviceId
-                                        }
-                                    )
-                            serList = []
-                            async for i in serListQ:
-                                serList.append(i)
-                            if not len(serList):
-                                code = 4060
-                                message = "Invalid Service"
-                                raise Exception
-
-                            serName = serList[0]['serNameEnglish']
-
-                            cancelFeeQQ = self.cancelFee.find(
-                                            {
-                                                'profileId':self.profileId
-                                            }
-                                        )
-                            cancelFeeQ = []
-                            async for i in cancelFeeQQ:
-                                cancelFeeQ.append(i)
-                            if len(cancelFeeQ):
-                                cancelFeeAmt = cancelFeeQ[0]['cancellationFee']
-                            else:
-                                cancelFeeAmt = 0
-
-                            docId = self.doc_list.insert_one(
-                                        {
-                                            'disabled':False,
-                                            'cancelFee':cancelFeeAmt,
-                                            'accountDetails':accDetails,
-                                            'stage':'new',
-                                            'serviceId':serviceId,
-                                            'booktime':aTime,
-                                            'session':session,
-                                            'session_remaining':session,
-                                            'requestedTime':timeNow(),
-                                            'profileId':self.profileId,
-                                            'entityId':self.entityId,
-                                            'comment':comment
-                                        }
-                                    )
-
-                            date = int(aTime/1000000)
-                            date = date + 19800
-                            newDate = datetime.datetime.fromtimestamp(date).strftime('%Y-%m-%d %I:%M:%p')
-
-                            if docId:
-                                cancelFeeDel = self.cancelFee.delete_many(
-                                                {
-                                                    'profileId':self.profileId
-                                                }
-                                            )
-                                conn = http.client.HTTPSConnection("api.msg91.com")
-                                sms = 'Greetings from Ohzas. Your appointement for {} at {} has been \
-                                        placed on request'.format(serName,newDate)
-                                payloadJson = {
-                                                "sender":"SOCKET",
-                                                "route":4,
-                                                "country":91,
-                                                "sms":[
-                                                        {
-                                                            "message":sms,
-                                                            "to":[phoneNumber]
-                                                        }
-                                                    ]
-                                                }
-                                payload = json.dumps(payloadJson)
-                                headers = {
-                                            'authkey': MSG91_GW_ID,
-                                            'content-type': "application/json"
-                                        }
-                                conn.request("POST", "/api/v2/sendsms", payload, headers)
-                                res = conn.getresponse()
-                                data = res.read()
-                                stat = json.loads(data.decode("utf-8"))
-                                Log.i('Notification Status',stat['type'])
-                                if stat['type'] == "success":
-                                    code = 2000
-                                    message = "Request has been submitted."
-                                    Log.i('SMS notification is sent')
-                                    status = True
-                                else:
-                                    code = 4055
-                                    message = "Request has been submitted."
-                                    Log.i('SMS notification could not be sent')
-                                    status = True
-                                sms = 'Hi! A Request to appointement for {} at {} has been \
-                                        placed through the OHZAS app. The request is placed by \
-                                        {} and the contact number is {}'\
-                                        .format(serName,newDate,fullName,phoneNumber,)
-                                adminNum = str(CONFIG['medAdmin_contact'][0]['num1'])
-                                payloadJson = {
-                                                "sender":"SOCKET",
-                                                "route":4,
-                                                "country":91,
-                                                "sms":[
-                                                        {
-                                                            "message":sms,
-                                                            "to":[adminNum]
-                                                        }
-                                                    ]
-                                                }
-                                payload = json.dumps(payloadJson)
-                                headers = {
-                                            'authkey': MSG91_GW_ID,
-                                            'content-type': "application/json"
-                                        }
-                                conn.request("POST", "/api/v2/sendsms", payload, headers)
-                                res = conn.getresponse()
-                                data = res.read()
-                                stat = json.loads(data.decode("utf-8"))
-                                Log.i('Notification Status',stat['type'])
-                                if stat['type'] == "success":
-                                    code = 2000
-                                    status = True
-                                else:
-                                    code = 4055
-                                    Log.i('SMS notification could not be sent to admin to check the request')
-                                    status = False
-                            else:
-                                code = 4040
-                                message = "Invalid Appointment"
-                                status = False
-                                raise Exception
-                            '''
                         elif self.apiId == 502022:
-                            try:
-                                docId = ObjectId(self.request.arguments.get('docId'))
-                            except:
-                                code = 4888
-                                message = "Invalid Booking Id"
-                                raise Exception
-                            serBookQ = self.doc_list.find(
-                                    {
-                                        '_id':docId
-                                    }
-                                )
-                            serBook = []
-                            async for i in serBookQ:
-                                serBook.append(i)
-                            if not len(serBook):
-                                code = 4060
-                                message = "Invalid Booking"
-                                raise Exception
-                            phoneNumber = serBook[0]['accountDetails'][0]['contact'][0]['value']
-                            phoneNumber = str(phoneNumber - 910000000000)
-                            Log.i('Customer Phone Number', phoneNumber)
-                            serListQ = self.serviceList.find(
-                                    {
-                                        '_id':serBook[0]['serviceId']
-                                    }
-                                )
-                            serList = []
-                            async for i in serListQ:
-                                serList.append(i)
-                            if not len(serList):
-                                code = 4060
-                                message = "Invalid Service"
-                                raise Exception
-                            serName = serList[0]['serNameEnglish']
-                            if serBook[0]['stage'] == 'accepted':
-                                if serBook[0]['session_remaining'] <= 0:
-                                    code = 4565
-                                    status = False
-                                    message = "Invalid Session Update"
-                                    raise Exception
-                                if serBook[0]['session_remaining'] == 1:
-                                    serBookUpdate = self.doc_list.update_one(
-                                                    {
-                                                        '_id':docId
-                                                    },
-                                                    {
-                                                    '$set':{
-                                                            'stage':'completed'
-                                                            },
-                                                    '$inc':{
-                                                            'session_remaining':-1
-                                                            }
-                                                    }
-                                                )
-                                    if serBookUpdate['n']:
-                                        code = 2000
-                                        status = True
-                                        message = "Session is updated and booking is complete."
-                                        sms = 'Greetings from Ohzas! Your session is complete\
-                                                and your appointment for {} has been finished.\
-                                            We look forward to provide service to you again. '.format(serName)
-                                        conn = http.client.HTTPSConnection("api.msg91.com")
-                                        payloadJson = {
-                                                    "sender":"SOCKET",
-                                                    "route":4,
-                                                    "country":91,
-                                                    "sms":[
-                                                            {
-                                                                "message":sms,
-                                                                "to":[phoneNumber]
-                                                            }
-                                                        ]
-                                                    }
-                                        payload = json.dumps(payloadJson)
-                                        headers = {
-                                                'authkey': MSG91_GW_ID,
-                                                'content-type': "application/json"
-                                            }
-                                        conn.request("POST", "/api/v2/sendsms", payload, headers)
-                                        res = conn.getresponse()
-                                        data = res.read()
-                                        stat = json.loads(data.decode("utf-8"))
-                                        Log.i('Notification Status',stat['type'])
-                                        if stat['type'] == "success":
-                                            code = 2000
-                                            message = "Request has been submitted and SMS notification has been sent"
-                                            status = True
-                                        else:
-                                            code = 4055
-                                            message = "Request has been submitted but the SMS notification could not be sent"
-                                            status = False
-                                    else:
-                                        code = 4555
-                                        status = False
-                                        message = "Session could not be updated."
-                                        raise Exception
-                                else:
-                                    erBookUpdate = self.doc_list.update_one(
-                                                    {
-                                                        '_id':docId
-                                                    },
-                                                    {
-                                                    '$inc':{
-                                                            'session_remaining':-1
-                                                            }
-                                                    }
-                                                )
-                                    if serBookUpdate['n']:
-                                        code = 2000
-                                        status = True
-                                        message = "Session is updated."
-                                    else:
-                                        code = 4555
-                                        status = False
-                                        message = "Session could not be updated."
-                                        raise Exception
-                            else:
-                                code = 2000
-                                status = False
-                                message = "Invalid Session Update"
+
+                            code = 4003
+                            status = False
+                            message = "The App id dosent support clinic Updates "
                         else:
                             code = 4003
                             self.set_status(401)

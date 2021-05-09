@@ -8,7 +8,7 @@
 from lib import *
 
 @noXenSecureV1
-class ChangePasswordHandler(cyclone.web.RequestHandler, MongoMixin):
+class ChangePasswordHandler(tornado.web.RequestHandler, MongoMixin):
 
     SUPPORTED_METHODS = ('POST')
 
@@ -37,7 +37,6 @@ class ChangePasswordHandler(cyclone.web.RequestHandler, MongoMixin):
                 ]
 
 
-    @defer.inlineCallbacks
     def post(self):
         status = False
         code = 4000

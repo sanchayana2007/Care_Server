@@ -25,9 +25,72 @@ from ..lib.lib import *
 import requests
 import http.client
 import datetime
-from bson.objectid import ObjectId
+
+def Convert(string):
+    list1=[]
+    list1[:0]=string
+    return list1
+
+def Convert_2(string):
+    list1= Convert(string)
+    list2=[]
+    #print('len',len(list1)-2)
+
+    for i in range(0, len(list1)-1,1):
+        if i%2==0:
+            j = list1[i] + list1[i+1]
+            #print(j)
+            list2.append(j)
+    return list2
+
+def create_slots_doc(Filling_days,weekdaysno,ampmvists,SlotsAM,SlotsPM,):
+    slots={}
+    today= datetime.date.today()
+
+
+    ampmvists= Convert(ampmvists)
+    SlotsAM= Convert_2(SlotsAM)
+    SlotsPM= Convert_2(SlotsPM)
+    #print(SlotsAM)
+    #print(SlotsPM)
+    #Filling_days = int(Filling_days)
+    for i in  range(0,Filling_days,1):
+        avdayslots={}
+        nvdayslots={}
+        weekday = today.weekday() + 1
+        weekdaysno= Convert(weekdaysno)
+        date_time = today.strftime("%d/%m/%Y")
+        #print("Weekday",weekday, "weekdaysno",weekdaysno,"date and time:",date_time)
+        if str(weekday) in  weekdaysno:
+            ind= weekdaysno.index(str(weekday))
+            #print('ind',ind)
+            if ampmvists[ind]=='b':
+                avdayslots['am']=SlotsAM[ind]
+                avdayslots['pm']=SlotsPM[ind]
+
+            elif ampmvists[ind]=='a':
+                avdayslots['am']=SlotsAM[ind]
+                avdayslots['pm']=00
+            elif ampmvists[ind]=='p':
+                avdayslots['pm']=SlotsPM[ind]
+                avdayslots['am']=00
+            else:
+                pass
+            slots[date_time]= avdayslots
+        #    print("FOUND Weekday",weekday, "weekdaysno",weekdaysno,"date and time:",date_time)
+        else:
+            nvdayslots['am']=None
+            nvdayslots['pm']=None
+            slots[date_time]= nvdayslots
+        today = today + datetime.timedelta(days=+1)
+
+    return slots
+
+
+
+
 @xenSecureV1
-class DocterListHandler(tornado.web.RequestHandler):
+class SlotListHandler(tornado.web.RequestHandler):
 
     SUPPORTED_METHODS = ('GET','POST','PUT','DELETE')
 
@@ -48,10 +111,12 @@ class DocterListHandler(tornado.web.RequestHandler):
     clinic_list  = MongoMixin.medicineDb[
                     CONFIG['database'][2]['table'][1]['name']
                 ]
-
+    slot_list  = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][2]['name']
+                ]
 
     fu = FileUtil()
-
+    #Post is admin run for 30 days pre polpulate slots
     async def post(self):
 
         status = False
@@ -105,120 +170,168 @@ class DocterListHandler(tornado.web.RequestHandler):
                     if self.apiId in [ 502020, 502022]:
                         #Doc Clinic App doc addition req handling
                         if self.apiId == 502020:
-                            Log.i('req', self.request.arguments)
+
                             try:
                                 #Mandatory the field Validation needs to be checked by APP
-                                #docName = ObjectId(self.request.arguments.get('docname'))
-                                #docLocation = ObjectId(self.request.arguments.get('doclocation'))
-                                #Speciality = ObjectId(self.request.arguments.get('speciality'))
-                                #clinicId = ObjectId(self.request.arguments.get('clinicid')) #App populated
-                                #Days = ObjectId(self.request.arguments.get('days'))
-                                #startTime = ObjectId(self.request.arguments.get('starttime'))
-                                #endTime = ObjectId(self.request.arguments.get('endtime'))
-                                docName = self.request.arguments.get('docname')
-                                docLocation = self.request.arguments.get('doclocation')
-                                Speciality = self.request.arguments.get('speciality')
-                                try :
-                                    clinicId = ObjectId(str(self.request.arguments.get('clinicid')))
-                                    Log.i('clinicId',clinicId)
-                                except Exception as e:
 
-                                    Log.i('Exceptionas',e)
-                                    clinicId = str(self.request.arguments.get('clinicid'))
-                                #App populated
-                                Days = self.request.arguments.get('days')
-                                totalslotsAM = self.request.arguments.get('totalslotsam')
-                                totalslotsPM = self.request.arguments.get('totalslotspm')
-                                ampmVists= self.request.arguments.get('ampmvists')
-                                Log.i('clinicId',clinicId)
-
+                                slotDate  = datetime.date.today()
+                                #slotDateOffset = self.request.arguments.get('slotdateoffset')
+                                slotDateOffset = 10
+                                #All records from
+                                docID = None
+                                clinicId = None #App populated
+                                paymentID = None
+                                totalSlots = self.request.arguments.get('starttime')
+                                availableSlots = self.request.arguments.get('endtime')
+                                Log.i('slotDate', slotDate)
                             except:
                                 code = 4888
                                 message = "Invalid Request Body "
                                 raise Exception
-                            #TODO: Have to check Validation of the fields before Insert
-                            #Check in the Doclist table if there is any doctor ,clinic, speciality
-                            #if not found then only insert
+                            #Get all the records from the doctor list
                             docQ = self.doc_list.find(
                                             {
-                                                'docname': docName,
-                                                'speciality':Speciality,
-                                                'clinicid': clinicId
 
                                             },
                                             {
                                                 'docname':1,
+                                                'doclocation':1,
                                                 'speciality':1,
-                                                'clinicid':1
+                                                'clinicid':1,
+                                                'days':1,
+                                                'totalslotsam':1,
+                                                'totalslotspm':1,
+                                                'ampmvists' : 1,
+                                                'doccomment':1,
+                                                'docratings':1,
+                                                'totalpatients':1
+
                                             }
                                         )
-                            docdetails = []
 
+                            docdetails = []
+                            slotdetails=[]
                             async for i in docQ:
                                 docdetails.append(i)
-                            Log.i("docQ serach",docdetails)
+                            Log.i("docdetails",docdetails)
                             if  len(docdetails):
-                                code= 4055
-                                status = False
-                                message = "Doc Account Already Found"
-                                Log.i('Doc Already found  Account', docdetails)
+                                    for doc in docdetails:
+                                        Log.i("clinicid",str(doc['clinicid']))
+                                        clinicId = doc['clinicid']
+
+                                        clinicQ = self.clinic_list.find(
+                                                        {
+                                                            '_id': clinicId
+                                                        },
+                                                            {
+                                                                'clinicname':1,
+                                                                'cliniclocation': 1,
+                                                                'clinicaddress': 1,
+                                                                'pocclinicph': 1,
+                                                                'paymentadd': 1,
+                                                                'clinicpaymentaddress': 1,
+                                                                'comment':"Entry test "
+                                                            },
+                                                            limit=1
+                                                    )
+                                        clinicdetails=[]
+                                        async for i in clinicQ:
+                                            clinicdetails.append(i)
+                                        if len(clinicdetails):
+
+                                            monthly_slots={}
+                                            weekdays = doc['days']
+                                            totalslots=10
+                                            ampmvists = doc['ampmvists']
+                                            totalSlotsAM= doc['totalslotsam']
+                                            totalSlotsPM= doc['totalslotspm']
+
+                                            monthly_slots['monthly_slots']= create_slots_doc(totalslots,weekdays,ampmvists,totalSlotsAM,totalSlotsPM)
+                                            #Log.i("monthly_slots",monthly_slots)
+                                            del doc['_id']
+                                            del clinicdetails[0]['_id']
+                                            del doc['clinicid']
+                                            #Log.i("Adoc",doc)
+                                            #Log.i("Aclinicdetails",clinicdetails[0])
+                                            slotitm =  {**doc,**clinicdetails[0],**monthly_slots}
+                                            #Log.i("slotitm",slotitm)
+                                            slotdetails.append(slotitm)
+                                            Log.i("slotdetails",slotdetails)
+                                        else:
+                                            message = "NoClinic id is found with doc details "
+                                            raise Exception
+
+
+
+
+                                    #Enter the slot details in teh slot list table
+                                    for i in slotdetails:
+                                        slotQ = self.slot_list.find(
+                                                        {
+                                                            'docname':i['docname'],
+                                                            'doclocation': i['doclocation'],
+                                                            'speciality':  i['doclocation'],
+                                                            'clinicname': i['clinicname']
+                                                        },
+                                                        {
+                                                            'docname':1,
+                                                            'doclocation':1,
+                                                            'speciality':1,
+                                                            'clinicid':1
+                                                        }
+                                                    )
+                                        slotdetails = []
+                                        async for i in slotQ:
+                                            slotdetails.append(i)
+                                            Log.i('slot indb',i)
+
+
+                                        if  len(slotdetails):
+                                            code= 4055
+                                            status = False
+                                            message = "Doc slot  Already Found"
+                                            Log.i('Doc Already found  Account', docdetails)
+                                            raise Exception
+
+
+
+
+
+
+
+                                        SlotId = self.slot_list.insert_one(i.copy())
+
+
+
+
+
+                                        if SlotId:
+                                            Log.i("SlotId inserted",SlotId)
+                                            code = 2000
+                                            message = "SlotId is has been added"
+                                            status = True
+                                        else:
+                                            Log.i("SlotId not inserted")
+                                            code = 2000
+                                            message = "Error in SlotId addition"
+                                            status = True
+
+
+
+
+
+
+                            else:
+                                message = "No Doc id is found cant book slots"
                                 raise Exception
 
-                            #Check the clinic info table and update the object id of there
-                            clinicQ = self.clinic_list.find(
-                                            {
 
-                                                "_id": clinicId
+                            #for each items in the doc list insert one
+                            #
+                            # as a dictionary [date]= Avialabe slots for the doctor
+                            # loop to create it for 10 days
 
-                                            },
-                                                {
-                                                    '_id': 1,
-                                                    'clinicname':1
-                                                },
-                                                limit=1
-                                        )
-                            clinicdetails = []
-                            async for i in clinicQ:
-                                clinicdetails.append(i)
 
-                            if  len(clinicdetails):
-                                clinicId = clinicdetails[0]['_id']
-                                clinicName = clinicdetails[0]['clinicname']
-                            else:
-                                code= 4055
-                                status = False
-                                message = "Clinic Not  Found"
-                                Log.i('Clinic Not  Found', clinicdetails)
-                                raise Exception
-
-                            docId = self.doc_list.insert_one(
-                                        {
-                                            'docname':docName,
-                                            'doclocation': docLocation,
-                                            'clinicname' : clinicName,
-                                            'speciality': Speciality,
-                                            'clinicid': clinicId,
-                                            'days': Days,
-                                            'totalslotsam':totalslotsAM,
-                                            'totalslotspm': totalslotsPM,
-                                            'ampmvists' : ampmVists,
-                                            'requestedTime':timeNow(),
-                                            'doccomment':"Entry test",
-                                            'docratings':0,
-                                            'totalpatients':0
-                                        }
-                                    )
-                            if docId:
-                                Log.i("docid inserted",docId)
-                                code = 2000
-                                message = "Doc is has been added"
-                                status = True
-
-                            else:
-                                Log.i("docid not inserted")
-                                code = 2000
-                                message = "Error in Doc addition"
-                                status = True
 
                             '''
                             try:

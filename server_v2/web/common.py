@@ -15,6 +15,8 @@ __package__ = cwd_name
 from .authorization.sign_in import SignInHandler
 from .authorization.sign_up import SignUpHandler
 from .booking.doctorlist import DocterListHandler
+from .booking.clinic_update_admin import Clinic_updater
+from .booking.slotlist  import SlotListHandler
 #from .tourist.tourqr_pass import PassQRHandler
 
 # from change_password import ChangePasswordHandler

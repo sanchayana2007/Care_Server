@@ -1,1 +1,1 @@
-tail -f ./log/web.log
+tail -f ./log/run.log

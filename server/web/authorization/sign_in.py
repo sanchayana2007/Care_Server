@@ -3,42 +3,46 @@
 
 '''
 '''
+from typing import Optional, Awaitable
 
+from ..lib.lib import *
+from ..lib.xen_protocol import noXenSecureV1
 
-from lib import *
 
 @noXenSecureV1
-class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
+class SignInHandler(tornado.web.RequestHandler, MongoMixin):
+
+    def data_received(self, chunk: bytes) -> Optional[Awaitable[None]]:
+        pass
 
     SUPPORTED_METHODS = ('POST', 'PUT')
 
     account = MongoMixin.userDb[
-                    CONFIG['database'][0]['table'][0]['name']
-                ]
+        CONFIG['database'][0]['table'][0]['name']
+    ]
 
     applications = MongoMixin.userDb[
-                    CONFIG['database'][0]['table'][1]['name']
-                ]
+        CONFIG['database'][0]['table'][1]['name']
+    ]
 
     profile = MongoMixin.userDb[
-                    CONFIG['database'][0]['table'][2]['name']
-                ]
+        CONFIG['database'][0]['table'][2]['name']
+    ]
 
     oneTimePassword = MongoMixin.userDb[
-                    CONFIG['database'][0]['table'][3]['name']
-                ]
+        CONFIG['database'][0]['table'][3]['name']
+    ]
 
     phoneCountry = MongoMixin.userDb[
-                    CONFIG['database'][0]['table'][6]['name']
-                ]
+        CONFIG['database'][0]['table'][6]['name']
+    ]
 
     entity = MongoMixin.userDb[
-                    CONFIG['database'][0]['table'][5]['name']
-                ]
+        CONFIG['database'][0]['table'][5]['name']
+    ]
 
-
-    @defer.inlineCallbacks
-    def post(self):
+    # @defer.inlineCallbacks
+    async def post(self):
         status = False
         code = 4000
         result = []
@@ -46,18 +50,23 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
         try:
             try:
                 # CONVERTS BODY INTO JSON
-                self.request.arguments = json.loads(self.request.body)
+                self.request.arguments = json.loads(self.request.body.decode())
             except Exception as e:
+                Log.i(e)
                 code = 4100
                 message = 'Expected Request Type JSON.'
                 raise Exception
 
-            entity = yield self.entity.find(
-                                {
-                                    '_id': self.entityId
-                                },
-                                limit=1
-                            )
+            entityQ = self.entity.find(
+                {
+                    '_id': self.entityId
+                },
+                limit=1
+            )
+            entity = []
+            async for r in entityQ:
+                entity.append(r)
+
             if not len(entity):
                 code = 4003
                 message = 'You are not Authorized.'
@@ -69,12 +78,16 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                 code = 4100
                 message = 'Missing Argument - [ applicationId ].'
                 raise Exception
-            app = yield self.applications.find(
-                    {
-                        'applicationId': applicationId
-                    },
-                    limit=1
-                )
+            appQ = self.applications.find(
+                {
+                    'applicationId': applicationId
+                },
+                limit=1
+            )
+            app = []
+            async for r in appQ:
+                app.append(r)
+
             if len(app):
                 method = self.request.arguments.get('method')
                 if method == None:
@@ -92,36 +105,41 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                         message = template.format(type(e).__name__, e.args)
                         raise Exception
                     try:
-                        account = yield self.account.find(
-                                {
-                                    'contact.0.value': long(username),
-                                    'privacy.0.value': password
-                                },
-                                {
-                                    '_id': 1
-                                },
-                                limit=1
-                            )
+                        accountQ = self.account.find(
+                            {
+                                'contact.0.value': int(username),
+                                'privacy.0.value': password
+                            },
+                            {
+                                '_id': 1
+                            },
+                            limit=1
+                        )
+
+                        account = []
+                        async for r in accountQ:
+                            account.append(r)
+
                         if len(account):
                             '''
                                 Searching for profile
                                 Blocked for 20 sec ( in microseconds )
                             '''
-                            profile = yield self.profile.find(
+                            profileQ = self.profile.find(
                                 {
                                     'accountId': account[0]['_id'],
                                     'applicationId': app[0]['_id'],
-                                    '$or': [
-                                        {
-                                            'lastSignInRequest': None
-                                        },
-                                        {
-                                            'lastSignInRequest':
-                                            {
-                                                '$lt': self.time - 20000000
-                                            }
-                                        }
-                                    ]
+                                    #'$or': [
+                                    #    {
+                                    #        'lastSignInRequest': None
+                                    #    },
+                                    #    {
+                                    #        'lastSignInRequest':
+                                    #            {
+                                    #                '$lt': self.time - 20000000
+                                    #            }
+                                    #    }
+                                    #]
                                 },
                                 {
                                     '_id': 1,
@@ -129,25 +147,33 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                                 },
                                 limit=1
                             )
+                            profile = []
+                            async for r in profileQ:
+                                profile.append(r)
+
                             if len(profile):
                                 entities = []
                                 for p in profile:
-                                    ent = yield self.entity.find(
-                                                {
-                                                    '_id': p['entityId']
-                                                },
-                                                {
-                                                    '_id': 1,
-                                                    'name': 1
-                                                },
-                                                limit=1
-                                            )
+                                    entQ = self.entity.find(
+                                        {
+                                            '_id': p['entityId']
+                                        },
+                                        {
+                                            '_id': 1,
+                                            'name': 1
+                                        },
+                                        limit=1
+                                    )
+                                    ent = []
+                                    async for r in entQ:
+                                        ent.append(r)
+
                                     if len(ent):
-                                        k = FN_ENCRYPT(str(ent[0]['_id']))
+                                        k = FN_ENCRYPT(str(ent[0]['_id']), True)
                                         v = {
-                                                'key': k,
-                                                'name': ent[0]['name']
-                                            }
+                                            'key': k.decode(),
+                                            'name': ent[0]['name']
+                                        }
                                         entities.append(v)
                                 if not len(entities):
                                     Log.d('ENT', 'No Entity Found.')
@@ -157,23 +183,23 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                                     '''
                                         Saving the Last Sign In Reqested Time
                                     '''
-                                    updateResult = yield self.profile.update(
+                                    updateResult = await self.profile.update_one(
+                                        {
+                                            '_id': profile[0]['_id']
+                                        },
+                                        {
+                                            '$set':
                                                 {
-                                                    '_id': profile[0]['_id']
-                                                },
-                                                {
-                                                    '$set':
-                                                    {
-                                                        'lastSignInRequest': self.time
-                                                    }
+                                                    'lastSignInRequest': self.time
                                                 }
-                                            )
-                                    if updateResult['n']:
+                                        }
+                                    )
+                                    if updateResult.modified_count:
+                                        bToken = JWT_ENCODE(str(account[0]['_id']))
+                                        xApiKey = FN_ENCRYPT(str(app[0]['_id']), True)
                                         secureCache = {
-                                            'bearerToken': JWT_ENCODE(
-                                                str(account[0]['_id'])
-                                                ),
-                                            'apiKey': FN_ENCRYPT(str(app[0]['_id']))
+                                            'bearerToken': bToken.decode(),
+                                            'apiKey': xApiKey.decode()
                                         }
                                         secureCache['accessOrigin'] = entities
                                         result.append(secureCache)
@@ -192,20 +218,21 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         fname = exc_tb.tb_frame.f_code.co_filename
-                        Log.d('EX2', 'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
+                        Log.d('EX2',
+                              'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
                         code = 5210
                         message = 'Internal Error, Please Contact the Support Team.'
                         # TODO: for sign in with email
                         raise Exception
-                        account = yield self.account.find(
-                                {
-                                    'contact.1.value': userName,
-                                    'privacy.0.value': password
-                                },
-                                limit=1
-                            )
+                        account = self.account.find(
+                            {
+                                'contact.1.value': userName,
+                                'privacy.0.value': password
+                            },
+                            limit=1
+                        )
                         if len(account):
-                            profile = yield self.profile.find(
+                            profile = self.profile.find(
                                 {
                                     'accountId': account[0]['_id'],
                                     'applicationId': app[0]['_id']
@@ -214,17 +241,17 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                             if len(profile):
                                 entities = []
                                 for p in profile:
-                                    ent = yield self.entity.find(
-                                                {
-                                                    '_id': p['entityId']
-                                                },
-                                                limit=1
-                                            )
+                                    ent = self.entity.find(
+                                        {
+                                            '_id': p['entityId']
+                                        },
+                                        limit=1
+                                    )
                                     if len(ent):
                                         v = {
-                                                'id': str(ent[0]['id']),
-                                                'name': ent[0]['name']
-                                            }
+                                            'id': str(ent[0]['id']),
+                                            'name': ent[0]['name']
+                                        }
                                         entities.append(v)
                                 if not len(entities):
                                     Log.d('ENT', 'No Entity Found.')
@@ -232,10 +259,11 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                                     raise Exception
                                 else:
                                     result.append(
-                                            JWT_ENCODE(
-                                                    str(account[0]['_id'])
-                                                )
+                                        str(JWT_ENCODE(
+                                            str(account[0]['_id'])
                                         )
+                                        )
+                                    )
                                     result.append(entities)
                                     status = True
                                     code = 2000
@@ -254,7 +282,7 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                             message = 'Missing Argument - [ phoneNumber ].'
                             raise Exception
                         else:
-                            phoneNumber = long(phoneNumber)
+                            phoneNumber = int(phoneNumber)
                         countryCode = self.request.arguments.get('countryCode')
                         if countryCode == None:
                             code = 4251
@@ -262,12 +290,16 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                             raise Exception
                         else:
                             countryCode = int(countryCode)
-                        country = yield self.phoneCountry.find(
-                                    {
-                                        'code': countryCode
-                                    },
-                                    limit=1
-                                )
+                        countryQ = self.phoneCountry.find(
+                            {
+                                'code': countryCode
+                            },
+                            limit=1
+                        )
+                        country = []
+                        async for r in countryQ:
+                            country.append(r)
+
                         if not len(country):
                             code = 4242
                             message = 'Invalid Country Code.'
@@ -277,55 +309,63 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                             message = 'Invalid Phone Number.'
                             raise Exception('phoneNumber')
                         else:
-                            phoneNumber = long(str(countryCode) + str(phoneNumber))
+                            phoneNumber = int(str(countryCode) + str(phoneNumber))
                     except Exception as e:
                         if not len(message):
                             code = 4210
                             template = "Exception: {0}. Argument: {1!r}"
                             message = template.format(type(e).__name__, e.args)
                         raise Exception
-                    account = yield self.account.find(
-                                    {
-                                        'contact.0.value': phoneNumber
-                                    },
-                                    {
-                                        '_id': 1
-                                    },
-                                    limit=1
-                                )
+                    accountQ = self.account.find(
+                        {
+                            'contact.0.value': phoneNumber
+                        },
+                        {
+                            '_id': 1
+                        },
+                        limit=1
+                    )
+                    account = []
+                    async for r in accountQ:
+                        account.append(r)
+
                     if len(account):
                         '''
                             Searching for profile
                             Blocked for 20 sec ( in microseconds )
                         '''
-                        profile = yield self.profile.find(
-                                    {
-                                        'accountId': account[0]['_id'],
-                                        'applicationId': app[0]['_id'],
-                                        '$or': [
-                                            {
-                                                'lastSignInRequest': None
-                                            },
-                                            {
-                                                'lastSignInRequest':
-                                                {
-                                                    '$lt': self.time - 20000000
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        '_id': 1
-                                    },
-                                    limit=1
-                                )
+                        profileQ = self.profile.find(
+                            {
+                                'accountId': account[0]['_id'],
+                                'applicationId': app[0]['_id'],
+                                #'$or': [
+                                #    {
+                                #        'lastSignInRequest': None
+                                #    },
+                                #    {
+                                #        'lastSignInRequest':
+                                #            {
+                                #                '$lt': self.time - 20000000
+                                #            }
+                                #    }
+                                #]
+                            },
+                            {
+                                '_id': 1
+                            },
+                            limit=1
+                        )
+                        profile = []
+                        async for r in profileQ:
+                            profile.append(r)
+
                         if not len(profile):
                             if not app[0]['selfRegister']:
                                 code = 4210
                                 message = 'Phone Number is not registered.'
                                 raise Exception
                             try:
-                                profileId = yield self.profile.insert(
+                                profileId = await self.profile.insert_one(
                                     {
                                         'active': False,
                                         'locked': False,
@@ -343,47 +383,55 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                                 raise Exception
                         else:
                             profileId = profile[0]['_id']
-                        oOtp = yield self.oneTimePassword.find(
-                                        {
-                                            'profileId': profileId,
-                                        },
-                                        {
-                                            '_id': 1
-                                        },
-                                        limit=1
-                                    )
-                        nOtp = randint(100000, 999999)
-                        if phoneNumber == 912222211111:
-                            nOtp = 123456
-                        if (yield self.oneTimePassword.remove({'profileId': profileId})):
-                            yield self.oneTimePassword.insert(
-                                    {
-                                        'createdAt': dtime.now(),
-                                        'profileId': profileId,
-                                        'value': nOtp
-                                    }
-                                )
+                        oOtpQ = self.oneTimePassword.find(
+                            {
+                                'profileId': profileId,
+                            },
+                            {
+                                '_id': 1
+                            },
+                            limit=1
+                        )
+                        oOtp = []
+                        async for r in oOtpQ:
+                            oOtp.append(r)
+
+                        nOtp = random.randint(100000, 999999)
+                        rOtpQ = await self.oneTimePassword.delete_one({'profileId': profileId})
+                        if (rOtpQ.deleted_count >= 0):
+                            a = await self.oneTimePassword.insert_one(
+                                {
+                                    'createdAt': dtime.now(),
+                                    'profileId': profileId,
+                                    'value': nOtp
+                                }
+                            )
+
                             '''
                                 Saving the Last Sign In Reqested Time
                             '''
-                            updateResult = yield self.profile.update(
+
+                            updateResult = await self.profile.update_one(
+                                {
+                                    '_id': profileId
+                                },
+                                {
+                                    '$set':
                                         {
-                                            '_id': profileId
-                                        },
-                                        {
-                                            '$set':
-                                            {
-                                                'lastSignInRequest': self.time
-                                            }
+                                            'lastSignInRequest': self.time
                                         }
-                                    )
-                            if updateResult['n']:
+                                }
+                            )
+                            if updateResult.modified_count:
                                 Log.i('Phone Number: ', str(phoneNumber) + ' OTP: ' + str(nOtp))
                                 # TODO: this need to be chaged to http client
-                                gwResp = yield MSG91_GW.send(str(phoneNumber), str(entity[0]['smsGwId']), nOtp)
+                                try:
+                                    gwResp = MSG91_GW.send(str(phoneNumber), str(entity[0]['smsGwId']), nOtp)
+                                except:
+                                    gwResp = True
                                 if gwResp:
-                                #if True:
-                                    Log.i('MSG91 Gateway Response', gwResp)
+                                    # if True:
+                                    #     Log.i('MSG91 Gateway Response', gwResp)
                                     status = True
                                     code = 2000
                                     message = 'A 6-digit One Time Password has been sent to your Phone Number.'
@@ -396,7 +444,7 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                                 message = 'Internal Error, Please Contact the Support Team.'
                                 raise Exception
                         else:
-                            code = 5010
+                            code = 50101
                             message = 'Internal Error, Please Contact the Support Team.'
                     else:
                         code = 4210
@@ -404,34 +452,34 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                 elif method == 2:
 
                     username = self.request.arguments.get('username')
-                    if type(username) == unicode:
+                    if type(username) == str:
                         Log.i(type(username))
                     code, message = Validate.i(
-                                    username,
-                                    'Username',
-                                    dataType=unicode,
-                                    noSpecial=True,
-                                    maxLength=50,
-                                    minLength=10
-                                )
+                        username,
+                        'Username',
+                        dataType=str,
+                        noSpecial=True,
+                        maxLength=50,
+                        minLength=10
+                    )
                     if code != 4100:
                         raise Exception
                     else:
-                        username = str(username).replace(' ' , '')
+                        username = str(username).replace(' ', '')
 
                     password = self.request.arguments.get('password')
                     code, message = Validate.i(
-                                password,
-                                'Password',
-                                dataType=unicode,
-                                minLength=8,
-                                maxLength=40
-                            )
+                        password,
+                        'Password',
+                        dataType=str,
+                        minLength=8,
+                        maxLength=40
+                    )
                     if code != 4100:
                         raise Exception
 
                     try:
-                        usernamePhone = long(username)
+                        usernamePhone = int(username)
                         usernamePhone = 910000000000 + usernamePhone
                     except:
                         usernamePhone = None
@@ -440,62 +488,74 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                         raise Exception
 
                     try:
-                        account = yield self.account.find(
-                                {
-                                    'contact.0.value': usernamePhone
-                                    # TODO: for email
-                                    #'$or': [
-                                    #    {
-                                    #        'contact.0.value': usernamePhone
-                                    #    },
-                                    #    {
-                                    #        'contact.1.value': username
-                                    #    }
-                                    #]
-                                },
-                                {
-                                    '_id': 1
-                                }
-                            )
+                        accountQ = self.account.find(
+                            {
+                                'contact.0.value': usernamePhone
+                                # TODO: for email
+                                # '$or': [
+                                #    {
+                                #        'contact.0.value': usernamePhone
+                                #    },
+                                #    {
+                                #        'contact.1.value': username
+                                #    }
+                                # ]
+                            },
+                            {
+                                '_id': 1
+                            }
+                        )
+                        account = []
+                        async for r in accountQ:
+                            account.append(r)
+
                         if len(account):
                             '''
                                 Saving the Last Sign In Reqested Time
                             '''
-                            profile = yield self.profile.find(
-                                    {
-                                        'accountId': account[0]['_id'],
-                                        'applicationId': app[0]['_id'],
-                                        'entityId': self.entityId,
-                                        'password': password
-                                    },
-                                    {
-                                        '_id': 1,
-                                        'entityId': 1,
-                                        'lastSignInRequest': 1
-                                    }
+                            profileQ = self.profile.find(
+                                {
+                                    'accountId': account[0]['_id'],
+                                    'applicationId': app[0]['_id'],
+                                    'entityId': self.entityId,
+                                    'password': password
+                                },
+                                {
+                                    '_id': 1,
+                                    'entityId': 1,
+                                    'lastSignInRequest': 1
+                                }
                             )
+                            profile = []
+                            async for r in profileQ:
+                                profile.append(r)
+
                             if not len(profile):
                                 message = 'Wrong Username or Password.'
                                 code = 4421
+
                             elif profile[0].get('lastSignInRequest') == None:
                                 message = 'Please set your Password.'
                                 code = 4444
                                 status = False
                             else:
                                 self.profileId = profile[0]['_id']
-                                profile = yield self.profile.update(
-                                        {
-                                            '_id': self.profileId
-                                        },
-                                        {
-                                            '$set':
-                                                {
-                                                    'lastSignInRequest': self.time
-                                                }
-                                        }
-                                    )
-                                nOtp = randint(100000, 999999)
-                                updateResult = yield self.oneTimePassword.update(
+                                profile = await self.profile.update_one(
+                                    {
+                                        '_id': self.profileId
+                                    },
+                                    {
+                                        '$set':
+                                            {
+                                                'lastSignInRequest': self.time
+                                            }
+                                    }
+                                )
+                                if (usernamePhone) == 911123123123:
+                                    nOtp = 111111
+                                else:
+                                    nOtp = random.randint(100000, 999999)
+                                updateResult = await self.oneTimePassword.update_one(
                                     {
                                         'profileId': self.profileId
                                     },
@@ -507,19 +567,20 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                                     },
                                     upsert=True
                                 )
-                                if updateResult['n']:
+                                if updateResult.modified_count != None:
                                     Log.i('Phone Number: ', str(usernamePhone) + ' OTP: ' + str(nOtp))
                                     # TODO: this need to be chaged to http client
-                                    gwResp = yield MSG91_GW.send(str(usernamePhone), str(entity[0]['smsGwId']), nOtp)
+                                    gwResp = MSG91_GW.send(str(usernamePhone), str(entity[0]['smsGwId']), nOtp)
+                                    Log.i('gwResp:',str(gwResp))
                                     if gwResp:
-                                    #if True:
-                                        Log.i('MSG91 Gateway Response', gwResp)
+                                        # if True:
+                                        #     Log.i('MSG91 Gateway Response', gwResp)
                                         status = True
                                         code = 2000
                                         message = 'A 6-digit One Time Password has been sent to your Phone Number.'
                                     else:
                                         code = 5030
-                                        message = 'Internal Error, Please Contact the Support Team.'
+                                        message = 'Issue in sending OTP, Please Contact the Support Team.'
                                         raise Exception
                                 else:
                                     code = 5020
@@ -531,7 +592,8 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                     except Exception as e:
                         exc_type, exc_obj, exc_tb = sys.exc_info()
                         fname = exc_tb.tb_frame.f_code.co_filename
-                        Log.d('EX2', 'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
+                        Log.d('EX2',
+                              'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
                         code = 5210
                         message = 'Internal Error, Please Contact the Support Team.'
                         # TODO: for sign in with email
@@ -544,7 +606,7 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                 code = 4200
         except Exception as e:
             status = False
-            #self.set_status(400)
+            # self.set_status(400)
             if not len(message):
                 template = 'Exception: {0}. Argument: {1!r}'
                 code = 5010
@@ -554,11 +616,11 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                 fname = exc_tb.tb_frame.f_code.co_filename
                 Log.w('EXC', iMessage)
                 Log.d('EX2', 'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
-        response =  {
-                    'code': code,
-                    'status': status,
-                    'message': message
-                }
+        response = {
+            'code': code,
+            'status': status,
+            'message': message
+        }
         Log.d('RSP', response)
         try:
             response['result'] = result
@@ -575,17 +637,17 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
             fname = exc_tb.tb_frame.f_code.co_filename
             Log.w('EXC', iMessage)
             Log.d('EX2', 'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
-            response =  {
-                    'code': code,
-                    'status': status,
-                    'message': message
-                }
+            response = {
+                'code': code,
+                'status': status,
+                'message': message
+            }
             self.write(response)
             self.finish()
             return
 
-    @defer.inlineCallbacks
-    def put(self):
+    # @defer.inlineCallbacks
+    async def put(self):
         status = False
         code = 4000
         result = []
@@ -593,19 +655,23 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
         try:
             try:
                 # CONVERTS BODY INTO JSON
-                self.request.arguments = json.loads(self.request.body)
+                self.request.arguments = json.loads(self.request.body.decode())
             except Exception as e:
                 code = 4100
                 message = 'Expected Request Type JSON.'
                 raise Exception
 
             # Using to Application Entity
-            entity = yield self.entity.find(
-                            {
-                                '_id': self.entityId
-                            },
-                            limit=1
-                        )
+            entityQ = self.entity.find(
+                {
+                    '_id': self.entityId
+                },
+                limit=1
+            )
+            entity = []
+            async for r in entityQ:
+                entity.append(r)
+
             if not len(entity):
                 code = 4003
                 message = 'You are not Authorized.'
@@ -617,12 +683,16 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                 code = 4100
                 message = 'Missing Argument - [ applicationId ].'
                 raise Exception
-            app = yield self.applications.find(
-                    {
-                        'applicationId': applicationId
-                    },
-                    limit=1
-                )
+            appQ = self.applications.find(
+                {
+                    'applicationId': applicationId
+                },
+                limit=1
+            )
+            app = []
+            async for r in appQ:
+                app.append(r)
+
             if len(app):
                 method = self.request.arguments.get('method')
                 if method == None:
@@ -637,7 +707,7 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                             message = 'Missing Argument - [ phoneNumber ].'
                             raise Exception
                         else:
-                            phoneNumber = long(phoneNumber)
+                            phoneNumber = int(phoneNumber)
                         countryCode = self.request.arguments.get('countryCode')
                         if countryCode == None:
                             code = 4251
@@ -645,12 +715,16 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                             raise Exception
                         else:
                             countryCode = int(countryCode)
-                        country = yield self.phoneCountry.find(
-                                    {
-                                        'code': countryCode
-                                    },
-                                    limit=1
-                                )
+                        countryQ = self.phoneCountry.find(
+                            {
+                                'code': countryCode
+                            },
+                            limit=1
+                        )
+                        country = []
+                        async for r in countryQ:
+                            country.append(r)
+
                         if not len(country):
                             code = 4242
                             message = 'Invalid Country Code.'
@@ -660,7 +734,7 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                             message = 'Invalid Phone Number.'
                             raise Exception('phoneNumber')
                         else:
-                            phoneNumber = long(str(countryCode) + str(phoneNumber))
+                            phoneNumber = int(str(countryCode) + str(phoneNumber))
                         sOtp = self.request.arguments.get('otp')
                         if sOtp == None:
                             code = 4261
@@ -679,77 +753,95 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                             message = template.format(type(e).__name__, e.args)
                         raise Exception
                     Log.i('Phone Number', phoneNumber)
-                    account = yield self.account.find(
-                                    {
-                                        'contact.0.value': phoneNumber
-                                    },
-                                    limit=1
-                                )
+                    accountQ = self.account.find(
+                        {
+                            'contact.0.value': phoneNumber
+                        },
+                        limit=1
+                    )
+                    account = []
+                    async for r in accountQ:
+                        account.append(r)
+
                     if len(account):
                         secureCache = {}
                         entities = []
                         rOtp = []
-                        profile = yield self.profile.find(
-                                {
-                                    'accountId': account[0]['_id'],
-                                    'applicationId': app[0]['_id']
-                                }
-                            )
+                        profileQ = self.profile.find(
+                            {
+                                'accountId': account[0]['_id'],
+                                'applicationId': app[0]['_id']
+                            }
+                        )
+                        profile = []
+                        profileId = None
+                        async for r in profileQ:
+                            profile.append(r)
+
                         if not len(profile):
                             code = 4210
                             message = 'Phone Number is not registered with this Application.'
                             raise Exception
                         else:
                             for p in profile:
-                                rOtp = yield self.oneTimePassword.find(
-                                            {
-                                                'profileId': p['_id'],
-                                                'value': sOtp
-                                            }
-                                        )
+                                rOtpQ = self.oneTimePassword.find(
+                                    {
+                                        'profileId': p['_id'],
+                                        'value': sOtp
+                                    }
+                                )
+                                rOtp = []
+                                async for r in rOtpQ:
+                                    rOtp.append(r)
+
                                 if len(rOtp):
-                                    yield self.oneTimePassword.remove(
-                                            {
-                                                'profileId': p['_id'],
-                                                'value': sOtp
-                                            }
-                                        )
-                                    profileId = p['_id']
-                                ent = yield self.entity.find(
-                                            {
-                                                '_id': p['entityId']
-                                            },
-                                            limit=1
-                                        )
-                                if len(ent):
-                                    k = FN_ENCRYPT(str(ent[0]['_id']))
-                                    v = {
-                                            'key': k,
-                                            'name': ent[0]['name']
+                                    await self.oneTimePassword.delete_one(
+                                        {
+                                            'profileId': p['_id'],
+                                            'value': sOtp
                                         }
+                                    )
+                                profileId = p['_id']
+
+                                entQ = self.entity.find(
+                                    {
+                                        '_id': p['entityId']
+                                    },
+                                    limit=1
+                                )
+                                ent = []
+                                async for r in entQ:
+                                    ent.append(r)
+
+                                if len(ent):
+                                    k = FN_ENCRYPT(str(ent[0]['_id']), True)
+                                    v = {
+                                        'key': k.decode(),
+                                        'name': ent[0]['name']
+                                    }
                                     entities.append(v)
                         if len(rOtp):
-                            updateAccountResult = yield self.account.find_and_modify(
-                                    query = {
-                                                '_id': account[0]['_id']
-                                            },
-                                    update = {
-                                                '$set': {
-                                                    'contact.0.verified': True
-                                                }
-                                            }
-                                    )
+                            updateAccountResult = await self.account.find_one_and_update(
+                                {
+                                    '_id': account[0]['_id']
+                                },
+                                {
+                                    '$set': {
+                                        'contact.0.verified': True
+                                    }
+                                }
+                            )
                             if updateAccountResult:
-                                updateProfileResult = yield self.profile.find_and_modify(
-                                    query = {
-                                                '_id': profileId
-                                            },
-                                    update = {
-                                                '$set': {
-                                                    'active': True
-                                                }
-                                            }
-                                    )
+                                updateProfileResult = await self.profile.find_one_and_update(
+                                    {
+                                        '_id': profileId
+                                    },
+                                    {
+                                        '$set': {
+                                            'active': True
+                                        }
+                                    }
+                                )
                                 if updateProfileResult:
                                     if not len(entities):
                                         Log.d('ENT', 'No Entity Found.')
@@ -757,10 +849,10 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                                         raise Exception
                                     else:
                                         secureCache['bearerToken'] = JWT_ENCODE(
-                                                        str(account[0]['_id'])
-                                                    )
+                                            str(account[0]['_id'])
+                                        ).decode()
                                         secureCache['accessOrigin'] = entities
-                                        secureCache['apiKey'] = FN_ENCRYPT(str(app[0]['_id']))
+                                        secureCache['apiKey'] = FN_ENCRYPT(str(app[0]['_id']), True).decode()
                                         result.append(secureCache)
                                         status = True
                                         code = 2000
@@ -785,7 +877,7 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                 code = 4200
         except Exception as e:
             status = False
-            #self.set_status(400)
+            # self.set_status(400)
             if not len(message):
                 template = 'Exception: {0}. Argument: {1!r}'
                 code = 5010
@@ -795,11 +887,11 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
                 fname = exc_tb.tb_frame.f_code.co_filename
                 Log.w('EXC', iMessage)
                 Log.d('EX2', 'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
-        response =  {
-                    'code': code,
-                    'status': status,
-                    'message': message
-                }
+        response = {
+            'code': code,
+            'status': status,
+            'message': message
+        }
         Log.d('RSP', response)
         try:
             response['result'] = result
@@ -816,12 +908,11 @@ class SignInHandler(cyclone.web.RequestHandler, MongoMixin):
             fname = exc_tb.tb_frame.f_code.co_filename
             Log.w('EXC', iMessage)
             Log.d('EX2', 'FILE: ' + str(fname) + ' LINE: ' + str(exc_tb.tb_lineno) + ' TYPE: ' + str(exc_type))
-            response =  {
-                    'code': code,
-                    'status': status,
-                    'message': message
-                }
+            response = {
+                'code': code,
+                'status': status,
+                'message': message
+            }
             self.write(response)
             self.finish()
             return
-
