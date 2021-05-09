@@ -1,9 +1,0 @@
-
-
-PID_HOME="/tmp/proxy/mms/web"
-
-# Kill the PIDs
-PID=`cat $PID_HOME/mms_web_server.pid`
-
-#echo $PID
-cat /proc/$PID/status

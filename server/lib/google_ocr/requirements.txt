@@ -1,7 +1,0 @@
-Flask
-gunicorn
-pytesseract
-opencv-python-headless
-
-
-
