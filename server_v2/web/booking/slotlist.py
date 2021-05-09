@@ -433,7 +433,6 @@ class SlotListHandler(tornado.web.RequestHandler):
                     if docId != None and clinicId != None and seldate != None:
 
                         Log.i(seldate)
-                        docname = "DocA3"
                         slots  = await self.slot_list.find_one(
                                 {
                                     "clinic_id":  clinicId,
@@ -448,7 +447,6 @@ class SlotListHandler(tornado.web.RequestHandler):
                                     {
                                         "clinic_id":  clinicId,
                                         "doc_id" : docId,
-
                                         'monthly_slots.'+ seldate + '.am' : {'$gt': 0}
                                     },
                                     {
