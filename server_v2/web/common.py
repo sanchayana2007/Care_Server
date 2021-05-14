@@ -17,6 +17,8 @@ from .authorization.sign_up import SignUpHandler
 from .booking.doctorlist import DocterListHandler
 from .booking.clinic_update_admin import Clinic_updater
 from .booking.slotlist  import SlotListHandler
+from .booking.booking  import BookingListHandler
+
 #from .tourist.tourqr_pass import PassQRHandler
 
 # from change_password import ChangePasswordHandler

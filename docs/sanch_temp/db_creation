@@ -10,6 +10,20 @@ db.createCollection("DoctorInfo")
 #Insert a row in the collection
 db.DoctorInfo.insert({"docname": "Ajitesh Shukla", "doclocation": "SIL", "docid": 001, "clinic": "Silchar A1", "speciality": "ENT","Reg": "45454","startTime": "4pm","endTime": "7pm","days": 135,"yearsofexp": 7})
 
+db.PaymentPlanInfo.insert({"netpatientpay": 10, "shopcommision": 0, "emergency": 100, "refundoncancelpay": 6})
+
+
+#Alter document and add new col 
+db.SlotInfo.updateOne({"clinic_id":  "608793ae5c88f3bdb38d6530"},{$set: {"netpatientpay": 10, "shopcommision": 0, "emergency": 100, "refundoncancelpay": 6 }})
+
+#Alter documnet and delete new column 
+db.SlotInfo.updateOne({"clinic_id":  "608793ae5c88f3bdb38d6530"},{$unset: {"netpatientpay": 1 }},false,true) 
+
+
+#Update a column value
+db.SlotInfo.updateOne({"clinic_id":  "608793ae5c88f3bdb38d6530"},{$set: {"netpatientpay": 20 }})
+
+
 
 #find the inserted record by id 
 db.DoctorInfo.find({"docid": 1})

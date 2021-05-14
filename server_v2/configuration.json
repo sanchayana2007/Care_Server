@@ -172,11 +172,11 @@
                     "code":2
                 },
                 {
-                    "name":"Clinic_name",
+                    "name":"TransactionInfo",
                     "code":3
                 },
                 {
-                    "name":"clinic_id",
+                    "name":"BookingInfo",
                     "code":4
                 },
                 {
