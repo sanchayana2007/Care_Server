@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+   <head>
+      <meta charset="utf-8">
+      <title>Booking Admin home</title>
+   </head>
+   <body>
+       {% extends "template.html" %}
+      {% block content %}
+      <h1> home  Page </h1>
+      <p> Doc booking Website  </p>
+     <ul>
+
+    <li>{{data['am']}}</li>
+    <li>{{data}}</li>
+    {% for d in data %}
+    <li>{{d.visibility}}</li>
+    <li>{{d.am}}</li>
+    <li>{{d.pm}}</li>
+    {% endfor %}
+
+    <script>
+
+	function myFunction() {
+  // Declare variables
+
+  var input, filter, found, table, tr, td, i, j;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("myTable");
+    tr = table.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td");
+        for (j = 0; j < td.length; j++) {
+            if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                found = true;
+            }
+        }
+        if (found) {
+            tr[i].style.display = "";
+            found = false;
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+
+
+
+
+
+	}
+
+
+    </script>
+<input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names..">
+
+    <table id="myTable" class="header" style="width:100%">
+  <thead>
+    <tr>
+        <th>clinic ID</th>
+        <th> no of patients </th>
+        <th> no of patients </th>
+        <th> current month   </th>
+    </tr>
+    </thead>    
+    <tbody>
+     {% for row in data %}    
+            <tr>
+                <td>{{ data[row] }}</td>
+                <td>{{row}}</td>
+                <td>te </td>
+                <td>me</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+   </ul>
+      {% endblock %}
+   </body>

@@ -1,0 +1,1 @@
+ssh  -i "~/.ssh/id_rsa.pub" ubuntu@35.161.169.44

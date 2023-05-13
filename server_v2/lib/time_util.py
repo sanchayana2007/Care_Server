@@ -8,8 +8,21 @@
 import time
 from datetime import datetime as dtime
 
+
+#return the date in numbers 
+def timeStamp(Currendate):
+    
+    return time.mktime(dtime.strptime(Currendate, "%d/%m/%Y").timetuple())
+
+
+def timeNowcurrentdate():
+    
+    return time.mktime(dtime.today().timetuple())
+
+
 # return current timestamp in nanoeconds
 def timeNow():
+    
     return int(time.time() * 1000 * 1000)
 
 class TimeUtil:

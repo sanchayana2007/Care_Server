@@ -1,0 +1,108 @@
+body {
+margin: 0;
+padding: 0;
+font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+color: #444;
+}
+/*
+* Formatting the header area
+*/
+header {
+background-color: #DFB887;
+height: 35px;
+width: 100%;
+opacity: .9;
+margin-bottom: 10px;
+}
+header h1.logo {
+margin: 0;
+font-size: 1.7em;
+color: #fff;
+text-transform: uppercase;
+float: left;
+}
+header h1.logo:hover {
+color: #fff;
+text-decoration: none;
+}
+/*
+* Centering the body content
+*/
+.container {
+width: 1200px;
+margin: 0 auto;
+}
+div.home {
+padding: 10px 0 30px 0;
+background-color: #E6E6FA;
+-webkit-border-radius: 6px;
+-moz-border-radius: 6px;
+border-radius: 6px;
+}
+div.about {
+padding: 10px 0 30px 0;
+background-color: #E6E6FA;
+-webkit-border-radius: 6px;
+-moz-border-radius: 6px;
+border-radius: 6px;
+}
+h2 {
+font-size: 3em;
+margin-top: 40px;
+text-align: center;
+letter-spacing: -2px;
+}
+h3 {
+font-size: 1.7em;
+font-weight: 100;
+margin-top: 30px;
+text-align: center;
+letter-spacing: -1px;
+color: #999;
+}
+.menu {
+float: right;
+margin-top: 8px;
+}
+.menu li {
+display: inline;
+}
+.menu li + li {
+margin-left: 35px;
+}
+.menu li a {
+color: #444;
+text-decoration: none;
+}
+#myInput {
+  background-image: url('/css/searchicon.png'); /* Add a search icon to input */
+  background-position: 10px 12px; /* Position the search icon */
+  background-repeat: no-repeat; /* Do not repeat the icon image */
+  width: 100%; /* Full-width */
+  font-size: 16px; /* Increase font-size */
+  padding: 12px 20px 12px 40px; /* Add some padding */
+  border: 1px solid #ddd; /* Add a grey border */
+  margin-bottom: 12px; /* Add some space below the input */
+}
+
+#myTable {
+  border-collapse: collapse; /* Collapse borders */
+  width: 100%; /* Full-width */
+  border: 1px solid #ddd; /* Add a grey border */
+  font-size: 18px; /* Increase font-size */
+}
+
+#myTable th, #myTable td {
+  text-align: left; /* Left-align text */
+  padding: 12px; /* Add padding */
+}
+
+#myTable tr {
+  /* Add a bottom border to all table rows */
+  border-bottom: 1px solid #ddd;
+}
+
+#myTable tr.header, #myTable tr:hover {
+  /* Add a grey background color to the table header and on hover */
+  background-color: #f1f1f1;
+}

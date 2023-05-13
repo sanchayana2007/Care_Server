@@ -20,7 +20,6 @@
 '''
 
 from __future__ import division
-from PIL import Image
 from ..lib.lib import *
 import requests
 import http.client
@@ -54,8 +53,18 @@ class BookingListHandler(tornado.web.RequestHandler):
     slot_list  = MongoMixin.medicineDb[
                     CONFIG['database'][2]['table'][2]['name']
                 ]
+    paymentdata_list  = MongoMixin.medicineDb[
+                    CONFIG['database'][2]['table'][6]['name']
+                ]
+
+    #User type configs 
+    admin_user = CONFIG['configs'][0]['admin_account']
+    clinic_user = CONFIG['configs'][0]['clinic_account']
+    patient_user = CONFIG['configs'][0]['user_account']
+    agent_user = CONFIG['configs'][0]['agent_account']
 
     fu = FileUtil()
+    
     #Post is admin run for 30 days pre polpulate slots
     async def post(self):
                 status = False
@@ -71,243 +80,432 @@ class BookingListHandler(tornado.web.RequestHandler):
                         code = 4100
                         message = 'Expected Request Type JSON.'
                         raise Exception
-                    # TODO: this need to be moved in a global class, from here
-                    areaId = int(self.request.arguments["aid"])
-                    docId = str(self.request.arguments["did"])
-                    clinicId = str(self.request.arguments["cid"])
-                    try :
-                        seldate=  str(self.request.arguments["date"])
+                    
+                    try:
+                        method = int(self.request.arguments["method"])
+                            
                     except:
-                        seldate= None
-                    try :
-                        seldayhalf=  str(self.request.arguments["ampm"])
-                    except:
-                        seldayhalf= None
-
-                    Log.i("areaId",areaId)
-                    Log.i("docId",docId)
-                    Log.i("clinicId",clinicId)
-                    Log.i("seldate",seldate)
-                    Log.i("seldayhalf",seldayhalf)
-
-
+                        code = 4888
+                        message = "mandatory fields missing in request body "
+                        raise Exception
+                    
                     self.apiId  = await validate_profile(self.entityId,self.accountId,self.applicationId)
-                        #Determine which app has sent it
+                    
+                    
+
+
                     if self.apiId:
                         Log.i(self.apiId)
                         #TODO : Change ths code to 502022
-                        if self.apiId == 502020:
+                        if self.apiId in [self.admin_user,self.clinic_user,self.agent_user,self.patient_user]  and  method ==1 :
+
+                            # TODO: this need to be moved in a global class, from here
+                            try:
+                                slotId = str(self.request.arguments["slot_id"])
+                                seldayhalf = str(self.request.arguments["ampm"])
+                                seldate= str(self.request.arguments["date"])
+                                patient = str(self.request.arguments["patient"])
+
+                            except:
+                                code = 4888
+                                message = "mandatory fields missing in request body "
+                                raise Exception
+
+
                             Log.i('Booking Post req', self.request.arguments)
                             result=[]
-                            if docId != None and clinicId != None and seldate != None and seldayhalf !=None:
+                            #Determine which app has sent it
+                            print("accountid", self.accountId)
+                            accountQ = await  self.account.find_one(
+                            {
+                                #'_id':  ObjectId(self.accountId)
+                                '_id':  self.accountId
+                            },
+                            {
+                            'firstName': 1,
+                            'lastName':1,
+                            'contact':1
+                            }   
+                            )
+
+                            #Log.i("UserAcc",accountQ['firstName'])
+                            Log.i("UserAcc",accountQ)
+                            if len(accountQ) > 0:
+                                accounid = accountQ['_id']
+                                firstname = accountQ['firstName']
+                                lastname = accountQ['lastName']
+                                phoneNumber = accountQ['contact'][0]['value']
+                                phoneNumberverified = accountQ['contact'][0]['verified']
+                                #Check the patient name is same 
+                                if patient == "self":
+                                    patient = firstname + lastname
+
+                                #Check for only vaerified numbers 
+                                try:
+                                    if not phoneNumberverified:
+                                        Log.i("Not verfied phone number"+ phoneNumber )
+                                        raise Exception
+                                except:
+                                    code = 4888
+                                    message = "Phone number not verified"
+                                    raise Exception
+
+
+                            if slotId != None  and seldate != None and seldayhalf !=None:
                                 Log.i(seldate)
+                                slotno =  'monthly_slots.'+ seldate
+
+                                # Lets Validate  the slot and if its found 
                                 slots  = await self.slot_list.find_one(
                                         {
-                                            "clinic_id":  clinicId,
-                                            "doc_id" : docId
+                                            "_id":  ObjectId(slotId),
+                                            
 
                                         },
                                         {
-                                            "monthly_slots":1,
-                                            "netpatientpay": 1,
-                                            "shopcommision": 1,
-                                            "emergency": 1,
-                                            "refundoncancelpay": 1
+                                            'docname': 1,
+                                            'clinicname':1,
+                                            'paymentid':1, 
+                                            'clinicid':1,
+                                            'docid':1,
+                                            slotno :1 
                                         }
+                                        
                                     )
-                                #Res is from clinic_list collections whatevr matches
-                                if slots:
 
-                                    slots_available=slots['monthly_slots'][seldate][str(seldayhalf)]
-                                    netpatientpay=slots['netpatientpay']
-                                    shopcommision=slots['shopcommision']
-                                    emergency=slots['emergency']
-                                    refundoncancelpay=slots['refundoncancelpay']
+                                print("Slots",slots)
+                                #print(slots['monthly_slots'][seldate]['AvSlotsAM'])
+                                
+                                docname = slots['docname']
+                                clinicid = slots['clinicid']
+                                docid = slots['docid']
+                                clinicname = slots['clinicname']
+                                paymentid =  slots['paymentid']
+                                print(docname , clinicname, paymentid)
+                                #Lets fetch the payment info from paymentid and set the data for booking 
+                                payment  = await self.paymentdata_list.find_one(
+                                        {
+                                            "paymentid":  paymentid,
+                                            
 
-                                    #we found a slot and try booking
-                                    if slots_available > 0:
-                                        Log.i('slots_available ',slots_available)
-                                        resSlot = await self.slot_list.update_one(
+                                        },
+                                        {
+                                            'netpatientpay': 1,
+                                            'gst_taxes':1,
+                                            'shopcommision':1, 
+                                            'service_charge':1, 
+                                            
+                                        }
+                                        
+                                    )
+                                
+                                netpatientpay = payment['netpatientpay']
+                                gst_taxes = payment['gst_taxes']
+                                shopcommision =  payment['shopcommision']
+                                service_charge = payment['service_charge']
+                                
+                                if self.apiId == self.clinic_user:
+                                    print("clinic ")
+                                    netpatientpay = netpatientpay 
+                                elif self.apiId == self.agent_user:
+                                    print("Agent")
+                                    netpatientpay = netpatientpay + shopcommision
+                                elif self.apiId == self.patient_user:
+                                    print("patient ")
+                                    netpatientpay = netpatientpay 
+
+                                else:
+                                    print("Admin")
+                               
+
+                                if seldayhalf == "am":
+                                    slotsfound = slots['monthly_slots'][seldate]['AvSlotsAM']
+                                    totalslots  = slots['monthly_slots'][seldate]['totalSlotsAM']
+                                    avslots = 'AvSlotsAM'
+                                    tokenNo = totalslots - slotsfound
+                                    
+                                elif seldayhalf == "pm":
+                                    slotsfound = slots['monthly_slots'][seldate]['AvSlotsPM']
+                                    totalslots  = slots['monthly_slots'][seldate]['totalSlotsPM']
+                                    avslots = 'AvSlotsPM'
+                                    tokenNo = totalslots - slotsfound
+                                else:
+                                    Log.i("Unsupported Selhalf of Day ")
+
+                                if slotsfound  == 0 :
+                                    Log.i("SlotId Already filled ")
+                                    code = 2000
+                                    message = "Slots are over :("
+                                    status = True
+                                else:
+                                    Log.i("SlotId Avaiable :)")
+                                    code = 2000
+                                    message = "Slot found going for reservation"
+                                    status = True
+                                    
+                                    
+                                    resSlot = await self.slot_list.update_one(
                                                 {
-                                                    "clinic_id":  clinicId,
-                                                    "doc_id" : docId
-                                                    #'monthly_slots.'+ seldate + seldayhalf : {'$gt': 0}
+                                                     "_id":  ObjectId(slotId),
                                                 },
                                                 {
                                                 '$inc':{
-                                                            'monthly_slots.'+ seldate +"."+ seldayhalf : 20
+                                                           'monthly_slots.'+ seldate +"."+ avslots : -1
+                                                            #'monthly_slots.'+ seldate +"."+ avslots : 1
                                                        }
                                                 }
                                             )
-                                        Log.i("resSlot", resSlot.modified_count)
-                                        booking_id = random.randint(0, 5)
-                                        if resSlot.modified_count ==1:
+                                       
+                                    #Update the slotlist by decrementing the slot 
+                                    Update_Succesfull = resSlot.modified_count
+
+                                    Log.i("resSlot", Update_Succesfull) 
+                                    #Update the  booking record  
+                                    if Update_Succesfull == 1:
                                             resbooking = await self.booking_list.insert_one(
                                                     {
-                                                        "_id": booking_id,
-                                                        "entitiId" : self.entityId,
-                                                        "accountId": self.accountId,
-                                                        "applicationId": self.applicationId,
-                                                        "apiid": self.apiId,
-                                                        "clinic_id":  clinicId,
-                                                        "doc_id" : docId,
-                                                        "slot_no": slots_available,
+                                                     
+                                                        "clinic_id":  clinicid,
+                                                        "doc_id" : docid,
+                                                        "docname": docname,
+                                                        "clinicname": clinicname,
+                                                        "slot_id": slotId,
                                                         'seldate': seldate,
                                                         'seldayhalf':seldayhalf,
                                                         'netpatientpay':netpatientpay,
                                                         'shopcommision': shopcommision,
-                                                        'emergency': emergency,
-                                                        'refundoncancelpay' : refundoncancelpay,
-                                                        'paymentstatus' : "PENDING",
-                                                        'inserttime': timeNow()
+                                                        'accountid': accounid,
+                                                        'firstname': firstname,
+                                                        'lastname': lastname, 
+                                                        'patientname': patient,
+                                                        'phonenumber': phoneNumber,
+                                                        'bookingstatus' : "PENDING",
+                                                        'token_no': tokenNo,
+                                                        'dateofbooking': timeStamp(seldate),
+                                                        'timeofbooking': timeNow()
 
                                                     }
                                                 )
-                                            Log.i("resSlot", resSlot.modified_count)
-                                            booking_dict={}
-                                            booking_dict['bookingid']=booking_id
-                                            if appId == 502020:
-                                                booking_dict['Amountpay']=netpatientpay
+                                            booking_id = str(resbooking.inserted_id)
+                                            print(booking_id)
+                                            if booking_id :
+                                                result = []
+                                                Log.i("Booking Id created ")
+                                                code = 2000
+                                                message = "Booking ID created "
+                                                result.append({"booking_id": booking_id,"netpatientpay":netpatientpay,
+                                                    "docname":docname,"clinicname":clinicname , "status": "PENDING"
+                                                })
+                                                status = True
                                             else:
-                                                booking_dict['Amountpay']=netpatientpay + shopcommision
-                                            result.append(booking_dict)
+                                                Log.i("Booking Id not created ")
+                                                code = 4000
+                                                message = "Booking ID not  created "
+                                                status = True
+                                                
+
+
 
                                     else:
-                                        Log.i('slots_Unavialiable',slots_available)
+                                        Log.i("Slot data not updated by -1 ", Update_Succesfull) 
+                                        code = 4001
+                                        message = "Slots availability Not Updated "
+                                        status = True
 
-                                    
-                                    code = 2000
-                                    status = True
-                                    message = "Doctors Found in Clinic"
-                                else:
-                                    code = 4080
-                                    status = False
-                                    message = "No Slot data found"
-
-
-                                Log.i("datestr",type(resDoc))
-                                Log.i("datestr", resDoc.modified_count)
-
-                            '''
-                            phoneNumber = serBook[0]['accountDetails'][0]['contact'][0]['value']
-                            # TODO: Country code hard coded
-                            phoneNumber = str(phoneNumber - 910000000000)
-                            Log.i('Customer Phone Number', phoneNumber)
-
-                            serListQ = self.serviceList.find(
-                                        {
-                                            '_id':serBook[0]['serviceId']
-                                        }
-                                    )
-                            serList = []
-                            async for i in serListQ:
-                                serList.append(i)
-                            if not len(serList):
-                                code = 4060
-                                message = "Invalid Service"
-                                raise Exception
-
-                            serName = serList[0]['serNameEnglish']
-
-                            if stage in ['accepted','declined','completed','declined_fee']:
-                                serUpdate = self.doc_list.update_one(
-                                            {
-                                                '_id':docId
-                                            },
-                                            {
-                                            '$set':{
-                                                        'stage':stage
-                                                   }
-                                            }
-                                        )
-                            '''
-                        elif self.apiId == 502022:
+                               
+                            
+                        #Lets check for bookings     
+                        elif self.apiId in [self.admin_user,self.clinic_user,self.agent_user,self.patient_user] and method == 2:
+                           
                             try:
-                                docId = ObjectId(self.request.arguments.get('docId'))
-                            except:
+                                date = self.request.arguments.get('date')
+                                print('Inside the print method' + date)
+                                docId = self.request.arguments.get('docid')
+                                clinicId = self.request.arguments.get('clinicid')
+                                
+                                
+                            except Exception as e : 
                                 code = 4050
-                                message = "Invalid Booking Id"
+                                print(e)
+                                message = "Missing mandatory parameters" 
                                 raise Exception
-                            serBookQ = self.doc_list.find(
+                            serBookQ = self.booking_list.find(
                                         {
-                                            '_id':docId
+                                            'seldate': date, 
+                                            'doc_id': ObjectId(docId),
+                                            'clinic_id':ObjectId(clinicId)
+                                        }
+                                        ,
+                                        {
+                                         'slot_id': 1, 
+                                         'seldate': 1, 
+                                         'seldayhalf': 1, 
+                                         'netpatientpay': 1, 
+                                         'shopcommision': 1 , 
+                                         'firstname': 1, 
+                                         'lastname': 1, 
+                                         'patientname': 1 , 
+                                         'phonenumber': 1, 
+                                         'bookingstatus': 1, 
+                                         'token_no': 1, 
+                                         'timeofbooking': 1
+                                            
                                         }
                                     )
                             serBook = []
+                            #
                             async for i in serBookQ:
+                                print(i["_id"])
+                                i["_id"] = str( i["_id"])
+                                
                                 serBook.append(i)
+                                #print(i)
+                            
                             if not len(serBook):
-                                code = 4060
-                                message = "Invalid Booking"
+                                                       
+                                result= []
+                                code = 4000
+                                message = "No patient for booking is found "
                                 raise Exception
-                            phoneNumber = serBook[0]['accountDetails'][0]['contact'][0]['value']
-                            # TODO: Country code hard coded
-                            phoneNumber = str(phoneNumber - 910000000000)
-                            Log.i('Customer Phone Number', phoneNumber)
-
-                            serListQ = self.serviceList.find(
-                                        {
-                                            '_id':serBook[0]['serviceId']
-                                        }
-                                    )
-                            serList = []
-                            async for i in serListQ:
-                                serList.append(i)
-                            if not len(serList):
-                                code = 4060
-                                message = "Invalid Service"
-                                raise Exception
-
-                            serName = serList[0]['serNameEnglish']
-
-                            serUpdate = self.doc_list.update_one(
-                                        {
-                                            '_id':docId
-                                        },
-                                        {
-                                        '$set':{
-                                                    'stage':'declined'
-                                                }
-                                        }
-                                    )
-                            sms = 'Greetings from Ohzas! We are sorry to know that you \
-                                    have cancelled the appointment for {}. \
-                                    We look forward to provide service to you again.'.format(serName)
-                            if serUpdate['n']:
-                                conn = http.client.HTTPSConnection("api.msg91.com")
-                                payloadJson = {
-                                                "sender":"SOCKET",
-                                                "route":4,
-                                                "country":91,
-                                                "sms":[
-                                                        {
-                                                            "message":sms,
-                                                            "to":[phoneNumber]
-                                                        }
-                                                    ]
-                                                }
-                                payload = json.dumps(payloadJson)
-                                headers = {
-                                            'authkey': MSG91_GW_ID,
-                                            'content-type': "application/json"
-                                        }
-                                conn.request("POST", "/api/v2/sendsms", payload, headers)
-                                res = conn.getresponse()
-                                data = res.read()
-                                stat = json.loads(data.decode("utf-8"))
-                                Log.i('Notification Status',stat['type'])
-
-                                if stat['type'] == "success":
-                                    code = 2000
-                                    message = "Request has been cancelled"
-                                    status = True
-                                else:
-                                    code = 4055
-                                    Log.i('SMS notification could not be sent')
+                        
                             else:
+                                print(serBook)
+                                result =[]
+                                for i in serBook:
+                                    result.append({"date": i["seldate"],'bookingdata':i })    
+
+                                result = result
+                                #result = {'bookingdata' : serBook , 'totalPatients': len(serBook)}
                                 code = 2000
-                                message = "Invalid booking"
+                                message = "Booking List found for the day "
                                 status = True
+                        elif self.apiId in [self.admin_user,self.clinic_user,self.agent_user,self.patient_user] and method == 3:
+                           
+                            try:
+                                #date = self.request.arguments.get('date')
+                               # print('Inside the print method' + date)
+                                docId = self.request.arguments.get('docid')
+                                clinicId = self.request.arguments.get('clinicid')
+                                
+                                
+                            except Exception as e : 
+                                code = 4050
+                                print(e)
+                                message = "Missing mandatory parameters" 
+                                raise Exception
+
+                            print('Docid',docId)
+                            print('Clinicid', clinicId)
+
+                            serBookQ = self.booking_list.find(
+                                        {
+                                            #'dateofbooking': { '$gte' : timeNowcurrentdate() }, 
+                                            'doc_id': ObjectId(docId),
+                                            #'clinic_id':ObjectId(clinicId)
+                                        }
+                                        ,
+                                        {
+                                         'slot_id': 1, 
+                                         'seldate': 1, 
+                                         'seldayhalf': 1, 
+                                         'netpatientpay': 1, 
+                                         'shopcommision': 1 , 
+                                         'firstname': 1, 
+                                         'lastname': 1, 
+                                         'patientname': 1 , 
+                                         'phonenumber': 1, 
+                                         'bookingstatus': 1, 
+                                         'token_no': 1, 
+                                         'timeofbooking': 1
+                                            
+                                        }
+
+                                    )
+                            serBook = []
+
+                            async for i in serBookQ:
+                                print(i["_id"])
+                                i["_id"] = str( i["_id"])
+                                serBook.append(i)
+                                #print(i)
+                            
+                            if not len(serBook):
+                                                       
+                                result= []
+                                code = 4000
+                                message = "No patient for booking is found "
+                                raise Exception
+                        
+                            else:
+                                print('Raw Booking data ',serBook)
+                                result =[]
+                                commpl_list = []
+                                fullday_dict={}
+                                temp_dict= {}
+                                for i in serBook:
+                                    print("eachelement ", i)
+                                    date_dict = {}
+                                   
+                                    if i["seldate"] in temp_dict:
+                                       
+                                        if i["seldayhalf"] == "am":
+                                            #print("dbegy", date_dict[ i["seldate"]["am"]["slotBookinData"]])
+                                            if len(fullday_dict[ i["seldate"]][0]["ambookingdata"]) > 0 :
+                                                
+                                                fullday_dict[ i["seldate"]][0]["ambookingdata"].append(i)
+                                                #temp = fullday_dict[ i["seldate"]][0]["slotBookinData"]
+                                                #sorted_temp= sorted(temp,key= lambda temp : temp['token_no'])                                       
+                                                #fullday_dict[ i["seldate"]]["slotBookinData"].append(sorted_temp)
+                                            else:
+                                            
+                                                fullday_dict[ i["seldate"]][1]["ambookingdata"] = [i] 
+
+
+                                        elif i["seldayhalf"] == "pm":
+                                            print("dbegy", fullday_dict[ i["seldate"]][1])
+                                            if len(fullday_dict[ i["seldate"]][1]["pmbookingdata"]) > 0  :
+                                                fullday_dict[ i["seldate"]][1]["pmbookingdata"].append(i)
+                                                
+                                            else:
+                                                
+                                                fullday_dict[ i["seldate"]][1]["pmbookingdata"] = [i] 
+                                        else:
+                                            pass 
+
+                                    else:
+                                        #1st entry of the data 
+                                        temp_dict[i["seldate"]] =1 
+                                        
+                                        if i["seldayhalf"] == "am":
+                                            temp = {}
+                                            temp["ambookingdata"] = [i]
+                                            fullday_dict[ i["seldate"]] = [temp,{"pmbookingdata":[]} ]
+                                        elif i["seldayhalf"] == "pm":
+                                            temp = {}
+                                            temp["pmbookingdata"] = [i]
+                                            fullday_dict[ i["seldate"]] = [{"ambookingdata":[]} ,temp ]
+                                            
+                                        else:
+                                            pass
+                                        
+
+                            
+                                print('fullday_dict',fullday_dict)
+                              
+                                for i,j in fullday_dict.items():
+                                    print("i",i)
+                                    print("j",j[0],j[1])
+                                    Amdata = j[0]["ambookingdata"]
+                                    Pmdata = j[1]["pmbookingdata"]
+                                    result.append({"date": i, 'amdata': Amdata ,'pmdata': Pmdata })  
+
+
+                                result = result
+                                #result = {'bookingdata' : serBook , 'totalPatients': len(serBook)}
+                                code = 2000
+                                message = "Booking List found for the day "
+                                status = True
+
                         else:
                             code = 4003
                             self.set_status(401)
@@ -377,59 +575,68 @@ class BookingListHandler(tornado.web.RequestHandler):
                 message = 'Expected Request Type JSON.'
                 raise Exception
             # TODO: this need to be moved in a global class, from here
-            areaId = int(self.request.arguments["aid"])
-            docId = str(self.request.arguments["did"])
-            clinicId = str(self.request.arguments["cid"])
-            try :
-                seldate=  str(self.request.arguments["date"])
-            except:
-                seldate= None
+            bookingId = int(self.request.arguments["bookingid"])
+            price = str(self.request.arguments["price"])
+            transactionRef = str(self.request.arguments["transactionref"])
+            transactionRef2 = str(self.request.arguments["transactionref2"])
+            patientId = str(self.request.arguments["cid"])
+            method = str(self.request.arguments["method"])
+            Status = str(self.request.arguments["status"])
+            application = str(self.request.arguments["application"])
+            os = str(self.request.arguments["os"])
+            clientIP = str(self.request.arguments["clientip"])
             Log.i("areaId",areaId)
-            Log.i("docId",docId)
+            Log.i("bookingId",docId)
             Log.i("clinicId",clinicId)
-            Log.i("seldate",seldate)
-
 
             self.apiId  = await validate_profile(self.entityId,self.accountId,self.applicationId)
-                #Determine which app has sent it
+            #Determine which app has sent it
             if self.apiId:
                 Log.i(self.apiId)
                 #TODO : Change ths code to 502022
                 if self.apiId == 502020:
-                    Log.i('Clinic PUT req', self.request.arguments)
+                    Log.i('Booking PUT req', self.request.arguments)
                     result=[]
                     if docId != None and clinicId != None and seldate != None:
 
                         Log.i(seldate)
-                        slots  = await self.slot_list.find_one(
+                        booking_list  = await self.booking_list.find_one(
                                 {
-                                    "clinic_id":  clinicId,
-                                    "doc_id" : docId
+                                    "_id":  bookingid,
+
+                                },
+                                {
+                                    slots_no:1,
+                                    totalslots:1
+
                                 }
                             )
+                        tokenno=booking_list['totalslots'] -  booking_list['slots_no']
                         #Res is from clinic_list collections whatevr matches
-                        if slots:
-                            Log.i('seldate data',slots['monthly_slots'][seldate])
-                            Log.i('visibility',slots['monthly_slots'][seldate]['visibility'])
-                            resDoc = await self.slot_list.update_one(
+                        if Status == 1:
+                            slotstatus = "CONFIRMED"
+                        else:
+                            slotstatus = "REJECTED"
+
+                            booking_list  = await self.booking_list.update_one(
                                     {
-                                        "clinic_id":  clinicId,
-                                        "doc_id" : docId,
-                                        'monthly_slots.'+ seldate + '.am' : {'$gt': 0}
+                                        "_id":  bookingid,
                                     },
                                     {
-                                    '$inc':{
-                                                'monthly_slots.'+ seldate + '.am' : -1
+                                    '$set':{
+                                                'slotstatus': slotstatus,
+                                                'transactionstatus': Status,
+                                                'token': tokenno
                                            }
                                     }
                                 )
-                            code = 2000
-                            status = True
-                            message = "Doctors Found in Clinic"
-                        else:
-                            code = 4080
-                            status = False
-                            message = "No data found"
+                        code = 2000
+                        status = True
+                        message = "Doctors Found in Clinic"
+                    else:
+                        code = 4080
+                        status = False
+                        message = "No data found"
 
 
 

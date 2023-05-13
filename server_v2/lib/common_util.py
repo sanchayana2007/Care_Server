@@ -1,7 +1,7 @@
 
 from .conn_util import MongoMixin
 from .build_config import *
-
+from datetime import date,datetime,timedelta
 #User profile to identify the App
 
 
@@ -49,72 +49,70 @@ async def validate_profile(entityId,accountId,applicationId):
         async for i in appQ:
                 app.append(i)
         #print("COOMON_UTIL",app)
-    return int(app[0]['apiId'])
 
 
-def Convert(string):
-    list1=[]
-    list1[:0]=string
-    return list1
+        return int(app[0]['apiId'])
+    else:
+        Log.i('ProfID is not found')
+        return 0
 
-def Convert_2(string):
-    list1= Convert(string)
-    list2=[]
-    #print('len',len(list1)-2)
 
-    for i in range(0, len(list1)-1,1):
-        if i%2==0:
-            j = list1[i] + list1[i+1]
-            #print(j)
-            list2.append(j)
-    return list2
-
-def create_slots_doc(Filling_days,weekdaysno,ampmvists,SlotsAM,SlotsPM,visibility):
+def create_slots_doc(slottotaldays,slotData):
     slots={}
-    today= datetime.date.today()
-
-
-    ampmvists= Convert(ampmvists)
-    SlotsAM= Convert_2(SlotsAM)
-    SlotsPM= Convert_2(SlotsPM)
-    #print(SlotsAM)
-    #print(SlotsPM)
-    #Filling_days = int(Filling_days)
-    for i in  range(0,Filling_days,1):
-        avdayslots={}
-        nvdayslots={}
-        avdayslots['visibility'] = visibility
-        nvdayslots['visibility'] = visibility
-
-        weekday = today.weekday() + 1
-        weekdaysno= Convert(weekdaysno)
+    today= date.today()
+    
+    
+    for i in  range(0,slottotaldays,1):
+                
+        weekday = datetime.weekday(today)
+        #date_time = datetime.strftime("%d/%m/%Y")
         date_time = today.strftime("%d/%m/%Y")
-        #print("Weekday",weekday, "weekdaysno",weekdaysno,"date and time:",date_time)
-        if str(weekday) in  weekdaysno:
-            ind= weekdaysno.index(str(weekday))
-            #print('ind',ind)
-            if ampmvists[ind]=='b':
-                avdayslots['am']=int(SlotsAM[ind])
-                avdayslots['pm']=int(SlotsPM[ind])
-
-            elif ampmvists[ind]=='a':
-                avdayslots['am']=int(SlotsAM[ind])
-                avdayslots['pm']=0
-            elif ampmvists[ind]=='p':
-                avdayslots['pm']=int(SlotsPM[ind])
-                avdayslots['am']=0
-            else:
-                pass
-            #avdayslots['date']=date_time
-            slots[date_time]= avdayslots
-
-        #    print("FOUND Weekday",weekday, "weekdaysno",weekdaysno,"date and time:",date_time)
+        #print("Weekday",weekday, "date and time:",date_time, slotData[weekday])
+        
+        if slotData[weekday]:
+            slotData[weekday]['AvSlotsAM'] = slotData[weekday]['totalSlotsAM']- 1
+            slotData[weekday]['AvSlotsPM'] = slotData[weekday]['totalSlotsPM'] -1
+            slotData[weekday]['Visibility'] = False
+            slots[date_time]= slotData[weekday]
         else:
-            nvdayslots['am']=0
-            nvdayslots['pm']=0
-            #nvdayslots['date']=date_time
-            slots[date_time]= nvdayslots
+            print(str(slotData[weekday])+ "Is not a valid weekday")
+           
+        today = today +  timedelta(days=+1)
 
-        today = today + datetime.timedelta(days=+1)
-    print("Slots",slots)
+
+    #print("Slots",slots)
+    return slots
+
+def Av_weekdays(slotData):
+    Av_days = []
+    weeklist= ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+    for i in  range(0,7):
+        if  slotData[i]['totalSlotsPM'] > 0 or slotData[i]['totalSlotsPM'] > 0 :
+            Av_days.append(weeklist[i])
+    return Av_days
+        
+
+
+def create_slots_list(slotData , no_of_days=30):
+    slots= []
+    today= date.today()
+    
+    print("create_slots_list")
+    for i in  range(0,no_of_days,1):
+        date_time = today.strftime("%d/%m/%Y")
+        print("date and time:",date_time )
+        
+        if date_time in  slotData:
+            #slots.append({date_time : slotData[date_time]})
+            newdict = {}
+            newdict = slotData[date_time].copy()
+            newdict.update({'date':date_time})
+            slots.append(newdict)
+        else:
+            print(date_time + "Not found in slot data")
+           
+        today = today +  timedelta(days=+1)
+
+
+    print(" listed slots Slots",slots)
     return slots

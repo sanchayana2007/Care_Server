@@ -20,6 +20,11 @@ gen/
 out/
 release/
 
+#terraform files 
+
+#terraform files 
+server_deployment/.terraform/
+
 # Gradle files
 .gradle/
 build/

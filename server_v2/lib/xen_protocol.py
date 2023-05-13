@@ -41,30 +41,46 @@ def xenSecureV1(handler_class):
                     handler.write()
                     handler.finish()
 
+                #Authnotneeded = handler.request.headers.get('Authnotneeded')
+                #if bool(Authnotneeded):
+                #    return True
+                    
                 bearerToken = handler.request.headers.get('Authorization')
+                
                 if bearerToken:
                     bearerToken = str(bearerToken).split('Bearer ')
                     if len(bearerToken):
                         bearerToken = bearerToken[1]
+                        print("bearerToken Orig=",bearerToken)
+                        
+                        #bearerToken= "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJrZXkiOiJnQUFBQUFCaTBzR1docnJHNjB1dEpEZ2JXR0FGMVRwYVgtQWZBVnBuMFhDM3I5WC0yd19jVmhVYjQ0MzVfNnFwcXpGQ0RhY3Q4dHlZUDJ5Q3B5S29JTzBYYU1UUzNubDJKM2s1dUtwSnE2Ni1VRUtnaG8xSG14RT0iLCJleHAiOjE2ODk1MTUyODZ9.-PjXKLQAp_WNcffNCBkAM67LjS8EokuHx4F1L4ceDtM"
+                        #print('bearerToken After=',bearerToken)
                         accountId = JWT_DECODE(bearerToken)
+                        print("accountId",accountId)
                         if not accountId:
+                            Log.i('accountId not found ',bearerToken)
                             raise Exception('Authorization')
                         else:
                             handler.accountId = ObjectId(accountId.decode("utf-8"))
                             Log.i('Authorization', handler.accountId)
                     else:
+                        Log.i('Bearer Token')
                         raise Exception('Bearer Token')
+                       
                 else:
                     handler._transforms = []
                     handler.set_status(501)
                     code = 4010
                     message = 'Missing - [ Authorization ]'
-                    raise Exception
+                    Log.i(message)
+                    raise Exception(message)
 
                 xOriginKey = handler.request.headers.get('x-Origin-Key')
                 if xOriginKey:
+                    print('xOriginKey',xOriginKey)
                     entityId = FN_DECRYPT(xOriginKey)
                     if not entityId:
+                        Log.i('x-Origin-Key is not dicrypted')
                         raise Exception('x-Origin-Key')
                     else:
                         handler.entityId = ObjectId(entityId.decode("utf-8"))
@@ -74,12 +90,14 @@ def xenSecureV1(handler_class):
                     handler.set_status(501)
                     code = 4020
                     message = 'Missing - [ x-Origin-Key ].'
-                    raise Exception
+                    Log.i(message)
+                    raise Exception(message)
 
                 xApiKey = handler.request.headers.get('x-Api-Key')
                 if xApiKey:
                     applicationId = FN_DECRYPT(xApiKey)
                     if not applicationId:
+                        Log.i('x-Api-Key')
                         raise Exception('x-Api-Key')
                     else:
                         handler.applicationId = ObjectId(applicationId.decode("utf-8"))
@@ -89,13 +107,10 @@ def xenSecureV1(handler_class):
                     handler.set_status(501)
                     code = 4030
                     message = 'Missing - [ x-Api-Key ].'
+                    Log.i(' Missing - [ x-Api-Key ].')
                     raise Exception
                 #Newly added from class code
                 
-
-
-
-
 
                 return True
             except Exception as e:

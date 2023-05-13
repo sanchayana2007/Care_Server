@@ -5,8 +5,11 @@ export const environment = {
   applicationId: require('../../package.json').id,
   version: require('../../package.json').version,
   versionCode: require('../../package.json').versionCode,
-  proxyApiUrl: 'https://medix.xlayer.in',
-  proxySocketUrl: 'wss://medix.xlayer.in',
+  //proxyApiUrl: 'https://medix.xlayer.in',
+  //proxySocketUrl: 'wss://medix.xlayer.in',
+  proxyApiUrl: 'https:localhost:3333',
+  proxySocketUrl: 'wss://localhost:3333',
+  
   firebase: {},
   google: {
     // TODO CHANGE APIKEY
@@ -14,12 +17,14 @@ export const environment = {
     apiKey: 'AIzaSyBdHjvhOdmS2Et0vfU2PkuZnkuVkRUPcUE'
   },
   xOrigin: {
-    key: 'gAAAAABeka_J124HZJ0ERgFU_K7L3HeMFCUMaqRXuPd0SaaBzO09BdndXhZPROmE2DK' +
-    'wMqvWbGEiAtbIe1BVRAC_olGghhy9rM8j6ztXt5xOpwuI_SjMywQ=',
+      key: 'gAAAAABeka_J124HZJ0ERgFU_K7L3HeMFCUMaqRXuPd0SaaBzO09BdndXhZPROmE2DK' +
+      'wMqvWbGEiAtbIe1BVRAC_olGghhy9rM8j6ztXt5xOpwuI_SjMywQ=',
   },
   xApi: {
-    key: 'gAAAAABe9DskY5l1HZeJwPLe9cbIxMrF_MMQQuKXm76dQN_tmCIf1PNEZLWYY7CNrz' +
-    'IsGm5OhuZ4WKs4oY_ZSZstL6T5bETOHPSiKACUY0M2eBV-GF9578w=',
+    //key: 'gAAAAABe9DskY5l1HZeJwPLe9cbIxMrF_MMQQuKXm76dQN_tmCIf1PNEZLWYY7CNrz' +
+    //'IsGm5OhuZ4WKs4oY_ZSZstL6T5bETOHPSiKACUY0M2eBV-GF9578w=',
+    key: ' gAAAAABgbp_YTebAKj7Nq40N48CQp8hDyEYSoy_NjBgEWe3oDZblHvR2X6C_5R5MvbttrLfrmxn-bf7-IFPaIsmk7XZDSWp22HMXByhnxa7-23UFJDfKJks=',
+
   }
 };
 

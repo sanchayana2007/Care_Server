@@ -54,7 +54,7 @@ def FN_ENCRYPT(payload=str, encode=False):
     return False
 
 def FN_DECRYPT(token=str):
-
+    
     try:
         if len(FERNETS):
             for f in FERNETS:
@@ -62,10 +62,12 @@ def FN_DECRYPT(token=str):
                     d_token = f.decrypt(token.encode())
                     return d_token
                 except Exception as e:
+                    
                     Log.i(e)
                     continue
     except Exception as e:
         Log.i(e)
+        print("Excep",e)
         return False
     return False
 

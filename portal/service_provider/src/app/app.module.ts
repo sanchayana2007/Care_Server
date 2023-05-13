@@ -61,6 +61,7 @@ import { MyServicesComponent } from './components/account/my-services/my-service
 import { MyBookingsComponent } from './components/account/my-bookings/my-bookings.component';
 import { AppointmentsPreviewComponent } from './components/account/my-bookings/appointments-preview/appointments-preview.component';
 import { AppointmentsDialogComponent } from './components/account/my-bookings/appointments-dialog/appointments-dialog.component';
+import { ClinicListComponent } from './clinic-list/clinic-list.component';
 
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
@@ -107,6 +108,7 @@ const maskConfig: Partial<IConfig> = {
     MyBookingsComponent,
     AppointmentsPreviewComponent,
     AppointmentsDialogComponent,
+    ClinicListComponent,
   ],
   entryComponents: [
     ProfileComponent,

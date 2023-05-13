@@ -1,0 +1,17 @@
+<html>
+   <head>
+      {% if title %}
+      <title>{{ title }} - DOCBOOK FORM </title>
+      {% else %}
+      <title>Welcome </title>
+      {% endif %}
+   </head>
+   <body>
+      <div> Simple Taskbar:
+         <a href="/index">Home</a>
+         <a href="/login">Login</a>
+      </div>
+      <hr>
+      {% block content %}{% endblock %}
+   </body>
+</html>

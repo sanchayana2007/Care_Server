@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+   <head>
+      <meta charset="utf-8">
+      <title>Booking Admin home</title>
+   </head>
+   <body>
+       {% extends "template.html" %}
+      {% block content %}
+      <h1> home  Page </h1>
+      <p> Doc booking Website  </p>
+     <ul>
+
+    <li>{{data['am']}}</li>
+    <li>{{data}}</li>
+    {% for d in data %}
+    <li>{{d.visibility}}</li>
+    <li>{{d.am}}</li>
+    <li>{{d.pm}}</li>
+    {% endfor %}
+
+    <script>
+
+	function myFunction() {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue ,tc,j ;
+  input = document.getElementById("myInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("myTable");
+  tr = table.getElementsByTagName("tr");
+  tc = document.getElementById('myTable').rows[0].cells.length;
+  // Loop through all table rows, and hide those who don't match the search query
+  
+  for (j = 0; j < tc; j++) {
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[j];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+	    console.log("j,i,data",j,i);
+        tr[i].parentElement.style.display = "";
+      } else {
+        tr[i].parentElement.style.display = "none";
+	    console.log("j,i, no data",j,i);
+      }
+    }
+  }
+  }
+}
+
+
+    </script>
+<input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names..">
+
+    <table id="myTable" class="header" style="width:100%">
+  <thead>
+    <tr>
+        <th>clinic ID</th>
+        <th> no of patients </th>
+        <th> no of patients </th>
+        <th> current month   </th>
+    </tr>
+    </thead>    
+    <tbody>
+     {% for row in data %}    
+            <tr>
+                <td>{{ data[row] }}</td>
+                <td>{{row}}</td>
+                <td>te </td>
+                <td>me</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+   </ul>
+      {% endblock %}
+   </body>

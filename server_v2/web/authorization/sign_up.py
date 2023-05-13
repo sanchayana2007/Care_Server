@@ -6,7 +6,7 @@
 from typing import Optional, Awaitable
 
 from ..lib.lib import *
-
+import http.client
 
 @noXenSecureV1
 class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
@@ -40,6 +40,26 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
         CONFIG['database'][0]['table'][5]['name']
     ]
 
+    district = MongoMixin.userDb[
+        CONFIG['database'][0]['table'][7]['name']
+    ]
+
+    state = MongoMixin.userDb[
+        CONFIG['database'][0]['table'][8]['name']
+    ]
+
+    pincode = MongoMixin.userDb[
+        CONFIG['database'][0]['table'][9]['name']
+    ]
+
+    address = MongoMixin.userDb[
+        CONFIG['database'][0]['table'][10]['name']
+    ]
+    clinic_list  = MongoMixin.medicineDb[
+                   CONFIG['database'][2]['table'][1]['name']
+               ]
+
+
     async def post(self):
 
         status = False
@@ -50,7 +70,7 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
         try:
             try:
                 # CONVERTS BODY INTO JSON
-                self.request.arguments = json.loads(self.request.body)
+                self.request.arguments = json.loads(self.request.body.decode())
             except Exception as e:
                 code = 4002
                 message = 'Expected Request Type JSON.'
@@ -74,17 +94,22 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
             app = []
             async for r in appQ:
                 app.append(r)
-
+            print("****ENTITYID",ObjectId(self.entityId))
+            print("****Application",app)
+            
             if len(app) and app[0]['selfRegister']:
                 entityQ = self.entity.find(
                     {
-                        '_id': self.entityId
+                        '_id' : self.entityId
                     },
                     limit=1
                 )
+
+
                 entity = []
                 async for r in entityQ:
-                    entity = []
+                    entity.append(r)
+                print("****Application entity id",entity)
 
                 if not len(entity):
                     entityQ = self.entity.find(
@@ -96,7 +121,7 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
                     entity = []
                     async for r in entityQ:
                         entity = []
-
+                    print("****ENTITY is not there now its origin []",entity)
                     if not len(entity):
                         code = 5050
                         message = 'Internal Error Please Contact the Support Team.'
@@ -160,40 +185,82 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
                             raise Exception
 
                         lastName = self.request.arguments.get('lastName')
-                        if lastName == None:
-                            code = 4520
-                            message = 'Missing Argument - [ lastName ].'
-                            raise Exception
-                        elif type(lastName) != str:
-                            code = 4521
-                            message = 'Invalid Argument - [ lastName ].'
-                            raise Exception
-                        elif not len(str(lastName)):
-                            code = 4522
-                            message = 'Please enter the Last Name.'
-                            raise Exception
-                        elif regexSp.search(lastName) != None:
-                            code = 4523
-                            message = 'Last name should not contain any special character.'
-                            raise Exception
-                        elif regexNp.search(lastName) != None:
-                            code = 4524
-                            message = 'Last name should not contain any number.'
-                            raise Exception
-                        elif len(lastName) > 50:
-                            code = 4525
-                            message = 'Last name should be less than 50 characters.'
-                            raise Exception
-                        elif ' ' in lastName:
-                            code = 4526
-                            message = 'Last name should not contain any white space.'
-                            raise Exception
-
                         phoneNumber = self.request.arguments.get('phoneNumber')
                         if phoneNumber == None:
                             code = 4241
                             message = 'Missing Argument - [ phoneNumber ].'
                             raise Exception
+
+                        #Address update
+                        Address_Line1 = self.request.arguments.get('address_Line1')
+                        Address_Line2 = self.request.arguments.get('address_Line2')
+                        City = self.request.arguments.get('city')
+                        Age = self.request.arguments.get('age')
+                        
+                        #Add a field for clinic_name/clinic_type in clinic application
+                        if app[0]['apiId'] == 502021:
+                            
+                            Clinic_name = self.request.arguments.get('clinic_name')
+                            Clinic_type =  self.request.arguments.get('clinic_type')
+                            if Clinic_name == None and Clinic_type == None:
+                                code = 4100
+                                message = 'Clinic_name / Clinic_type '
+                                raise Exception
+            
+
+
+                        Sex = self.request.arguments.get('sex')
+                        
+                        Pin = self.request.arguments.get('pin')
+                        State=  self.request.arguments.get('state')
+
+                        statefound = self.state.find_one(
+                            {
+                                'name': State
+                            },
+                            )
+                        if statefound:
+                            Log.i('Found State in DB', State)
+                        else:
+                            Log.i('Not Found State in DB', State)
+                        cityfound = self.district.find_one(
+                            {
+                                'name': City
+                            },
+                            )
+                        if cityfound:
+                            Log.i('Found City in DB', City)
+                        else:
+                            Log.i('Not Found City in DB', City)
+
+                        pinfound = self.pincode.find_one(
+                            {
+                                'code': Pin
+                            },
+                            )
+                        if pinfound:
+                            Log.i('Found pinfound in DB', Pin)
+                        else:
+                            Log.i('Not Found pinfound in DB', Pin)
+
+
+                        AddressInsert= await self.address.insert_one(
+                            {
+                                'inserted': dtime.now(),
+                                'address_line1': Address_Line1,
+                                'address_line2': Address_Line2,
+                                'city': City,
+                                'state': State,
+                                'pin': Pin,
+                                'country':"IND"
+                            }
+                        )
+                        Log.i("AddressInsert", AddressInsert.inserted_id)
+                        #Billing Information
+                        #Ifsc = self.request.arguments.get('ifsc')
+                        #Accountno = self.request.arguments.get('account_no')
+
+
 
                         countryCode = self.request.arguments.get('countryCode')
                         if countryCode == None:
@@ -203,7 +270,7 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
                         elif type(countryCode) != int:
                             code = 4552
                             message = 'Invalid Argument - [ countryCode ].'
-                            raise Exception
+                            #raise Exception
                         else:
                             countryCode = int(countryCode)
                         countryQ = self.phoneCountry.find(
@@ -214,7 +281,7 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
                         )
                         country = []
                         async for r in countryQ:
-                            country = []
+                            country.append(r)
 
                         if not len(country):
                             code = 4242
@@ -279,6 +346,9 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
                     accountData = {
                         'firstName': firstName,
                         'lastName': lastName,
+                        'address' : AddressInsert.inserted_id,
+                        'age' : Age,
+                        'sex': Sex,
                         'contact': [
                             {
                                 'verified': False,
@@ -286,6 +356,8 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
                             }
                         ]
                     }
+                    #Add a field for users in clinic application
+                    #To validate its authenticity
                     if email != None:
                         accountData['contact'].append(
                             {
@@ -293,9 +365,11 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
                                 'value': email
                             }
                         )
+                    print("****accountData",accountData)
                     try:
-                        accountId = self.account.insert(accountData)
+                        accountId =  await self.account.insert_one(accountData)
                     except Exception as e:
+                        print("****account insert exception",e)
                         exe = str(e).split(':')
                         if len(exe) < 2:
                             status = False
@@ -314,36 +388,75 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
                             code = 4283
                             message = 'Internal Error Please Contact the Support Team.'
                         raise Exception
+
+                    if app[0]['apiId'] == 502021:
+                            
+                            clinicQ = self.clinic_list.insert_one(
+                                               {
+                                                    'inserted': dtime.now(),
+                                                    'verfiedClinic' : False,
+                                                    'account_id': accountId.inserted_id,
+                                                    'address_line1': Address_Line1,
+                                                    'address_line2': Address_Line2,
+                                                    'cliniclocation': City,
+                                                    'state': State,
+                                                    'pin': Pin,
+                                                    'country':"IND" ,
+                                                    'clinic_name':  Clinic_name,
+                                                    'clinic_type':  Clinic_type               
+
+                                               },
+                                               
+                                       )
+                            
+
+
+
                     try:
+
+
                         rPassword = randomString(8)
-                        Log.i('Profile Password', rPassword)
-                        profileId = self.profile.insert(
+
+
+                        profileId = await self.profile.insert_one(
                             {
                                 'active': False,
                                 'locked': False,
                                 'closed': False,
-                                'accountId': accountId,
+                                'accountId': accountId.inserted_id,
                                 'applicationId': app[0]['_id'],
                                 'entityId': entity[0]['_id'],
                                 'password': rPassword,
                                 'data': []
                             }
                         )
+                        Log.i('Profile Password', rPassword)
                     except:
                         code = 5830
                         message = 'Internal Error Please Contact the Support Team.'
                         raise Exception
                     nOtp = random.randint(100000, 999999)
-                    self.oneTimePassword.insert(
+                    Log.i('createdAt', dtime.now())
+                    Log.i('Profile profileId', profileId)
+                    Log.i('nOtp', nOtp)
+
+
+                    otpInsert= await self.oneTimePassword.insert_one(
                         {
                             'createdAt': dtime.now(),
-                            'profileId': profileId,
+                            'profileId': profileId.inserted_id,
                             'value': nOtp
                         }
                     )
+                    Log.i("otpInsert", otpInsert.inserted_id)
                     Log.i('Phone Number: ', str(phoneNumber) + ' OTP: ' + str(nOtp))
+                    message = "A 6-digit One Time Password has been sent to your Phone Number."
+                    result = {'Phone Number': str(phoneNumber) , 'OTP': str(nOtp)}
+                    status = True
                     # TODO: this need to be chaged to http client
+                    '''
                     gwResp = MSG91_GW.send(str(phoneNumber), str(entity[0]['smsGwId']), nOtp)
+
                     if gwResp:
                         Log.i('MSG91 Gateway Response', gwResp)
                         conn = http.client.HTTPSConnection("api.msg91.com")
@@ -383,9 +496,13 @@ class SignUpHandler(tornado.web.RequestHandler, MongoMixin):
                         code = 5020
                         message = 'Internal Error Please Contact the Support Team.'
                         raise Exception
+                    '''
+                    code = 2000
+                    message = 'Registration is Successful. OTP is generated'
+
                 else:
                     code = 4110
-                    message = 'Sign In method not supported.'
+                    message = 'Registration method not supported.'
                     raise Exception
             else:
                 message = 'Application ID not found.'

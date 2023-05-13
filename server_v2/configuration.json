@@ -21,7 +21,7 @@
 	{
             "api": "web_v2",
             "host": "127.0.0.1",
-            "port": 2331
+            "port": 3333
         }
     ],
     "database": [
@@ -59,6 +59,22 @@
                 {
                     "name": "phoneCountry",
                     "code": 6
+                },
+                {
+                    "name": "district",
+                    "code": 7
+                },
+                {
+                    "name": "state",
+                    "code": 8
+                },
+                {
+                    "name": "pincode",
+                    "code": 9
+                },
+                {
+                    "name": "address",
+                    "code": 10
                 }
             ]
             
@@ -184,15 +200,15 @@
                     "code":5
                 },
                 {
-                    "name":"degree",
+                    "name":"PaymentPlanInfo",
                     "code":6
                 },
                 {
-                    "name":"fees",
+                    "name":"Cancellationinfo",
                     "code":7
                 },
                 {
-                    "name":"expirence",
+                    "name":"CommissionInfo",
                     "code":8
                 },
                 {
@@ -239,6 +255,16 @@
         {
             "name": "google",
             "key": "AIzaSyCDjb0GkEDTnVUbGAkPBAk0iiso3OjzyTU"
+        }
+    ],
+    "configs": [
+        {
+            
+            "admin_account": 502022, 
+            "user_account": 502020,
+            "agent_account": 502019,
+            "clinic_account": 502021
+            
         }
     ]
 }
